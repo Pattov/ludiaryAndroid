@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "886199605354",
+    "project_id": "ludiary",
+    "storage_bucket": "ludiary.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886199605354:android:b279b73408cc91def35213",
+        "android_client_info": {
+          "package_name": "com.ludiary.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbZ0JzrV8l0HvrS4mdjPJsVab7X2VMVc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
