@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.0"
+appcompat = "1.7.1"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -8,8 +9,11 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2025.10.01"
+material = "1.13.0"
+fragment = "1.8.9"
 
 [libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -26,11 +30,12 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 # Firebase
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.4.0" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.5.0" }
 firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

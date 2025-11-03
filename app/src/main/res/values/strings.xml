@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Ludiary</string>
+    <string name="login_email_hint">Correo Electrónico</string>
+    <string name="login_password_hint">Contraseña</string>
+    <string name="login_sign_in">Iniciar Sesión</string>
+    <string name="login_go_register">¿No tienes cuenta? Regístrate</string>
+    <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_or_continue">o continúa como</string>
+    <string name="login_anonymous">Usuario Anónimo</string>
 </resources>

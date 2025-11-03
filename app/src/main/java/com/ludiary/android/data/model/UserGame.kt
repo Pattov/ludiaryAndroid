@@ -1,4 +1,4 @@
-package com.ludiary.data.model
+package com.ludiary.android.data.model
 
 data class UserGame(
     val id: String = "",

@@ -1,4 +1,4 @@
-package com.ludiary.ui.theme
+package com.ludiary.android.theme
 
 import androidx.compose.ui.graphics.Color
 
