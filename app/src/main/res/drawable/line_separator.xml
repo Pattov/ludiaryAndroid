@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shape drawable utilizado como separador o línea fina en la interfaz de Ludiary.
+
+    Características:
+    - Altura fija de 2dp.
+    - Color definido por el atributo de tema ?attr/colorOutline (se adapta al modo claro/oscuro).
+    - Sin bordes ni esquinas redondeadas.
+    - Puede emplearse en vistas <View> o <LinearLayout> como fondo para dividir secciones.
+-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Altura del separador -->
     <size android:height="2dp" />
+    <!-- Color adaptado al tema actual -->
     <solid android:color="?attr/colorOutline" />
 </shape>

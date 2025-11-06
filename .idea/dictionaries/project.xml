@@ -1,27 +1,247 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>acceso</w>
+      <w>activa</w>
+      <w>actividad</w>
+      <w>actuales</w>
+      <w>actualiza</w>
+      <w>actualización</w>
+      <w>actualmente</w>
+      <w>actúa</w>
+      <w>adapta</w>
+      <w>adaptado</w>
+      <w>almacena</w>
+      <w>almacenamiento</w>
+      <w>altura</w>
+      <w>anónima</w>
       <w>anónimo</w>
+      <w>aplicación</w>
+      <w>apodo</w>
+      <w>archivo</w>
+      <w>asegura</w>
+      <w>asocia</w>
+      <w>asociado</w>
+      <w>atributo</w>
+      <w>atributos</w>
       <w>autenticación</w>
+      <w>autenticado</w>
+      <w>autenticar</w>
+      <w>automáticamente</w>
+      <w>autoridad</w>
+      <w>bordes</w>
+      <w>botones</w>
       <w>botón</w>
       <w>cabecera</w>
+      <w>cada</w>
+      <w>calificación</w>
+      <w>cambia</w>
+      <w>características</w>
+      <w>cargando</w>
+      <w>caso</w>
+      <w>certificados</w>
+      <w>clase</w>
+      <w>clic</w>
+      <w>colección</w>
+      <w>colores</w>
+      <w>combina</w>
+      <w>compra</w>
+      <w>concreto</w>
+      <w>condición</w>
+      <w>conexión</w>
+      <w>configura</w>
       <w>contenedor</w>
+      <w>contiene</w>
+      <w>contrario</w>
       <w>contraseña</w>
+      <w>copia</w>
+      <w>correcto</w>
+      <w>correctos</w>
       <w>correo</w>
+      <w>corresponde</w>
+      <w>correspondiente</w>
+      <w>crea</w>
+      <w>creación</w>
+      <w>creada</w>
+      <w>credenciales</w>
+      <w>código</w>
+      <w>datos</w>
+      <w>defecto</w>
+      <w>definición</w>
+      <w>definido</w>
+      <w>degradado</w>
+      <w>delegado</w>
+      <w>descargable</w>
+      <w>destruido</w>
+      <w>devuelve</w>
+      <w>dirección</w>
+      <w>dividir</w>
+      <w>documento</w>
+      <w>duración</w>
+      <w>edición</w>
+      <w>efecto</w>
+      <w>ejecuta</w>
+      <w>electrónico</w>
+      <w>elemento</w>
+      <w>emite</w>
+      <w>emplearse</w>
+      <w>encargado</w>
       <w>encontrado</w>
+      <w>envia</w>
+      <w>enviado</w>
       <w>enviar</w>
+      <w>envía</w>
+      <w>errores</w>
+      <w>esquinas</w>
+      <w>establece</w>
+      <w>estilo</w>
+      <w>exista</w>
+      <w>existe</w>
+      <w>existía</w>
+      <w>exitoso</w>
+      <w>expone</w>
+      <w>favoritos</w>
+      <w>fecha</w>
+      <w>fija</w>
+      <w>flujo</w>
+      <w>fondo</w>
+      <w>forma</w>
+      <w>formato</w>
+      <w>formulario</w>
+      <w>fragmento</w>
+      <w>fuente</w>
+      <w>ganador</w>
+      <w>gestiona</w>
+      <w>gestionar</w>
+      <w>habilitado</w>
+      <w>identificador</w>
+      <w>idioma</w>
+      <w>implementa</w>
+      <w>implementación</w>
+      <w>importe</w>
+      <w>incluir</w>
+      <w>incluye</w>
+      <w>información</w>
+      <w>inicia</w>
+      <w>inicial</w>
+      <w>inicializa</w>
       <w>iniciar</w>
       <w>inicio</w>
+      <w>instancia</w>
+      <w>intenta</w>
+      <w>interactua</w>
+      <w>interfaz</w>
+      <w>interna</w>
+      <w>interno</w>
+      <w>introducido</w>
+      <w>juego</w>
+      <w>jugador</w>
+      <w>jugadores</w>
+      <w>limpieza</w>
+      <w>lista</w>
+      <w>localmente</w>
+      <w>ludoteca</w>
+      <w>lógica</w>
+      <w>manejadores</w>
+      <w>manejar</w>
+      <w>manera</w>
+      <w>mediante</w>
+      <w>mensaje</w>
+      <w>mensajes</w>
+      <w>metida</w>
+      <w>mientras</w>
+      <w>minutos</w>
+      <w>modelo</w>
+      <w>modo</w>
+      <w>moneda</w>
       <w>muestra</w>
+      <w>navegar</w>
+      <w>ninguno</w>
+      <w>nombre</w>
+      <w>normalmente</w>
+      <w>notas</w>
+      <w>nulo</w>
+      <w>númerico</w>
+      <w>objeto</w>
+      <w>observa</w>
+      <w>observarlo</w>
+      <w>obtenido</w>
+      <w>obtiene</w>
+      <w>ocurrió</w>
+      <w>operaciones</w>
+      <w>operación</w>
       <w>pantalla</w>
+      <w>paquete</w>
+      <w>partida</w>
+      <w>permite</w>
+      <w>persistencia</w>
+      <w>posible</w>
+      <w>precio</w>
+      <w>previa</w>
+      <w>previo</w>
+      <w>previos</w>
+      <w>primera</w>
+      <w>principales</w>
+      <w>proceso</w>
+      <w>proporcionadas</w>
+      <w>proporcionados</w>
+      <w>proveedor</w>
+      <w>proyecto</w>
       <w>pudo</w>
+      <w>pueda</w>
+      <w>puede</w>
+      <w>puntuaciones</w>
+      <w>reaccionar</w>
+      <w>reactivo</w>
+      <w>realizó</w>
+      <w>recuperar</w>
+      <w>recurso</w>
+      <w>recursos</w>
+      <w>redondeadas</w>
+      <w>redondeados</w>
+      <w>referencia</w>
+      <w>reflejarse</w>
+      <w>registra</w>
+      <w>registrada</w>
       <w>registro</w>
+      <w>reinicia</w>
+      <w>repositorio</w>
+      <w>representa</w>
+      <w>responsable</w>
+      <w>respositorio</w>
+      <w>restablecer</w>
+      <w>restablecimiento</w>
+      <w>resultado</w>
+      <w>secciones</w>
+      <w>secundario</w>
+      <w>seguro</w>
       <w>separador</w>
       <w>sesión</w>
+      <w>sido</w>
+      <w>siguientes</w>
+      <w>sirve</w>
+      <w>solicita</w>
+      <w>solicitada</w>
+      <w>solicitud</w>
+      <w>subcolección</w>
+      <w>suministra</w>
+      <w>también</w>
       <w>texto</w>
+      <w>tipográfica</w>
       <w>tras</w>
+      <w>título</w>
+      <w>usado</w>
       <w>usuario</w>
+      <w>utiliza</w>
+      <w>utilizado</w>
+      <w>utilizando</w>
+      <w>utilizar</w>
+      <w>vacío</w>
+      <w>valores</w>
       <w>válido</w>
+      <w>válidos</w>
+      <w>éxito</w>
+      <w>único</w>
     </words>
   </dictionary>
 </component>

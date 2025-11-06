@@ -16,13 +16,35 @@ import com.ludiary.android.viewmodel.LoginViewModel
 import com.ludiary.android.viewmodel.LoginViewModelFactory
 import kotlinx.coroutines.launch
 
+/**
+ * Fragmento encargado de manejar la vista de inicio de sesión.
+ *
+ * Implementa el patron MVVM [LoginViewModel] como fuente de datos y actualiza la interfaz mediante ViewBinding.
+ *
+ * Este fragmento permite:
+ * - Iniciar sesión con correo electrónico y contraseña.
+ * - Iniciar sesión de forma anónima.
+ * - Recuperar la contraseña.
+ */
 class LoginFragment : Fragment() {
-
+    /**
+     * Referencia interna al objeto de **ViewBinding** asociado a este fragmento.
+     */
     private var _binding: FragmentLoginBinding? = null
+
+    /**
+     * Acceso no nulo al binding
+     */
     private val binding get() = _binding!!
 
+    /**
+     * ViewModel asociado al login, obtenido mediante un delegado de fragment
+     */
     private val vm: LoginViewModel by viewModels { LoginViewModelFactory() }
 
+    /**
+     * Infla la vista de fragment utilizando *view binding*.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,6 +54,11 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Configura la interfaz una vez creada la vista.
+     *
+     * Registra los listeners de entrada y de clic.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupInputListeners()
@@ -39,6 +66,9 @@ class LoginFragment : Fragment() {
         observeUiState()
     }
 
+    /**
+     * Asocia los cambios de texto a los campos de entrada del formulario.
+     */
     private fun setupInputListeners() {
         binding.etEmail.doOnTextChanged { text, _, _, _ ->
             vm.onEmailChanged(
@@ -52,12 +82,23 @@ class LoginFragment : Fragment() {
         }
     }
 
+    /**
+     * Configura los manejadores de clic para los botones principales:
+     * - Login con correo y contraseña
+     * - Login anónimo
+     * - Recuperar contraseña
+     */
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener { vm.login() }
         binding.btnAnonymous.setOnClickListener { vm.loginAnonymous() }
         binding.tvForgot.setOnClickListener { vm.resetPassword() }
     }
 
+    /**
+     * Observa el flujo de estado [LoginViewModel.ui] y actualiza la interfaz.
+     *
+     * Muestra los mensajes de error.
+     */
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycleScope.launch {
@@ -68,9 +109,10 @@ class LoginFragment : Fragment() {
                         binding.btnAnonymous.isEnabled = !isLoading
                         binding.tilEmail.isEnabled = !isLoading
                         binding.tilPassword.isEnabled = !isLoading
-
+                        //Limpieza de errores previos
                         binding.tilEmail.error = null
                         binding.tilPassword.error = null
+                        //Gestión de errores nuevos
                         st.error?.let { msg ->
                             when {
                                 msg.contains("correo", true) -> binding.tilEmail.error = msg
@@ -79,7 +121,7 @@ class LoginFragment : Fragment() {
                                     .show()
                             }
                         }
-
+                        //Estado de éxito -> navegar a la pantalla principal
                         if (st.success) {
                             //navegar a Dashboard
                         }
@@ -88,6 +130,10 @@ class LoginFragment : Fragment() {
             }
         }
     }
+
+    /**
+     * Libera los recursos del *binding* cuando el fragmento es destruido.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

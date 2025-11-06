@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Drawable selector que define el estilo del botón principal de Ludiary.
+
+    Este recurso combina:
+    - Un degradado lineal entre los colores @color/colorPrimary y @color/colorSecondary.
+    - Bordes redondeados con radio de 28dp.
+    - Un efecto "ripple" (onda de toque) que usa el color secundario.
+    - Un único estado: habilitado (state_enabled="true").
+
+    Archivo utilizado normalmente como background en botones Material:
+    app:backgroundTint="@null"
+    android:background="@drawable/btn_primary_gradient"
+-->
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/colorSecondary">
-<item android:state_enabled="true">
-    <ripple android:color="@color/colorSecondary">
+    <!-- Estado habilitado -->
+    <item android:state_enabled="true">
+
+        <!-- Efecto de onda (ripple) al pulsar -->
+        <ripple android:color="@color/colorSecondary">
         <item>
+            <!-- Forma rectangular con bordes redondeados -->
             <shape android:shape="rectangle">
+                <!-- Radio de las esquinas -->
                 <corners android:radius="28dp"/>
+                <!-- Degradado horizontal entre los colores principales -->
                 <gradient  android:endColor="@color/colorSecondary" android:startColor="@color/colorPrimary" />
             </shape>
         </item>
