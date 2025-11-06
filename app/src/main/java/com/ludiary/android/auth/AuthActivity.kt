@@ -12,5 +12,11 @@ class AuthActivity: AppCompatActivity() {
 
         // Muestra el layout de activity_auth.xml
         setContentView(R.layout.activity_auth)
+
+        if(savedInstanceState == null){
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.authContainer, LoginFragment())
+                .commit()
+        }
     }
 }

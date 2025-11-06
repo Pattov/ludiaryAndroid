@@ -2,15 +2,26 @@
   <dictionary name="project">
     <words>
       <w>anónimo</w>
+      <w>autenticación</w>
       <w>botón</w>
       <w>cabecera</w>
+      <w>contenedor</w>
       <w>contraseña</w>
       <w>correo</w>
+      <w>encontrado</w>
+      <w>enviar</w>
+      <w>iniciar</w>
       <w>inicio</w>
+      <w>muestra</w>
+      <w>pantalla</w>
+      <w>pudo</w>
+      <w>registro</w>
       <w>separador</w>
       <w>sesión</w>
       <w>texto</w>
+      <w>tras</w>
       <w>usuario</w>
+      <w>válido</w>
     </words>
   </dictionary>
 </component>
