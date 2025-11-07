@@ -42,6 +42,7 @@
       <w>certificados</w>
       <w>clase</w>
       <w>clic</w>
+      <w>coinciden</w>
       <w>colección</w>
       <w>colores</w>
       <w>combina</w>
@@ -50,10 +51,12 @@
       <w>condición</w>
       <w>conexión</w>
       <w>configura</w>
+      <w>confirmar</w>
       <w>contenedor</w>
       <w>contiene</w>
       <w>contrario</w>
       <w>contraseña</w>
+      <w>contraseñas</w>
       <w>copia</w>
       <w>correcto</w>
       <w>correctos</w>
@@ -63,7 +66,9 @@
       <w>crea</w>
       <w>creación</w>
       <w>creada</w>
+      <w>crear</w>
       <w>credenciales</w>
+      <w>cuenta</w>
       <w>código</w>
       <w>datos</w>
       <w>defecto</w>
@@ -122,6 +127,7 @@
       <w>incluir</w>
       <w>incluye</w>
       <w>información</w>
+      <w>ingresa</w>
       <w>inicia</w>
       <w>inicial</w>
       <w>inicializa</w>
@@ -134,6 +140,7 @@
       <w>interna</w>
       <w>interno</w>
       <w>introducido</w>
+      <w>inválido</w>
       <w>juego</w>
       <w>jugador</w>
       <w>jugadores</w>
@@ -168,6 +175,7 @@
       <w>obtenido</w>
       <w>obtiene</w>
       <w>ocurrió</w>
+      <w>olvidaste</w>
       <w>operaciones</w>
       <w>operación</w>
       <w>pantalla</w>
@@ -194,6 +202,8 @@
       <w>reaccionar</w>
       <w>reactivo</w>
       <w>realizó</w>
+      <w>recibir</w>
+      <w>recuperación</w>
       <w>recuperar</w>
       <w>recurso</w>
       <w>recursos</w>
@@ -204,6 +214,7 @@
       <w>registra</w>
       <w>registrada</w>
       <w>registro</w>
+      <w>regístrate</w>
       <w>reinicia</w>
       <w>repositorio</w>
       <w>representa</w>
@@ -226,7 +237,9 @@
       <w>subcolección</w>
       <w>suministra</w>
       <w>también</w>
+      <w>tener</w>
       <w>texto</w>
+      <w>tienes</w>
       <w>tipográfica</w>
       <w>tras</w>
       <w>título</w>
@@ -238,6 +251,7 @@
       <w>utilizar</w>
       <w>vacío</w>
       <w>valores</w>
+      <w>volver</w>
       <w>válido</w>
       <w>válidos</w>
       <w>éxito</w>

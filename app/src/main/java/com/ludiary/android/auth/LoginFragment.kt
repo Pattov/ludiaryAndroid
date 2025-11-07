@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
+import com.ludiary.android.R
 import com.ludiary.android.databinding.FragmentLoginBinding
 import com.ludiary.android.viewmodel.LoginViewModel
 import com.ludiary.android.viewmodel.LoginViewModelFactory
@@ -91,7 +92,19 @@ class LoginFragment : Fragment() {
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener { vm.login() }
         binding.btnAnonymous.setOnClickListener { vm.loginAnonymous() }
-        binding.tvForgot.setOnClickListener { vm.resetPassword() }
+        binding.tvForgot.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.authContainer, ForgotPasswordFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.tvGoRegister.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.authContainer, RegisterFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     /**
