@@ -16,12 +16,32 @@ import com.ludiary.android.viewmodel.RegisterViewModel
 import com.ludiary.android.viewmodel.RegisterViewModelFactory
 import kotlinx.coroutines.launch
 
+/**
+ * Fragmento encargado de manejar la vista de registro de nuevos usuarios.
+ *
+ * Implementa el patrón MVVM usando [RegisterViewModel] como fuente de datos y actualiza la interfaz mediante ViewBinding.
+ *
+ * Permite al usuario:
+ * - Crear una cuenta introduciendo correo y contraseña.
+ * - Validar que las contraseñas coincidan.
+ * - Navegar de nuevo a la pantalla de inicio de sesión.
+ */
 class RegisterFragment : Fragment() {
+
+    /** Referencia interna al objeto de ViewBinding asociado a este fragmento. */
     private var _binding: FragmentRegisterBinding? = null
+
+    /** Acceso no nulo al binding dentro del ciclo de vida de la vista. */
     private val binding get() = _binding!!
 
+    /** ViewModel asociado al registro, creado con [RegisterViewModelFactory]. */
     private val vm: RegisterViewModel by viewModels{ RegisterViewModelFactory() }
 
+    /**
+     * Infla el layout [FragmentRegisterBinding] correspondiente al fragmento.
+     *
+     * @return la vista raíz inflada.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,14 +51,26 @@ class RegisterFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Configura los listeners y observa el estado del [RegisterViewModel].
+     *
+     * - Escucha los cambios de texto en los campos del formulario.
+     * - Gestiona el clic del botón para crear cuenta.
+     * - Permite volver al inicio de sesión.
+     * - Observa el flujo de estado y muestra errores o éxito.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Escucha cambios de texto en los campos
         binding.etEmail.doOnTextChanged { t, _, _, _ -> vm.onEmailChange(t?.toString().orEmpty()) }
         binding.etPassword.doOnTextChanged { t, _, _, _ -> vm.onPasswordChange(t?.toString().orEmpty()) }
         binding.etConfirm.doOnTextChanged { t, _, _, _ -> vm.onConfirmChange(t?.toString().orEmpty()) }
 
+        //Acción de crear cuenta
         binding.btnCreate.setOnClickListener { vm.register() }
+
+        //Navegar al inicio de sesión.
         binding.tvGoLogin.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(com.ludiary.android.R.id.authContainer, LoginFragment())
@@ -46,6 +78,7 @@ class RegisterFragment : Fragment() {
                 .commit()
         }
 
+        // Observa el estado del ViewModel y actualiza la interfaz.
         viewLifecycleOwner.lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 vm.ui.collect { st ->
@@ -55,10 +88,12 @@ class RegisterFragment : Fragment() {
                     binding.tilPassword.isEnabled = !loading
                     binding.tilConfirm.isEnabled = !loading
 
+                    // Limpieza de errores previos
                     binding.tilEmail.error = null
                     binding.tilPassword.error = null
                     binding.tilConfirm.error = null
 
+                    // Gestión de errores nuevos
                     st.error?.let { msg ->
                         when {
                             msg.contains("correo", true) -> binding.tilEmail.error = msg
@@ -69,6 +104,7 @@ class RegisterFragment : Fragment() {
 
                     }
 
+                    // Si el registro fue existoso, navegar al Dashboard.
                     if (st.success) {
                         // TODO: Navigate tras registrar
                     }
@@ -77,5 +113,6 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    /** Libero los recursos del binding cuando la vista se destruye para evitar fugas de memoria */
     override fun onDestroyView() { super.onDestroyView(); _binding = null }
 }

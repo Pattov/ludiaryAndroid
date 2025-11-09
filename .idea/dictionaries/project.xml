@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>acceso</w>
+      <w>acción</w>
       <w>activa</w>
       <w>actividad</w>
       <w>actuales</w>
@@ -18,6 +19,7 @@
       <w>anónimo</w>
       <w>aplicación</w>
       <w>apodo</w>
+      <w>aprovechar</w>
       <w>archivo</w>
       <w>asegura</w>
       <w>asocia</w>
@@ -36,27 +38,35 @@
       <w>cada</w>
       <w>calificación</w>
       <w>cambia</w>
+      <w>captura</w>
+      <w>caracteres</w>
       <w>características</w>
       <w>cargando</w>
       <w>caso</w>
       <w>certificados</w>
+      <w>ciclo</w>
       <w>clase</w>
       <w>clic</w>
+      <w>coincidan</w>
       <w>coinciden</w>
       <w>colección</w>
       <w>colores</w>
       <w>combina</w>
+      <w>compartido</w>
       <w>compra</w>
       <w>concreto</w>
       <w>condición</w>
       <w>conexión</w>
       <w>configura</w>
+      <w>confirma</w>
+      <w>confirmación</w>
       <w>confirmar</w>
       <w>contenedor</w>
       <w>contiene</w>
       <w>contrario</w>
       <w>contraseña</w>
       <w>contraseñas</w>
+      <w>coordina</w>
       <w>copia</w>
       <w>correcto</w>
       <w>correctos</w>
@@ -66,6 +76,8 @@
       <w>crea</w>
       <w>creación</w>
       <w>creada</w>
+      <w>creado</w>
+      <w>creando</w>
       <w>crear</w>
       <w>credenciales</w>
       <w>cuenta</w>
@@ -76,8 +88,10 @@
       <w>definido</w>
       <w>degradado</w>
       <w>delegado</w>
+      <w>dependencias</w>
       <w>descargable</w>
       <w>destruido</w>
+      <w>destruye</w>
       <w>devuelve</w>
       <w>dirección</w>
       <w>dividir</w>
@@ -96,15 +110,21 @@
       <w>enviado</w>
       <w>enviar</w>
       <w>envía</w>
+      <w>envío</w>
       <w>errores</w>
+      <w>escucha</w>
       <w>esquinas</w>
       <w>establece</w>
       <w>estilo</w>
+      <w>evitar</w>
       <w>exista</w>
       <w>existe</w>
+      <w>existoso</w>
       <w>existía</w>
       <w>exitoso</w>
+      <w>explicativo</w>
       <w>expone</w>
+      <w>exponiendo</w>
       <w>favoritos</w>
       <w>fecha</w>
       <w>fija</w>
@@ -115,10 +135,13 @@
       <w>formulario</w>
       <w>fragmento</w>
       <w>fuente</w>
+      <w>fugas</w>
+      <w>funcionalidad</w>
       <w>ganador</w>
       <w>gestiona</w>
       <w>gestionar</w>
       <w>habilitado</w>
+      <w>hemos</w>
       <w>identificador</w>
       <w>idioma</w>
       <w>implementa</w>
@@ -126,6 +149,7 @@
       <w>importe</w>
       <w>incluir</w>
       <w>incluye</w>
+      <w>inflada</w>
       <w>información</w>
       <w>ingresa</w>
       <w>inicia</w>
@@ -134,18 +158,26 @@
       <w>iniciar</w>
       <w>inicio</w>
       <w>instancia</w>
+      <w>instancias</w>
       <w>intenta</w>
+      <w>interacción</w>
       <w>interactua</w>
       <w>interfaz</w>
       <w>interna</w>
       <w>interno</w>
       <w>introducido</w>
+      <w>introduciendo</w>
+      <w>introducir</w>
       <w>inválido</w>
+      <w>inválidos</w>
+      <w>inyectar</w>
       <w>juego</w>
       <w>jugador</w>
       <w>jugadores</w>
+      <w>limpia</w>
       <w>limpieza</w>
       <w>lista</w>
+      <w>llamadas</w>
       <w>localmente</w>
       <w>ludoteca</w>
       <w>lógica</w>
@@ -153,6 +185,7 @@
       <w>manejar</w>
       <w>manera</w>
       <w>mediante</w>
+      <w>menos</w>
       <w>mensaje</w>
       <w>mensajes</w>
       <w>metida</w>
@@ -171,9 +204,12 @@
       <w>númerico</w>
       <w>objeto</w>
       <w>observa</w>
+      <w>observación</w>
+      <w>observar</w>
       <w>observarlo</w>
       <w>obtenido</w>
       <w>obtiene</w>
+      <w>ocurra</w>
       <w>ocurrió</w>
       <w>olvidaste</w>
       <w>operaciones</w>
@@ -199,8 +235,11 @@
       <w>pueda</w>
       <w>puede</w>
       <w>puntuaciones</w>
+      <w>raíz</w>
       <w>reaccionar</w>
+      <w>reaccione</w>
       <w>reactivo</w>
+      <w>realizar</w>
       <w>realizó</w>
       <w>recibir</w>
       <w>recuperación</w>
@@ -214,6 +253,7 @@
       <w>registra</w>
       <w>registrada</w>
       <w>registro</w>
+      <w>regresa</w>
       <w>regístrate</w>
       <w>reinicia</w>
       <w>repositorio</w>
@@ -223,9 +263,11 @@
       <w>restablecer</w>
       <w>restablecimiento</w>
       <w>resultado</w>
+      <w>reutiliza</w>
       <w>secciones</w>
       <w>secundario</w>
       <w>seguro</w>
+      <w>según</w>
       <w>separador</w>
       <w>sesión</w>
       <w>sido</w>
@@ -240,17 +282,23 @@
       <w>tener</w>
       <w>texto</w>
       <w>tienes</w>
+      <w>tipo</w>
       <w>tipográfica</w>
       <w>tras</w>
       <w>título</w>
       <w>usado</w>
+      <w>usando</w>
       <w>usuario</w>
+      <w>usuarios</w>
       <w>utiliza</w>
       <w>utilizado</w>
       <w>utilizando</w>
       <w>utilizar</w>
       <w>vacío</w>
+      <w>validaciones</w>
+      <w>validar</w>
       <w>valores</w>
+      <w>visualmente</w>
       <w>volver</w>
       <w>válido</w>
       <w>válidos</w>
