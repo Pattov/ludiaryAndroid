@@ -136,7 +136,8 @@ class LoginFragment : Fragment() {
                         }
                         //Estado de éxito -> navegar a la pantalla principal
                         if (st.success) {
-                            //navegar a Dashboard
+                            startActivity(android.content.Intent(requireContext(), com.ludiary.android.ui.main.MainActivity::class.java))
+                            requireActivity().finish()
                         }
                     }
                 }

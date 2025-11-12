@@ -106,7 +106,8 @@ class RegisterFragment : Fragment() {
 
                     // Si el registro fue existoso, navegar al Dashboard.
                     if (st.success) {
-                        // TODO: Navigate tras registrar
+                        startActivity(android.content.Intent(requireContext(), com.ludiary.android.ui.main.MainActivity::class.java))
+                        requireActivity().finish()
                     }
                 }
             }
