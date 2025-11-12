@@ -3,6 +3,7 @@
     android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <!-- Texto central informativo -->
     <TextView
         android:id="@+id/tvPlaceholder"
         android:text="Pantalla"

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Contenido con NavHost-->
+    <!-- Contenedor de navegación principal-->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostMain"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- Botón Navigation-->
+    <!-- Barra de navegación inferior-->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnvMain"
         android:layout_width="match_parent"

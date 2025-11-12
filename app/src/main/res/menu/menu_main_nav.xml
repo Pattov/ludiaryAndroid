@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Opción principal del panel: resumen de actividad -->
     <item android:id="@+id/nav_dashboard"
         android:title="Dashboard"
         android:icon="@drawable/ic_dashboard" />
+
+    <!-- Sección de partidas registradas -->
     <item android:id="@+id/nav_sessions"
         android:title="Partidas"
         android:icon="@drawable/ic_sessions" />
+
+    <!-- Sección de la ludoteca del usuario -->
     <item android:id="@+id/nav_library"
         android:title="Ludoteca"
         android:icon="@drawable/ic_library" />
+
+    <!-- Sección de perfil del usuario -->
     <item android:id="@+id/nav_profile"
         android:title="Perfil"
         android:icon="@drawable/ic_profile" />

@@ -12,6 +12,7 @@
       <w>actúa</w>
       <w>adapta</w>
       <w>adaptado</w>
+      <w>ajustes</w>
       <w>almacena</w>
       <w>almacenamiento</w>
       <w>altura</w>
@@ -23,6 +24,7 @@
       <w>archivo</w>
       <w>asegura</w>
       <w>asocia</w>
+      <w>asociada</w>
       <w>asociado</w>
       <w>atributo</w>
       <w>atributos</w>
@@ -84,6 +86,7 @@
       <w>cuenta</w>
       <w>código</w>
       <w>datos</w>
+      <w>declarado</w>
       <w>defecto</w>
       <w>definición</w>
       <w>definido</w>
@@ -117,6 +120,7 @@
       <w>esquinas</w>
       <w>establece</w>
       <w>estilo</w>
+      <w>esto</w>
       <w>evitar</w>
       <w>exista</w>
       <w>existe</w>
@@ -152,6 +156,7 @@
       <w>incluye</w>
       <w>inflada</w>
       <w>información</w>
+      <w>informativo</w>
       <w>ingresa</w>
       <w>inicia</w>
       <w>inicial</w>
@@ -173,6 +178,8 @@
       <w>inválidos</w>
       <w>inyectar</w>
       <w>juego</w>
+      <w>juegos</w>
+      <w>jugadas</w>
       <w>jugador</w>
       <w>jugadores</w>
       <w>limpia</w>
@@ -191,12 +198,16 @@
       <w>mensaje</w>
       <w>mensajes</w>
       <w>metida</w>
+      <w>metodo</w>
       <w>mientras</w>
       <w>minutos</w>
       <w>modelo</w>
       <w>modo</w>
       <w>moneda</w>
+      <w>mostrando</w>
       <w>muestra</w>
+      <w>método</w>
+      <w>navegación</w>
       <w>navegar</w>
       <w>ninguno</w>
       <w>nombre</w>
@@ -214,6 +225,7 @@
       <w>ocurra</w>
       <w>ocurrió</w>
       <w>olvidaste</w>
+      <w>opción</w>
       <w>operaciones</w>
       <w>operación</w>
       <w>pantalla</w>
@@ -246,6 +258,7 @@
       <w>realizar</w>
       <w>realizó</w>
       <w>recibir</w>
+      <w>recupera</w>
       <w>recuperación</w>
       <w>recuperar</w>
       <w>recurso</w>
@@ -256,6 +269,7 @@
       <w>reflejarse</w>
       <w>registra</w>
       <w>registrada</w>
+      <w>registradas</w>
       <w>registro</w>
       <w>regresa</w>
       <w>regístrate</w>
@@ -270,6 +284,7 @@
       <w>resumen</w>
       <w>reutiliza</w>
       <w>secciones</w>
+      <w>sección</w>
       <w>secundario</w>
       <w>seguro</w>
       <w>según</w>
@@ -277,6 +292,7 @@
       <w>sesión</w>
       <w>sido</w>
       <w>siguientes</w>
+      <w>sincroniza</w>
       <w>sirve</w>
       <w>solicita</w>
       <w>solicitada</w>

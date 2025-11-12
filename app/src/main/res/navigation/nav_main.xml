@@ -4,21 +4,25 @@
     android:id="@+id/nav_main"
     app:startDestination="@id/nav_dashboard">
 
+    <!-- Pantalla principal: muestra resumen de actividad -->
     <fragment
         android:id="@+id/nav_dashboard"
         android:name="com.ludiary.android.ui.dashboard.DashboardFragment"
         android:label="Dashboard"/>
 
+    <!-- Sección de partidas jugadas -->
     <fragment
         android:id="@+id/nav_sessions"
         android:name="com.ludiary.android.ui.sessions.SessionsFragment"
         android:label="Sessions"/>
 
+    <!-- Sección de juegos del usuario -->
     <fragment
         android:id="@+id/nav_library"
         android:name="com.ludiary.android.ui.library.LibraryFragment"
         android:label="Ludoteca"/>
 
+    <!-- Sección de perfil y ajustes del usuario -->
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.ludiary.android.ui.profile.ProfileFragment"
