@@ -6,10 +6,19 @@
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
 
+        <item name="hintTextColor">@color/colorHint</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariant</item>
+        <item name="android:windowBackground">@color/colorSurface</item>
+
         <item name="android:fontFamily">@font/roboto</item>
         <item name="fontFamily">@font/roboto</item>
+    </style>
+
+    <style name="LudiaryTextFieldStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="hintTextColor">@color/colorOutline</item>
     </style>
 </resources>

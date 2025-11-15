@@ -17,38 +17,37 @@
         android:gravity="center_horizontal">
 
         <!-- CABECERA: logo + texto -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp">
+        <LinearLayout
+            android:layout_width="209dp"
+            android:layout_height="83dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <!-- Logo de la app -->
             <ImageView
                 android:id="@+id/imgLogo"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/ic_ludiary_logo"
+                android:layout_width="85dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="4dp"
                 android:contentDescription="@string/app_name"
-                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_ludiary_logo"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <!-- Nombre "Ludiary" -->
             <TextView
                 android:id="@+id/tvAppName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:text="@string/app_name"
-                android:textSize="44sp"
-                android:textStyle="bold"
                 android:textColor="?attr/colorOnBackground"
-                app:layout_constraintStart_toEndOf="@+id/imgLogo"
-                app:layout_constraintTop_toTopOf="@+id/imgLogo"
-                app:layout_constraintBottom_toBottomOf="@+id/imgLogo" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:textSize="36sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-        <!-- Correo -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:id="@+id/tilEmail"
@@ -63,6 +62,7 @@
                 android:autofillHints="emailAddress"
                 android:fontFamily="@font/roboto"
                 android:hint="@string/login_email_hint"
+                app:hintTextColor="@android:color/holo_orange_dark"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password_hint"
                 android:inputType="textPassword"
-                android:autofillHints="password"/>
+                android:autofillHints="password" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Botón de inicio sesión -->
@@ -97,26 +97,27 @@
             app:cornerRadius="28dp"/>
 
         <!-- Enlaces -->
+
+        <!-- Separador-->
         <TextView
             android:id="@+id/tvGoRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
             android:text="@string/login_go_register"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="12dp"/>
+            android:textColor="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/tvForgot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:paddingTop="6dp"
             android:text="@string/login_forgot_password"
             android:textAppearance="?attr/textAppearanceBodySmall"
-            android:paddingTop="4dp"
-            android:textColor="?attr/colorOnBackground"
-            android:alpha="0.7"/>
+            android:textColor="@color/colorOnSurface" />
 
-        <!-- Separador-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -136,6 +137,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/login_or_continue"
+                android:textColor="@color/colorOnSurface"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:alpha="0.8" />
 
@@ -157,8 +159,8 @@
             android:layout_marginTop="16dp"
             android:text="@string/login_anonymous"
             app:cornerRadius="28dp"
-            app:backgroundTint="?attr/colorOutline"
-            app:strokeColor="?attr/colorOutline"
+            app:backgroundTint="@color/colorSurfaceVariant"
+            app:strokeColor="@color/colorOutline"
             />
 
         <Space

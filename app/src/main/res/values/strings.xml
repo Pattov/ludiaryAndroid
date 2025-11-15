@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ludiary</string>
+    <string name="app_name">udiary</string>
     <string name="login_email_hint">Correo Electrónico</string>
     <string name="login_password_hint">Contraseña</string>
     <string name="login_sign_in">Iniciar Sesión</string>

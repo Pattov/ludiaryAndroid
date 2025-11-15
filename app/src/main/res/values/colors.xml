@@ -4,6 +4,9 @@
     <color name="colorSecondary">#EC4899</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorOnSecondary">#FFFFFF</color>
-    <color name="colorSurface">#E0E0E0</color>
-    <color name="colorOnSurface">#333333</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#1A1A1A</color>
+    <color name="colorOutline">#B3B3B3</color>
+    <color name="colorHint">#707070</color>
+    <color name="colorSurfaceVariant">#F3F3F3</color>
 </resources>
