@@ -16,15 +16,23 @@ class FirestoreProfileRepository (
     private val localUser: LocalUserDataSource
 ) : ProfileRepository {
 
+    /**
+     * Devuelve la referencia a la colección de usuarios en Firestore.
+     */
     private fun users() = db.collection("users")
 
+    /**
+     * Obtiene el usuario actual del usuario autenticado en Firebase.
+     */
     override suspend fun getOrCreate(): User {
         val firebaseUser = auth.currentUser
 
+        // Si el usuario no tiene Sesión Firebase, devuelve el usuario local
         if (firebaseUser == null) {
             return localUser.getLocalUser()
         }
 
+        // Si el usuario tiene Sesión Firebase, intenta obtener su perfil de Firestore
         return try {
             val doc = users().document(firebaseUser.uid).get().await()
             if (!doc.exists()) {
@@ -33,6 +41,7 @@ class FirestoreProfileRepository (
                 doc.toUserProfile()
             }
         } catch (e: Exception) {
+            //Fallback si Firestore no está disponible
             val local = localUser.getLocalUser()
             User(
                 uid = firebaseUser.uid,
@@ -48,9 +57,13 @@ class FirestoreProfileRepository (
 
     }
 
+    /**
+     * Actualiza el perfil del usuario en Firestore con los datos proporcionados.
+     */
     override suspend fun update(displayName: String?, language: String?, theme: String?): User{
         val firebaseUser = auth.currentUser
 
+        //Modo local: actualiza solo la base de datos interna
         if (firebaseUser == null) {
             val current = localUser.getLocalUser()
             val updated = current.copy(
@@ -64,6 +77,7 @@ class FirestoreProfileRepository (
             return updated
         }
 
+        // modo online autenticado: actualiza el perfil en Firestore
         val now = com.google.firebase.Timestamp.now()
         val updates = mutableMapOf<String, Any?>(
             "updatedAt" to now
@@ -79,11 +93,16 @@ class FirestoreProfileRepository (
         return remote
     }
 
+    /**
+     * Cierra la sesión del usuario en Firebase.
+     */
     override suspend fun signOut() {
         auth.signOut()
     }
 
-
+    /**
+     * Convierte un User a un Map para poder persistirlo en Firestore.
+     */
     private fun User.toMap(): Map<String, Any?> {
         val createdTs = createdAt?.let {com.google.firebase.Timestamp(it / 1000, ((it % 1000) * 1_000_000).toInt()) }
             ?: com.google.firebase.Timestamp.now()
@@ -103,6 +122,9 @@ class FirestoreProfileRepository (
         )
     }
 
+    /**
+     * Convierte un DocumentSnapshot de Firestore a un User.
+     */
     private fun com.google.firebase.firestore.DocumentSnapshot.toUserProfile(): User {
         val pref = (this.get("preferences") as? Map<*, *>) ?: emptyMap<String, Any>()
 
@@ -124,6 +146,9 @@ class FirestoreProfileRepository (
         )
     }
 
+    /**
+     * Crea un perfil de usuario en Firestore si no existe, y lo devuelve.
+     */
     private suspend fun createProfileFromLocalOrAuth(firebaseUser: FirebaseUser): User {
         val local = localUser.getLocalUser()
         val now = com.google.firebase.Timestamp.now()

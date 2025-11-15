@@ -8,21 +8,57 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel responsable de gestionar la lógica del perfil del usuario.
+ * Actúa como intermediario entre [com.ludiary.android.ui.profile.ProfileFragment] y [ProfileRepository]
+ */
+
+/**
+ * Modelo inmutable expuesto para la UI.
+ *
+ * @property loading Indica si se está cargando el perfil.
+ * @property error Mensaje de error, si ocurre uno.
+ * @property user Información del perfil del usuario.
+ */
 data class ProfileUiState(
     val loading: Boolean = true,
     val error: String? = null,
     val user: User? = null
 )
 
+/**
+ * ViewModel asociado al perfil del usuario.
+ *
+ * @param repo Implementación de [ProfileRepository] que se utiliza para interactuar con los dos repositorios.
+ */
 class ProfileViewModel(
     private val repo: ProfileRepository
 ) : ViewModel() {
 
+    /**
+     * Estado interno mutable.
+     * Nunca se expone a la vista directamente.
+     */
     private val _ui = MutableStateFlow(ProfileUiState())
+
+    /**
+     * Estado observable por la UI.
+     * La vista observa este StateFlow y se actualiza automáticamente.
+     */
     val ui: StateFlow<ProfileUiState> = _ui
 
+    /**
+     * Carga inicial del perfil al crear el ViewModel.
+     */
     init { loadProfile() }
 
+    /**
+     * Obtiene el perfil del usuario
+     *
+     * - Si no hay sesión Firebase -> devuelve usuario local invitado en Room.
+     * - Si hay sesión Firebase -> obtiene el documento en Firestore.
+     * - Si falla por falta de conexión -> Funciona con el almacenamiento de Room.
+     */
     fun loadProfile() = viewModelScope.launch {
         _ui.value = ProfileUiState(loading = true)
         runCatching { repo.getOrCreate() }
@@ -30,6 +66,9 @@ class ProfileViewModel(
             .onFailure { e -> _ui.value = ProfileUiState(loading = false,error = e.message) }
     }
 
+    /**
+     * Guarda los cambios del perfil.
+     */
     fun save(displayName: String?) = viewModelScope.launch {
         val current = _ui.value.user
         _ui.value = _ui.value.copy(loading = true)
@@ -39,5 +78,8 @@ class ProfileViewModel(
             .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current) }
     }
 
+    /**
+     * Cierra la sesión del usuario Firebase.
+     */
     fun logout() = viewModelScope.launch { repo.signOut() }
 }

@@ -4,10 +4,17 @@ import com.ludiary.android.data.local.entity.UserEntity
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.model.UserPreferences
 
+/**
+ * Fuente de datos local para el perfil de usuario cuando no existe una sesión en Firebase.
+ */
 class LocalUserDataSource(
     private val db: LudiaryDatabase
 ) {
     private val userDao = db.userDao()
+
+    /**
+     * Obtiene el usuario local desde Room
+     */
     suspend fun getLocalUser(): User {
         val entity = userDao.getLocalUser()
             ?: UserEntity()
@@ -27,6 +34,9 @@ class LocalUserDataSource(
         )
     }
 
+    /**
+     * Guarda o actualiza el usuario local en Room.
+     */
     suspend fun saveLocalUser(user: User) {
         val entity = UserEntity(
             id = 0,
@@ -42,6 +52,9 @@ class LocalUserDataSource(
         userDao.upsert(entity)
     }
 
+    /**
+     * Elimina el usuario local de Room
+     */
     suspend fun clear(){
         userDao.clear()
     }

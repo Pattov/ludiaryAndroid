@@ -7,6 +7,9 @@ import androidx.room.RoomDatabase
 import com.ludiary.android.data.local.dao.UserDao
 import com.ludiary.android.data.local.entity.UserEntity
 
+/**
+ * Punto central de acceso a la base de datos de la aplicación
+ */
 @Database(
     entities = [UserEntity::class],
     version = 1,
@@ -14,8 +17,16 @@ import com.ludiary.android.data.local.entity.UserEntity
 )
 abstract class LudiaryDatabase: RoomDatabase() {
 
+    /**
+     * DAO asociado a la tabla 'user'
+     * @return [UserDao]
+     */
     abstract fun userDao(): UserDao
 
+    /**
+     * Instancia singleton de la base de datos
+     * @param context Contexto de la aplicación
+     */
     companion object {
         @Volatile private var INSTANCE: LudiaryDatabase? = null
 

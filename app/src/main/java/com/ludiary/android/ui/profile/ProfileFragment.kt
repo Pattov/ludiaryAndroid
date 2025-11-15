@@ -21,7 +21,15 @@ import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+
+/**
+ * Pantalla destinada a mostrar y editar la información del perfil del usuario.
+ */
 class ProfileFragment : Fragment (R.layout.fragment_profile){
+
+    /**
+     * ViewModel inicializado mediante un Factory que contruye el repositorio con Firebase + Room.
+     */
     private val vm: ProfileViewModel by viewModels{
 
         val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
@@ -42,6 +50,7 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // --------------------- Referencia UI -------------------------
         val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
         val tvUid = view.findViewById<TextView>(R.id.tvUid)
         val tvCreatedAt = view.findViewById<TextView>(R.id.tvCreatedAt)
@@ -52,6 +61,7 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
         val btnSave = view.findViewById<Button>(R.id.btnSave)
         val btnLogout = view.findViewById<Button>(R.id.btnLogout)
 
+        // Cada vez que el ViewModel emite un nuevo estado, la UI se actualiza.
         viewLifecycleOwner.lifecycleScope.launch{
             vm.ui.collectLatest { st: ProfileUiState ->
                 val user = st.user
@@ -101,10 +111,13 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
                     tvLang.text = getString(R.string.profile_language, lang)
                     tvTheme.text = getString(R.string.profile_theme, theme)
                 }
+
+                //Mientras loading = true -> desactivar botón guardar
                 btnSave.isEnabled = !st.loading
             }
         }
 
+        // Acciones de botones
         btnSave.setOnClickListener {
             vm.save(etName.text?.toString())
         }

@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Título de la pantalla -->
         <TextView
             android:text="@string/profile_title"
             android:textStyle="bold"
@@ -16,17 +17,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Email del usuario -->
         <TextView
             android:id="@+id/tvEmail"
             android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- UID (solo para administradores, se oculta dinámicamente) -->
         <TextView
             android:id="@+id/tvUid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Nombre visible -->
         <EditText
             android:id="@+id/etDisplayName"
             android:hint="@string/profile_display_name"
@@ -34,7 +38,8 @@
             android:inputType="textPersonName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        
+
+        <!-- Sección de preferencias -->
         <TextView
             android:text="@string/profile_preferences"
             android:layout_marginTop="16dp"
@@ -42,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Idioma -->
         <TextView
             android:id="@+id/tvLanguage"
             android:text="@string/profile_language"
@@ -51,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Tema -->
         <TextView
             android:id="@+id/tvTheme"
             android:text="@string/profile_theme"
@@ -59,12 +66,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Fecha de registro -->
         <TextView
             android:id="@+id/tvCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-
+        <!-- Acciones: Guardar / Cerrar sesión -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_marginTop="16dp"

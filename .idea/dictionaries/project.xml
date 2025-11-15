@@ -2,21 +2,26 @@
   <dictionary name="project">
     <words>
       <w>acceso</w>
+      <w>acciones</w>
       <w>acción</w>
       <w>aceptar</w>
       <w>activa</w>
       <w>actividad</w>
+      <w>actua</w>
       <w>actuales</w>
       <w>actualiza</w>
       <w>actualización</w>
+      <w>actualizar</w>
       <w>actualizó</w>
       <w>actualmente</w>
       <w>actúa</w>
       <w>adapta</w>
       <w>adaptado</w>
+      <w>administradores</w>
       <w>ahora</w>
       <w>ajustes</w>
       <w>almacena</w>
+      <w>almacenado</w>
       <w>almacenamiento</w>
       <w>altura</w>
       <w>anónima</w>
@@ -71,10 +76,13 @@
       <w>confirmar</w>
       <w>contenedor</w>
       <w>contenido</w>
+      <w>contexto</w>
       <w>contiene</w>
       <w>contrario</w>
       <w>contraseña</w>
       <w>contraseñas</w>
+      <w>contruye</w>
+      <w>convierte</w>
       <w>coordina</w>
       <w>copia</w>
       <w>correcto</w>
@@ -99,12 +107,19 @@
       <w>degradado</w>
       <w>delegado</w>
       <w>dependencias</w>
+      <w>desactivar</w>
       <w>descargable</w>
+      <w>desde</w>
+      <w>destinada</w>
       <w>destruido</w>
       <w>destruye</w>
       <w>devuelve</w>
+      <w>dinámicamente</w>
       <w>dirección</w>
+      <w>directamente</w>
+      <w>disponible</w>
       <w>dividir</w>
+      <w>documentación</w>
       <w>documento</w>
       <w>duración</w>
       <w>edición</w>
@@ -113,9 +128,11 @@
       <w>ejecuta</w>
       <w>electrónico</w>
       <w>elemento</w>
+      <w>elimina</w>
       <w>eliminar</w>
       <w>emite</w>
       <w>emplearse</w>
+      <w>encargada</w>
       <w>encargado</w>
       <w>encontrado</w>
       <w>envia</w>
@@ -138,6 +155,8 @@
       <w>explicativo</w>
       <w>expone</w>
       <w>exponiendo</w>
+      <w>expuesto</w>
+      <w>falla</w>
       <w>favoritos</w>
       <w>fecha</w>
       <w>fija</w>
@@ -149,10 +168,13 @@
       <w>fragmento</w>
       <w>fuente</w>
       <w>fugas</w>
+      <w>funciona</w>
       <w>funcionalidad</w>
+      <w>funciones</w>
       <w>ganador</w>
       <w>gestiona</w>
       <w>gestionar</w>
+      <w>guardado</w>
       <w>guardar</w>
       <w>habilitado</w>
       <w>hemos</w>
@@ -170,14 +192,20 @@
       <w>inicia</w>
       <w>inicial</w>
       <w>inicializa</w>
+      <w>inicializado</w>
       <w>iniciar</w>
       <w>inicio</w>
+      <w>inmutable</w>
+      <w>inserta</w>
+      <w>insertar</w>
       <w>instancia</w>
       <w>instancias</w>
       <w>intenta</w>
       <w>interacción</w>
       <w>interactua</w>
+      <w>interactuar</w>
       <w>interfaz</w>
+      <w>intermediario</w>
       <w>interna</w>
       <w>interno</w>
       <w>introducido</w>
@@ -216,6 +244,7 @@
       <w>modo</w>
       <w>moneda</w>
       <w>mostrando</w>
+      <w>mostrar</w>
       <w>muestra</w>
       <w>método</w>
       <w>navegación</w>
@@ -225,15 +254,19 @@
       <w>normalmente</w>
       <w>notas</w>
       <w>nulo</w>
+      <w>nunca</w>
       <w>númerico</w>
       <w>objeto</w>
       <w>observa</w>
       <w>observación</w>
       <w>observar</w>
       <w>observarlo</w>
+      <w>obtener</w>
       <w>obtenido</w>
       <w>obtiene</w>
+      <w>oculta</w>
       <w>ocurra</w>
+      <w>ocurre</w>
       <w>ocurrió</w>
       <w>olvidaste</w>
       <w>opción</w>
@@ -246,12 +279,15 @@
       <w>perfil</w>
       <w>permite</w>
       <w>persistencia</w>
+      <w>persistirlo</w>
+      <w>poder</w>
       <w>posible</w>
       <w>precio</w>
       <w>preferencias</w>
       <w>previa</w>
       <w>previo</w>
       <w>previos</w>
+      <w>primaria</w>
       <w>primera</w>
       <w>principales</w>
       <w>proceso</w>
@@ -287,6 +323,7 @@
       <w>regístrate</w>
       <w>reinicia</w>
       <w>repositorio</w>
+      <w>repositorios</w>
       <w>representa</w>
       <w>responsable</w>
       <w>respositorio</w>
@@ -315,6 +352,7 @@
       <w>también</w>
       <w>tener</w>
       <w>texto</w>
+      <w>tiene</w>
       <w>tienes</w>
       <w>tipo</w>
       <w>tipográfica</w>
