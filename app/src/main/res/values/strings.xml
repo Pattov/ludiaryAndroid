@@ -16,4 +16,27 @@
     <string name="forgot_subtitle">Ingresa tu correo para recibir un enlace de recuperación</string>
     <string name="forgot_send_link">Enviar Enlace</string>
     <string name="forgot_back_to_login">Volver al inicio de Sesión</string>
+
+    <string name="profile_title">Perfil</string>
+    <string name="profile_email">Email: %1$s</string>
+    <string name="profile_email_guest">Email: (invitado)</string>
+    <string name="profile_email_unknown">Email: -</string>
+    <string name="profile_uid">UID: %1$s</string>
+    <string name="profile_language">Idioma: %1$s</string>
+    <string name="profile_theme">Tema: %1$s</string>
+    <string name="profile_guest">(invitado)</string>
+    <string name="profile_unknown">-</string>
+    <string name="profile_display_name">Nombre visible: %1$s</string>
+    <string name="profile_display_name_hint">Nombre visible</string>
+    <string name="profile_created_at">Fecha de registro: %1$s</string>
+    <string name="profile_logout">Cerrar Sesión</string>
+    <string name="profile_preferences">Preferencias</string>
+
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="action_back">Atrás</string>
 </resources>

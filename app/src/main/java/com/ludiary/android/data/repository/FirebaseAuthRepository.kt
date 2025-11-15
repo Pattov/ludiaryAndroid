@@ -162,10 +162,12 @@ class FirebaseAuthRepository(
                 "displayName" to displayName,
                 "isAnonymous" to isAnonymous,
                 "createdAt" to now,
+                "updatedAt" to now,
                 "preferences" to mapOf(
                     "language" to "es",
                     "theme" to "system"
-                )
+                ),
+                "isAdmin" to false
             )
             ref.set(payload).await()
         }

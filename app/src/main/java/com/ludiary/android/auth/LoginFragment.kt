@@ -114,32 +114,30 @@ class LoginFragment : Fragment() {
      */
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    vm.ui.collect { st ->
-                        val isLoading = st.loading
-                        binding.btnLogin.isEnabled = !isLoading
-                        binding.btnAnonymous.isEnabled = !isLoading
-                        binding.tilEmail.isEnabled = !isLoading
-                        binding.tilPassword.isEnabled = !isLoading
-                        //Limpieza de errores previos
-                        binding.tilEmail.error = null
-                        binding.tilPassword.error = null
-                        //Gestión de errores nuevos
-                        st.error?.let { msg ->
-                            when {
-                                msg.contains("correo", true) -> binding.tilEmail.error = msg
-                                msg.contains("contraseña", true) -> binding.tilPassword.error = msg
-                                else -> Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
-                                    .show()
-                            }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.ui.collect { st ->
+                    val isLoading = st.loading
+                    binding.btnLogin.isEnabled = !isLoading
+                    binding.btnAnonymous.isEnabled = !isLoading
+                    binding.tilEmail.isEnabled = !isLoading
+                    binding.tilPassword.isEnabled = !isLoading
+                    //Limpieza de errores previos
+                    binding.tilEmail.error = null
+                    binding.tilPassword.error = null
+                    //Gestión de errores nuevos
+                    st.error?.let { msg ->
+                        when {
+                            msg.contains("correo", true) -> binding.tilEmail.error = msg
+                            msg.contains("contraseña", true) -> binding.tilPassword.error = msg
+                            else -> Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
+                                .show()
                         }
+                    }
 
-                        //Estado de éxito -> navegar a la pantalla principal
-                        if (st.success) {
-                            startActivity(android.content.Intent(requireContext(), com.ludiary.android.ui.main.MainActivity::class.java))
-                            requireActivity().finish()
-                        }
+                    //Estado de éxito -> navegar a la pantalla principal
+                    if (st.success) {
+                        startActivity(android.content.Intent(requireContext(), com.ludiary.android.ui.main.MainActivity::class.java))
+                        requireActivity().finish()
                     }
                 }
             }

@@ -3,15 +3,18 @@
     <words>
       <w>acceso</w>
       <w>acción</w>
+      <w>aceptar</w>
       <w>activa</w>
       <w>actividad</w>
       <w>actuales</w>
       <w>actualiza</w>
       <w>actualización</w>
+      <w>actualizó</w>
       <w>actualmente</w>
       <w>actúa</w>
       <w>adapta</w>
       <w>adaptado</w>
+      <w>ahora</w>
       <w>ajustes</w>
       <w>almacena</w>
       <w>almacenamiento</w>
@@ -28,6 +31,7 @@
       <w>asociado</w>
       <w>atributo</w>
       <w>atributos</w>
+      <w>atrás</w>
       <w>autenticación</w>
       <w>autenticado</w>
       <w>autenticar</w>
@@ -40,11 +44,13 @@
       <w>cada</w>
       <w>calificación</w>
       <w>cambia</w>
+      <w>cancelar</w>
       <w>captura</w>
       <w>caracteres</w>
       <w>características</w>
       <w>cargando</w>
       <w>caso</w>
+      <w>cerrar</w>
       <w>certificados</w>
       <w>ciclo</w>
       <w>clase</w>
@@ -102,10 +108,12 @@
       <w>documento</w>
       <w>duración</w>
       <w>edición</w>
+      <w>editar</w>
       <w>efecto</w>
       <w>ejecuta</w>
       <w>electrónico</w>
       <w>elemento</w>
+      <w>eliminar</w>
       <w>emite</w>
       <w>emplearse</w>
       <w>encargado</w>
@@ -145,6 +153,7 @@
       <w>ganador</w>
       <w>gestiona</w>
       <w>gestionar</w>
+      <w>guardar</w>
       <w>habilitado</w>
       <w>hemos</w>
       <w>identificador</w>
@@ -174,6 +183,7 @@
       <w>introducido</w>
       <w>introduciendo</w>
       <w>introducir</w>
+      <w>invitado</w>
       <w>inválido</w>
       <w>inválidos</w>
       <w>inyectar</w>
@@ -182,6 +192,7 @@
       <w>jugadas</w>
       <w>jugador</w>
       <w>jugadores</w>
+      <w>lectura</w>
       <w>limpia</w>
       <w>limpieza</w>
       <w>lista</w>
@@ -237,6 +248,7 @@
       <w>persistencia</w>
       <w>posible</w>
       <w>precio</w>
+      <w>preferencias</w>
       <w>previa</w>
       <w>previo</w>
       <w>previos</w>
@@ -294,6 +306,7 @@
       <w>siguientes</w>
       <w>sincroniza</w>
       <w>sirve</w>
+      <w>sistema</w>
       <w>solicita</w>
       <w>solicitada</w>
       <w>solicitud</w>
