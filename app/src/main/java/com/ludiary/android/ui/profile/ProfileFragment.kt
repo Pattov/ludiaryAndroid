@@ -13,6 +13,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
 import com.ludiary.android.auth.AuthActivity
+import com.ludiary.android.data.local.LocalUserDataSource
+import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.repository.FirestoreProfileRepository
 import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
@@ -21,11 +23,16 @@ import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment (R.layout.fragment_profile){
     private val vm: ProfileViewModel by viewModels{
+
+        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
+        val localDS = LocalUserDataSource(db)
+
         val repo = FirestoreProfileRepository(
             FirebaseAuth.getInstance(),
             FirebaseFirestore.getInstance(),
-            com.ludiary.android.data.local.LocalUserDataSource(requireContext().applicationContext)
+            localDS
         )
+
         object : androidx.lifecycle.ViewModelProvider.Factory{
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {

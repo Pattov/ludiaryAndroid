@@ -1,40 +1,48 @@
 package com.ludiary.android.data.local
 
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import com.ludiary.android.data.local.entity.UserEntity
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.model.UserPreferences
 
-class LocalUserDataSource(context: Context) {
-
-    private val prefs = context.getSharedPreferences("ludiary_user",MODE_PRIVATE)
-
-    fun getLocalUser(): User {
-        val displayName = prefs.getString("displayName", "Invitado")
-        val language = prefs.getString("language", "es") ?: "es"
-        val theme = prefs.getString("theme", "system") ?: "system"
+class LocalUserDataSource(
+    private val db: LudiaryDatabase
+) {
+    private val userDao = db.userDao()
+    suspend fun getLocalUser(): User {
+        val entity = userDao.getLocalUser()
+            ?: UserEntity()
 
         return User(
-            uid = "local-guest",
+            uid = entity.uid,
             email = null,
-            displayName = displayName,
-            isAnonymous = true,
-            createdAt = null,
-            updatedAt = null,
-            preferences = UserPreferences(language = language, theme = theme),
-            isAdmin = false
+            displayName = entity.displayName,
+            isAnonymous = entity.isAnonymous,
+            createdAt = entity.createdAt,
+            updatedAt = entity.updatedAt,
+            preferences = UserPreferences(
+                language = entity.language,
+                theme = entity.theme
+            ),
+            isAdmin = entity.isAdmin
         )
     }
 
-    fun saveLocalUser(user: User) {
-        prefs.edit()
-            .putString("displayName",user.displayName ?: "Invitado")
-            .putString("language",user.preferences?.language ?: "es")
-            .putString("theme",user.preferences?.theme ?: "system")
-            .apply()
+    suspend fun saveLocalUser(user: User) {
+        val entity = UserEntity(
+            id = 0,
+            uid = user.uid.ifEmpty { "local-guest" },
+            displayName = user.displayName ?: "Invitado",
+            language = user.preferences?.language?: "es",
+            theme = user.preferences?.theme?: "system",
+            isAnonymous = user.isAnonymous,
+            createdAt = user.createdAt,
+            updatedAt = user.updatedAt,
+            isAdmin = user.isAdmin
+        )
+        userDao.upsert(entity)
     }
 
-    fun clear(){
-        prefs.edit().clear().apply()
+    suspend fun clear(){
+        userDao.clear()
     }
 }
