@@ -94,7 +94,6 @@ class FirestoreProfileRepository (
             "uid" to uid,
             "email" to email,
             "displayName" to displayName,
-            "isAnonymous" to false,
             "createdAt" to createdTs,
             "updatedAt" to updatedTs,
             "preferences" to mapOf(
