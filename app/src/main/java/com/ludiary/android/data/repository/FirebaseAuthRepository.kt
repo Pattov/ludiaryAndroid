@@ -143,18 +143,22 @@ class FirebaseAuthRepository(
         return try {
             auth.signInAnonymously().await()
             val u = auth.currentUser ?: return AuthResult.Error("Usuario anónimo no encontrado")
-            ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
-            AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
-        }catch (e: Exception) {
+            return AuthResult.Success(
+                User(
+                    uid = u.uid,
+                    email = u.email,
+                    displayName = u.displayName,
+                    isAnonymous = u.isAnonymous
+                )
+            )
+        } catch (e: Exception) {
             val msg = when (e) {
-                is FirebaseNetworkException -> {
+                is FirebaseNetworkException ->
                     "No hay conexión. Comprueba tu conexión a internet."
-                }
-
-                else -> {
+                else ->
                     "No se ha podido iniciar sesión como invitado. Inténtalo de nuevo más tarde."
-                }
             }
+
             Log.e("FirebaseAuthRepository", "Error al iniciar sesión como invitado", e)
             AuthResult.Error(msg)
         }

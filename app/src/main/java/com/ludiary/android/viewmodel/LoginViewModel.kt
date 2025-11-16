@@ -90,15 +90,8 @@ class LoginViewModel(
      *
      * Llama al repositorio para iniciar sesión con un usuario anónimo.
      */
-    fun loginAnonymous(){
-        viewModelScope.launch {
-            _ui.update { it.copy(loading = true, error = null, success = false) }
-            when(val res = repo.loginAnonymously()) {
-                is AuthResult.Success -> _ui.update { it.copy(loading = false, success = true) }
-                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message, success = false) }
-                else -> _ui.update { it.copy(loading = false, success = false) }
-            }
-        }
+    fun loginAnonymousLocal() {
+        _ui.update { it.copy(loading = false, error = null, success = true) }
     }
 
     /**

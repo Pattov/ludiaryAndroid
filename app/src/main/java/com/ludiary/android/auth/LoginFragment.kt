@@ -93,7 +93,7 @@ class LoginFragment : Fragment() {
      */
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener { vm.login() }
-        binding.btnAnonymous.setOnClickListener { vm.loginAnonymous() }
+        binding.btnAnonymous.setOnClickListener { vm.loginAnonymousLocal() }
         binding.tvForgot.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.authContainer, ForgotPasswordFragment())
