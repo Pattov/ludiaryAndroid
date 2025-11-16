@@ -84,6 +84,17 @@
                 android:autofillHints="password" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Error general de login -->
+        <TextView
+            android:id="@+id/tvLoginError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="13sp"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:visibility="gone" />
+
         <!-- Botón de inicio sesión -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
@@ -112,11 +123,11 @@
             android:id="@+id/tvForgot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0.7"
+            android:alpha="0.8"
             android:paddingTop="6dp"
             android:text="@string/login_forgot_password"
             android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="@color/colorOnSurface" />
+            android:textColor="@color/colorOnSurface"/>
 
         <LinearLayout
             android:layout_width="match_parent"

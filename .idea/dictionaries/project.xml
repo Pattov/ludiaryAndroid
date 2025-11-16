@@ -67,6 +67,7 @@
       <w>combina</w>
       <w>compartido</w>
       <w>compra</w>
+      <w>comprueba</w>
       <w>concreto</w>
       <w>condición</w>
       <w>conexión</w>
@@ -97,6 +98,7 @@
       <w>creando</w>
       <w>crear</w>
       <w>credenciales</w>
+      <w>cualquier</w>
       <w>cuenta</w>
       <w>código</w>
       <w>datos</w>
@@ -172,6 +174,7 @@
       <w>funcionalidad</w>
       <w>funciones</w>
       <w>ganador</w>
+      <w>genérico</w>
       <w>gestiona</w>
       <w>gestionar</w>
       <w>guardado</w>
@@ -185,6 +188,8 @@
       <w>importe</w>
       <w>incluir</w>
       <w>incluye</w>
+      <w>incorrectas</w>
+      <w>incorrectos</w>
       <w>inflada</w>
       <w>información</w>
       <w>informativo</w>
@@ -211,6 +216,7 @@
       <w>introducido</w>
       <w>introduciendo</w>
       <w>introducir</w>
+      <w>inténtalo</w>
       <w>invitado</w>
       <w>inválido</w>
       <w>inválidos</w>
@@ -249,6 +255,7 @@
       <w>método</w>
       <w>navegación</w>
       <w>navegar</w>
+      <w>ninguna</w>
       <w>ninguno</w>
       <w>nombre</w>
       <w>normalmente</w>
@@ -272,6 +279,8 @@
       <w>opción</w>
       <w>operaciones</w>
       <w>operación</w>
+      <w>otro</w>
+      <w>otros</w>
       <w>pantalla</w>
       <w>paquete</w>
       <w>partida</w>
@@ -281,6 +290,7 @@
       <w>persistencia</w>
       <w>persistirlo</w>
       <w>poder</w>
+      <w>podido</w>
       <w>posible</w>
       <w>precio</w>
       <w>preferencias</w>
@@ -291,6 +301,7 @@
       <w>primera</w>
       <w>principales</w>
       <w>proceso</w>
+      <w>propios</w>
       <w>proporcionadas</w>
       <w>proporcionados</w>
       <w>proveedor</w>
@@ -351,6 +362,7 @@
       <w>subcolección</w>
       <w>suministra</w>
       <w>también</w>
+      <w>tarde</w>
       <w>tener</w>
       <w>texto</w>
       <w>tiene</w>

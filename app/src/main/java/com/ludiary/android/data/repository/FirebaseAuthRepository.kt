@@ -1,7 +1,12 @@
 package com.ludiary.android.data.repository
 
+import android.util.Log
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.User
 import kotlinx.coroutines.channels.awaitClose
@@ -71,8 +76,26 @@ class FirebaseAuthRepository(
             val u = auth.currentUser ?: return AuthResult.Error("Usuario no encontrado")
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
             AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
-        }catch (e: Exception){
-            AuthResult.Error(e.message ?: "Error al iniciar sesión")
+        }catch (e: Exception) {
+            val msg = when (e) {
+                is FirebaseAuthInvalidUserException,
+                is FirebaseAuthInvalidCredentialsException -> {
+                    // Credenciales incorrectas (correo o contraseña)
+                    "Correo electrónico o contraseña incorrectos"
+                }
+                is FirebaseNetworkException -> {
+                    // Problema de conexión
+                    "No hay conexión. Comprueba tu conexión a internet."
+                }
+                else -> {
+                    // Cualquier otro error genérico
+                    "No se ha podido iniciar sesión. Inténtalo de nuevo más tarde."
+                }
+            }
+
+            // Log para ti, pero el usuario solo ve el mensaje bonito
+            Log.e("FirebaseAuthRepository", "Error al iniciar sesión", e)
+            AuthResult.Error(msg)
         }
     }
 
@@ -92,7 +115,20 @@ class FirebaseAuthRepository(
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
             AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
         }catch (e: Exception){
-            AuthResult.Error(e.message ?: "Error al registrar")
+            val msg = when (e) {
+                is FirebaseAuthUserCollisionException -> {
+                    "Este correo ya está registrado."
+                }
+                is FirebaseNetworkException -> {
+                    "No hay conexión. Comprueba tu conexión a internet."
+                }
+                else -> {
+                    "No se ha podido registrar el usuario. Inténtalo de nuevo más tarde."
+                }
+            }
+
+            Log.e("FirebaseAuthRepository", "Error al registrar usuario", e)
+            AuthResult.Error(msg)
         }
     }
 
@@ -109,8 +145,18 @@ class FirebaseAuthRepository(
             val u = auth.currentUser ?: return AuthResult.Error("Usuario anónimo no encontrado")
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
             AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
-        }catch (e: Exception){
-            AuthResult.Error(e.message ?: "Error al iniciar sesión anónimo")
+        }catch (e: Exception) {
+            val msg = when (e) {
+                is FirebaseNetworkException -> {
+                    "No hay conexión. Comprueba tu conexión a internet."
+                }
+
+                else -> {
+                    "No se ha podido iniciar sesión como invitado. Inténtalo de nuevo más tarde."
+                }
+            }
+            Log.e("FirebaseAuthRepository", "Error al iniciar sesión como invitado", e)
+            AuthResult.Error(msg)
         }
     }
 
@@ -125,7 +171,19 @@ class FirebaseAuthRepository(
             auth.sendPasswordResetEmail(email.trim()).await()
             AuthResult.Success(User())
         }catch (e: Exception){
-            AuthResult.Error(e.message ?: "No se pudo enviar el email")
+            val msg = when (e) {
+                is FirebaseAuthInvalidUserException -> {
+                    "No existe ninguna cuenta asociada a ese correo."
+                }
+                is FirebaseNetworkException -> {
+                    "No hay conexión. Comprueba tu conexión a internet."
+                }
+                else -> {
+                    "No se ha podido enviar el correo de restablecimiento. Inténtalo de nuevo más tarde."
+                }
+            }
+            Log.e("FirebaseAuthRepository", "Error al enviar correo de restablecimiento", e)
+            AuthResult.Error(msg)
         }
     }
 

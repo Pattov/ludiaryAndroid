@@ -75,11 +75,13 @@ class LoginFragment : Fragment() {
             vm.onEmailChanged(
                 text?.toString().orEmpty()
             )
+            binding.tvLoginError.visibility = View.GONE
         }
         binding.etPassword.doOnTextChanged { text, _, _, _ ->
             vm.onPasswordChanged(
                 text?.toString().orEmpty()
             )
+            binding.tvLoginError.visibility = View.GONE
         }
     }
 
@@ -124,12 +126,30 @@ class LoginFragment : Fragment() {
                     //Limpieza de errores previos
                     binding.tilEmail.error = null
                     binding.tilPassword.error = null
+                    binding.tvLoginError.visibility = View.GONE
+                    binding.tvLoginError.text = ""
+
                     //Gestión de errores nuevos
                     st.error?.let { msg ->
                         when {
+                            msg.equals(
+                                "Correo electrónico o contraseña incorrectos",
+                                true
+                            ) || msg.equals(
+                                "Correo electrónico o contraseña incorrectos.",
+                                true
+                            ) -> {
+                                binding.tvLoginError.visibility = View.VISIBLE
+                                binding.tvLoginError.text = msg
+                            }
+
+                            // Errores propios de cada campo
                             msg.contains("correo", true) -> binding.tilEmail.error = msg
                             msg.contains("contraseña", true) -> binding.tilPassword.error = msg
-                            else -> Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
+
+                            // Otros errores
+                            else -> Snackbar
+                                .make(binding.root, msg, Snackbar.LENGTH_LONG)
                                 .show()
                         }
                     }
