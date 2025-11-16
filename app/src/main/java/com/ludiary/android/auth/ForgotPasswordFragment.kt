@@ -55,9 +55,15 @@ class ForgotPasswordFragment : Fragment() {
      *  - Permite volver al inicia de sesión.
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        vm.clearState()
 
         // Escucha los cambios en el campo de correo electrónico.
-        binding.etEmail.doOnTextChanged { t,_,_,_ -> vm.onEmailChanged(t?.toString().orEmpty()) }
+        binding.etEmail.doOnTextChanged { t,_,_,_ ->
+            vm.onEmailChanged(t?.toString().orEmpty())
+            binding.tilEmail.error = null
+        }
 
         // Envia la solicitud de recuperación de contraseña.
         binding.btnSendLink.setOnClickListener { vm.resetPassword() }
@@ -72,13 +78,18 @@ class ForgotPasswordFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.ui.collect { st ->
                     val loading = st.loading
+
                     binding.btnSendLink.isEnabled = !loading
                     binding.tilEmail.isEnabled = !loading
                     binding.tilEmail.error = null
+
                     // Muestra mensajes de error.
                     st.error?.let { msg ->
-                        if (msg.contains("correo", true)) binding.tilEmail.error = msg
-                        else Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+                        if (msg.contains("correo", true)) {
+                            binding.tilEmail.error = msg
+                        } else {
+                            Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+                        }
                     }
                     // Confirma visualmente el envío del enlace.
                     if (st.success) {

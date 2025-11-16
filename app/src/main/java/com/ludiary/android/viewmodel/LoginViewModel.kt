@@ -53,14 +53,14 @@ class LoginViewModel(
         val email = _ui.value.email.trim()
         val pass = _ui.value.password
         val err = validate(email, pass)
-        if (err != null) { _ui.update { it.copy(error = err) }; return }
+        if (err != null) { _ui.update { it.copy(error = err, success = false) }; return }
 
         viewModelScope.launch {
-            _ui.update { it.copy(loading = true, error = null) }
+            _ui.update { it.copy(loading = true, error = null, success = false) }
             when (val res = repo.login(email, pass)) {
                 is AuthResult.Success -> _ui.update { it.copy(loading = false, success = true) }
-                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message) }
-                else -> _ui.update { it.copy(loading = false) }
+                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message, success = false) }
+                else -> _ui.update { it.copy(loading = false, success = false) }
             }
         }
     }
@@ -92,11 +92,11 @@ class LoginViewModel(
      */
     fun loginAnonymous(){
         viewModelScope.launch {
-            _ui.update { it.copy(loading = true, error = null) }
+            _ui.update { it.copy(loading = true, error = null, success = false) }
             when(val res = repo.loginAnonymously()) {
                 is AuthResult.Success -> _ui.update { it.copy(loading = false, success = true) }
-                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message) }
-                else -> _ui.update { it.copy(loading = false) }
+                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message, success = false) }
+                else -> _ui.update { it.copy(loading = false, success = false) }
             }
         }
     }
@@ -108,13 +108,13 @@ class LoginViewModel(
      */
     fun resetPassword(){
         val email = _ui.value.email.trim()
-        if (email.isEmpty()) { _ui.update { it.copy(error = "Introduce el correo.") }; return }
+        if (email.isEmpty()) { _ui.update { it.copy(error = "Introduce el correo.", success = false) }; return }
         viewModelScope.launch {
-            _ui.update { it.copy(loading = true, error = null) }
+            _ui.update { it.copy(loading = true, error = null, success = false) }
             when (val res = repo.sendPasswordResetEmail(email)) {
-                is AuthResult.Success -> _ui.update { it.copy(loading = false, success = true) }
-                is AuthResult.Error -> _ui.update { it.copy(loading = false, error = res.message) }
-                else -> _ui.update { it.copy(loading = false) }
+                is AuthResult.Success -> _ui.update { it.copy(loading = false, success = true, error = null) }
+                is AuthResult.Error -> _ui.update { it.copy(loading = false, success = false, error = res.message) }
+                else -> _ui.update { it.copy(loading = false, success = false) }
             }
         }
     }
@@ -133,4 +133,9 @@ class LoginViewModel(
         if (pass.isEmpty()) return "Introduce la contraseña."
         return null
     }
+
+    fun clearState() {
+        _ui.update { LoginUiState() }
+    }
+
 }

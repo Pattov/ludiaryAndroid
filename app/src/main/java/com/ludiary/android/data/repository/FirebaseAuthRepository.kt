@@ -168,13 +168,25 @@ class FirebaseAuthRepository(
      */
     override suspend fun sendPasswordResetEmail(email: String): AuthResult {
         return try {
-            auth.sendPasswordResetEmail(email.trim()).await()
+            val cleanEmail = email.trim()
+
+            // 1) Comprobar manualmente en Firestore si existe un usuario con ese correo
+            val snap = db.collection("users")
+                .whereEqualTo("email", cleanEmail)
+                .limit(1)
+                .get()
+                .await()
+
+            if (snap.isEmpty) {
+                // No existe en nuestra base -> mensaje de error
+                return AuthResult.Error("No existe ninguna cuenta asociada a ese correo.")
+            }
+
+            // 2) Si existe, ahora sí pedimos a Firebase que envíe el correo
+            auth.sendPasswordResetEmail(cleanEmail).await()
             AuthResult.Success(User())
         }catch (e: Exception){
             val msg = when (e) {
-                is FirebaseAuthInvalidUserException -> {
-                    "No existe ninguna cuenta asociada a ese correo."
-                }
                 is FirebaseNetworkException -> {
                     "No hay conexión. Comprueba tu conexión a internet."
                 }
@@ -182,7 +194,6 @@ class FirebaseAuthRepository(
                     "No se ha podido enviar el correo de restablecimiento. Inténtalo de nuevo más tarde."
                 }
             }
-            Log.e("FirebaseAuthRepository", "Error al enviar correo de restablecimiento", e)
             AuthResult.Error(msg)
         }
     }
