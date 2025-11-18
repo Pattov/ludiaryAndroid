@@ -111,6 +111,13 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
 
                     tvLang.text = getString(R.string.profile_language, lang)
                     tvTheme.text = getString(R.string.profile_theme, theme)
+
+                    // Texto del botón según tipo de usuario
+                    btnLogout.text = if (user.isAnonymous) {
+                        getString(R.string.login_sign_in)
+                    } else {
+                        getString(R.string.profile_logout)
+                    }
                 }
 
                 //Mientras loading = true -> desactivar botón guardar
@@ -124,9 +131,24 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
         }
 
         btnLogout.setOnClickListener {
-            vm.logout()
-            startActivity(Intent(requireContext(), AuthActivity::class.java))
-            requireActivity().finish()
+
+            val currentUser = vm.ui.value.user
+            if (currentUser?.isAnonymous == true){
+                // Invitado → ir al flujo de autenticación
+                val intent = Intent(requireContext(), AuthActivity::class.java).apply {
+                    // Limpiamos el backstack para que no vuelva atrás al perfil
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                requireActivity().finish()
+            } else {
+                vm.logout()
+                val intent = Intent(requireContext(), AuthActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                requireActivity().finish()
+            }
         }
     }
 }
