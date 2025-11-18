@@ -37,22 +37,12 @@
                 android:layout_margin="12dp"
                 android:orientation="vertical">
 
-                <!-- Email -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_email"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:paddingBottom="2dp"/>
-
                 <!-- Email del usuario -->
                 <TextView
                     android:id="@+id/tvEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="2dp"
-                    android:text="@string/profile_guest"
                     android:textSize="14sp" />
 
                 <TextView
@@ -66,13 +56,13 @@
                 <!-- Nombre visible -->
                 <EditText
                     android:id="@+id/etDisplayName"
-                    android:hint="@string/profile_display_name"
-                    android:autofillHints="name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="4dp"
+                    android:autofillHints="name"
                     android:backgroundTint="@color/colorOnPrimary"
-                    android:inputType="text"/>
+                    android:hint="@string/profile_display_name"
+                    android:inputType="text"
+                    android:paddingVertical="4dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -109,7 +99,6 @@
                 <!-- Idioma -->
                 <TextView
                     android:id="@+id/tvLanguage"
-                    android:text="@string/profile_language"
                     android:enabled="false"
                     android:textSize="14sp"
                     android:paddingBottom="4dp"
@@ -119,7 +108,6 @@
                 <!-- Tema -->
                 <TextView
                     android:id="@+id/tvTheme"
-                    android:text="@string/profile_theme"
                     android:enabled="false"
                     android:textSize="14sp"
                     android:paddingBottom="4dp"
@@ -132,15 +120,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:paddingBottom="4dp"
-                    android:text="@string/profile_created_at"/>
+                    android:paddingBottom="4dp"/>
 
                 <!-- UID (solo para administradores, se oculta dinámicamente) -->
                 <TextView
                     android:id="@+id/tvUid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/profile_uid"
                     android:textSize="14sp"
                     android:paddingTop="4dp"
                     android:visibility="gone"/>

@@ -65,6 +65,7 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
         viewLifecycleOwner.lifecycleScope.launch{
             vm.ui.collectLatest { st: ProfileUiState ->
                 val user = st.user
+
                 if (user != null){
                     // Email
                     val emailText = when {
@@ -101,7 +102,7 @@ class ProfileFragment : Fragment (R.layout.fragment_profile){
                             getString(R.string.profile_created_at, dateStr)
                     } else {
                         tvCreatedAt.text =
-                            getString(R.string.profile_created_at)
+                            getString(R.string.profile_created_at_unknown)
                     }
 
                     // Idioma y tema
