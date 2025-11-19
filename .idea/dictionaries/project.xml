@@ -4,6 +4,7 @@
       <w>acceso</w>
       <w>acciones</w>
       <w>acción</w>
+      <w>aceptable</w>
       <w>aceptar</w>
       <w>activa</w>
       <w>actividad</w>
@@ -29,6 +30,7 @@
       <w>aplicación</w>
       <w>apodo</w>
       <w>aprovechar</w>
+      <w>aproved</w>
       <w>archivo</w>
       <w>asegura</w>
       <w>asocia</w>
@@ -45,6 +47,7 @@
       <w>bordes</w>
       <w>botones</w>
       <w>botón</w>
+      <w>bueno</w>
       <w>cabecera</w>
       <w>cada</w>
       <w>calificación</w>
@@ -124,6 +127,7 @@
       <w>dividir</w>
       <w>documentación</w>
       <w>documento</w>
+      <w>dominio</w>
       <w>duración</w>
       <w>edición</w>
       <w>editar</w>
@@ -138,7 +142,9 @@
       <w>encargada</w>
       <w>encargado</w>
       <w>encontrado</w>
+      <w>entidad</w>
       <w>envia</w>
+      <w>enviada</w>
       <w>enviado</w>
       <w>enviar</w>
       <w>envía</w>
@@ -151,6 +157,7 @@
       <w>estilo</w>
       <w>esto</w>
       <w>evitar</w>
+      <w>excelente</w>
       <w>exista</w>
       <w>existe</w>
       <w>existoso</w>
@@ -164,6 +171,7 @@
       <w>favoritos</w>
       <w>fecha</w>
       <w>fija</w>
+      <w>fisico</w>
       <w>flujo</w>
       <w>fondo</w>
       <w>forma</w>
@@ -295,8 +303,11 @@
       <w>permite</w>
       <w>persistencia</w>
       <w>persistirlo</w>
+      <w>personalizado</w>
+      <w>pobre</w>
       <w>poder</w>
       <w>podido</w>
+      <w>posee</w>
       <w>posible</w>
       <w>precio</w>
       <w>preferencias</w>
@@ -307,6 +318,7 @@
       <w>primera</w>
       <w>principales</w>
       <w>proceso</w>
+      <w>propietario</w>
       <w>propios</w>
       <w>proporcionadas</w>
       <w>proporcionados</w>
@@ -361,12 +373,14 @@
       <w>sido</w>
       <w>siguientes</w>
       <w>sincroniza</w>
+      <w>sincronización</w>
       <w>sirve</w>
       <w>sistema</w>
       <w>solicita</w>
       <w>solicitada</w>
       <w>solicitud</w>
       <w>subcolección</w>
+      <w>sugerencia</w>
       <w>suministra</w>
       <w>también</w>
       <w>tarde</w>
@@ -379,6 +393,7 @@
       <w>tipográfica</w>
       <w>tras</w>
       <w>título</w>
+      <w>ubicación</w>
       <w>usado</w>
       <w>usando</w>
       <w>usuario</w>

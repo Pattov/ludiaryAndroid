@@ -4,17 +4,24 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.ludiary.android.data.local.dao.UserDao
-import com.ludiary.android.data.local.entity.UserEntity
+import androidx.room.TypeConverters
+import com.ludiary.android.data.local.dao.*
+import com.ludiary.android.data.local.entity.*
 
 /**
  * Punto central de acceso a la base de datos de la aplicación
  */
 @Database(
-    entities = [UserEntity::class],
+    entities = [
+        UserEntity::class,
+        GameBaseEntity::class,
+        UserGameEntity::class,
+        GameSuggestionEntity::class
+    ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
+@TypeConverters(LudiaryConverters::class)
 abstract class LudiaryDatabase: RoomDatabase() {
 
     /**
@@ -24,11 +31,30 @@ abstract class LudiaryDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
 
     /**
+     * DAO asociado a la tabla 'game_base'
+     * @return [GameBaseDao]
+     */
+    abstract fun gameBaseDao(): GameBaseDao
+
+    /**
+     * DAO asociado a la tabla 'user_games'
+     * @return [UserGameDao]
+     */
+    abstract fun userGameDao(): UserGameDao
+
+    /**
+     * DAO asociado a la tabla 'game_suggestions'
+     * @return [GameSuggestionDao]
+     */
+    abstract fun gameSuggestionDao(): GameSuggestionDao
+
+    /**
      * Instancia singleton de la base de datos
      * @param context Contexto de la aplicación
      */
     companion object {
-        @Volatile private var INSTANCE: LudiaryDatabase? = null
+        @Volatile
+        private var INSTANCE: LudiaryDatabase? = null
 
         fun getInstance(context: Context): LudiaryDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -36,7 +62,10 @@ abstract class LudiaryDatabase: RoomDatabase() {
                     context.applicationContext,
                     LudiaryDatabase::class.java,
                     "ludiary.db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+                    .also { INSTANCE = it }
             }
         }
     }
