@@ -12,6 +12,7 @@
       <w>actuales</w>
       <w>actualiza</w>
       <w>actualización</w>
+      <w>actualizado</w>
       <w>actualizar</w>
       <w>actualizó</w>
       <w>actualmente</w>
@@ -22,6 +23,7 @@
       <w>ahora</w>
       <w>ajustes</w>
       <w>almacena</w>
+      <w>almacenada</w>
       <w>almacenado</w>
       <w>almacenamiento</w>
       <w>altura</w>
@@ -29,6 +31,7 @@
       <w>anónimo</w>
       <w>aplicación</w>
       <w>apodo</w>
+      <w>aprobado</w>
       <w>aprovechar</w>
       <w>aproved</w>
       <w>archivo</w>
@@ -50,6 +53,7 @@
       <w>bueno</w>
       <w>cabecera</w>
       <w>cada</w>
+      <w>cadena</w>
       <w>calificación</w>
       <w>cambia</w>
       <w>cancelar</w>
@@ -58,6 +62,7 @@
       <w>características</w>
       <w>cargando</w>
       <w>caso</w>
+      <w>catálogo</w>
       <w>cerrar</w>
       <w>certificados</w>
       <w>ciclo</w>
@@ -87,6 +92,7 @@
       <w>contraseña</w>
       <w>contraseñas</w>
       <w>contruye</w>
+      <w>conversores</w>
       <w>convierte</w>
       <w>coordina</w>
       <w>copia</w>
@@ -102,6 +108,7 @@
       <w>creando</w>
       <w>crear</w>
       <w>credenciales</w>
+      <w>creó</w>
       <w>cualquier</w>
       <w>cuenta</w>
       <w>código</w>
@@ -114,6 +121,7 @@
       <w>delegado</w>
       <w>dependencias</w>
       <w>desactivar</w>
+      <w>desarrolladores</w>
       <w>descargable</w>
       <w>desde</w>
       <w>destinada</w>
@@ -129,8 +137,10 @@
       <w>documento</w>
       <w>dominio</w>
       <w>duración</w>
+      <w>edad</w>
       <w>edición</w>
       <w>editar</w>
+      <w>editoriales</w>
       <w>efecto</w>
       <w>ejecuta</w>
       <w>electrónico</w>
@@ -142,11 +152,13 @@
       <w>encargada</w>
       <w>encargado</w>
       <w>encontrado</w>
+      <w>encuentra</w>
       <w>entidad</w>
       <w>envia</w>
       <w>enviada</w>
       <w>enviado</w>
       <w>enviar</w>
+      <w>envió</w>
       <w>envía</w>
       <w>envíe</w>
       <w>envío</w>
@@ -175,6 +187,7 @@
       <w>flujo</w>
       <w>fondo</w>
       <w>forma</w>
+      <w>formateada</w>
       <w>formato</w>
       <w>formulario</w>
       <w>fragmento</w>
@@ -236,6 +249,7 @@
       <w>jugadas</w>
       <w>jugador</w>
       <w>jugadores</w>
+      <w>lanzamiento</w>
       <w>lectura</w>
       <w>limpia</w>
       <w>limpiamos</w>
@@ -257,6 +271,7 @@
       <w>metida</w>
       <w>metodo</w>
       <w>mientras</w>
+      <w>milisegundos</w>
       <w>minutos</w>
       <w>modelo</w>
       <w>modo</w>
@@ -265,6 +280,7 @@
       <w>mostrar</w>
       <w>muestra</w>
       <w>método</w>
+      <w>mínimo</w>
       <w>navegación</w>
       <w>navegar</w>
       <w>ninguna</w>
@@ -292,6 +308,7 @@
       <w>opción</w>
       <w>operaciones</w>
       <w>operación</w>
+      <w>ordenado</w>
       <w>otro</w>
       <w>otros</w>
       <w>pantalla</w>
@@ -304,6 +321,7 @@
       <w>persistencia</w>
       <w>persistirlo</w>
       <w>personalizado</w>
+      <w>personalizados</w>
       <w>pobre</w>
       <w>poder</w>
       <w>podido</w>
@@ -335,6 +353,7 @@
       <w>realizar</w>
       <w>realizó</w>
       <w>recibir</w>
+      <w>recomendada</w>
       <w>recupera</w>
       <w>recuperación</w>
       <w>recuperar</w>
@@ -352,6 +371,7 @@
       <w>regresa</w>
       <w>regístrate</w>
       <w>reinicia</w>
+      <w>relacionadas</w>
       <w>repositorio</w>
       <w>repositorios</w>
       <w>representa</w>
@@ -362,12 +382,14 @@
       <w>resultado</w>
       <w>resumen</w>
       <w>reutiliza</w>
+      <w>revisó</w>
       <w>secciones</w>
       <w>sección</w>
       <w>secundario</w>
       <w>seguro</w>
       <w>según</w>
       <w>seleccionado</w>
+      <w>separada</w>
       <w>separador</w>
       <w>sesión</w>
       <w>sido</w>
@@ -379,8 +401,12 @@
       <w>solicita</w>
       <w>solicitada</w>
       <w>solicitud</w>
+      <w>soportados</w>
       <w>subcolección</w>
       <w>sugerencia</w>
+      <w>sugerencias</w>
+      <w>sugerido</w>
+      <w>sugeridos</w>
       <w>suministra</w>
       <w>también</w>
       <w>tarde</w>
@@ -391,6 +417,8 @@
       <w>tienes</w>
       <w>tipo</w>
       <w>tipográfica</w>
+      <w>tipos</w>
+      <w>todas</w>
       <w>tras</w>
       <w>título</w>
       <w>ubicación</w>
@@ -402,15 +430,18 @@
       <w>utilizado</w>
       <w>utilizando</w>
       <w>utilizar</w>
+      <w>vacía</w>
       <w>vacío</w>
       <w>validaciones</w>
       <w>validar</w>
       <w>valores</w>
+      <w>viceversa</w>
       <w>visualmente</w>
       <w>volver</w>
       <w>vuelva</w>
       <w>válido</w>
       <w>válidos</w>
+      <w>época</w>
       <w>éxito</w>
       <w>único</w>
     </words>

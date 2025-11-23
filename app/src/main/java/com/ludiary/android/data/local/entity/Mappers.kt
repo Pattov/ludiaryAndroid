@@ -4,7 +4,9 @@ import com.ludiary.android.data.model.*
 import java.time.Instant
 
 // GameBase
-
+/**
+ * Convierte una entidad Room [GameBaseEntity] en el modelo del dominio [GameBase].
+ */
 fun GameBaseEntity.toModel(): GameBase =
     GameBase(
         id = id,
@@ -28,6 +30,9 @@ fun GameBaseEntity.toModel(): GameBase =
         updatedAt = updatedAtMillis?.let(Instant::ofEpochMilli)
     )
 
+/**
+ * Convierte un modelo del dominio [GameBase] en una entidad Room [GameBaseEntity].
+ */
 fun GameBase.toEntity(): GameBaseEntity =
     GameBaseEntity(
         id = id,
@@ -52,7 +57,9 @@ fun GameBase.toEntity(): GameBaseEntity =
     )
 
 // UserGame
-
+/**
+ * Convierte una entidad Room [UserGameEntity] en el modelo del dominio [UserGame].
+ */
 fun UserGameEntity.toModel(): UserGame =
     UserGame(
         id = id,
@@ -83,6 +90,9 @@ fun UserGameEntity.toModel(): UserGame =
         syncStatus = syncStatus
     )
 
+/**
+ * Convierte un modelo del dominio [UserGame] en una entidad Room [UserGameEntity].
+ */
 fun UserGame.toEntity(): UserGameEntity =
     UserGameEntity(
         id = id,
@@ -111,7 +121,9 @@ fun UserGame.toEntity(): UserGameEntity =
     )
 
 // GameSuggestion
-
+/**
+ * Convierte una entidad Room [GameSuggestionEntity] en el modelo del dominio [GameSuggestion].
+ */
 fun GameSuggestionEntity.toModel(): GameSuggestion =
     GameSuggestion(
         id = id,
@@ -139,6 +151,9 @@ fun GameSuggestionEntity.toModel(): GameSuggestion =
         createdFromUserGameId = createdFromUserGameId
     )
 
+/**
+ * Convierte un modelo del dominio [GameSuggestion] en una entidad Room [GameSuggestionEntity].
+ */
 fun GameSuggestion.toEntity(): GameSuggestionEntity =
     GameSuggestionEntity(
         id = id,
