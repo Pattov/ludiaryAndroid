@@ -3,6 +3,39 @@ package com.ludiary.android.data.local.entity
 import com.ludiary.android.data.model.*
 import java.time.Instant
 
+// User
+/**
+ * Convierte una entidad Room [UserEntity] en el modelo del dominio [User].
+ */
+fun UserEntity.toModel(): User =
+    User(
+        uid = uid,
+        email = null,
+        displayName = displayName,
+        isAnonymous = isAnonymous,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        preferences = UserPreferences(
+            language = language,
+            theme = theme
+        ),
+        isAdmin = isAdmin
+    )
+
+fun User.toEntity(): UserEntity =
+    UserEntity(
+        id = 0,
+        uid = uid,
+        displayName = displayName ?: "Invitado",
+        language = preferences?.language ?: "es",
+        theme = preferences?.theme ?: "system",
+        isAnonymous = isAnonymous,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        isAdmin = isAdmin
+    )
+
+
 // GameBase
 /**
  * Convierte una entidad Room [GameBaseEntity] en el modelo del dominio [GameBase].
