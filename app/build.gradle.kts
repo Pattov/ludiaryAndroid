@@ -82,6 +82,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+
     implementation("androidx.room:room-runtime:${room_version}")
     ksp("androidx.room:room-compiler:$room_version")
 }
