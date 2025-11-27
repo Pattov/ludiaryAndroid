@@ -21,6 +21,7 @@
             android:paddingBottom="16dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Título del juego">
@@ -34,6 +35,7 @@
 
         <!-- Valoración -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutRating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Valoración personal (1-10)"
@@ -49,6 +51,7 @@
 
         <!-- Idioma -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutLanguage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Idioma"
@@ -60,8 +63,23 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Edición -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutEdition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Edición"
+            android:paddingTop="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputEdition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Notas -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputLayoutNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Notas"
@@ -78,6 +96,7 @@
 
         <!-- Botones -->
         <LinearLayout
+            android:id="@+id/buttonBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
