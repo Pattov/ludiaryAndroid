@@ -20,12 +20,22 @@
     <fragment
         android:id="@+id/nav_library"
         android:name="com.ludiary.android.ui.library.LibraryFragment"
-        android:label="Ludoteca"/>
+        android:label="Ludoteca">
+
+        <action
+            android:id="@+id/action_library_to_edit_user_game"
+            app:destination="@id/nav_edit_user_game" />
+    </fragment>
 
     <!-- Sección de perfil y ajustes del usuario -->
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.ludiary.android.ui.profile.ProfileFragment"
         android:label="Perfil"/>
+
+    <fragment
+        android:id="@+id/nav_edit_user_game"
+        android:name="com.ludiary.android.ui.library.EditUserGameFragment"
+        android:label="Añadir/Editar juego" />
 
 </navigation>

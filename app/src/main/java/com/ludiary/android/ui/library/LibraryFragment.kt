@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,7 +38,9 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         recyclerView.adapter = adapter
 
         val fab = view.findViewById<FloatingActionButton>(R.id.fabAddGame)
-        fab.setOnClickListener { viewModel.onAddGameClicked() }
+        fab.setOnClickListener {
+            findNavController().navigate(R.id.action_library_to_edit_user_game)
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { ui ->
