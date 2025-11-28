@@ -36,6 +36,13 @@
     <fragment
         android:id="@+id/nav_edit_user_game"
         android:name="com.ludiary.android.ui.library.EditUserGameFragment"
-        android:label="Añadir/Editar juego" />
+        android:label="Añadir/Editar juego">
+
+        <argument
+            android:name="gameId"
+            app:argType="string"
+            android:defaultValue="@null"/>
+
+    </fragment>
 
 </navigation>

@@ -17,6 +17,7 @@ class EditUserGameViewModel (
     val events = _events.receiveAsFlow()
 
     fun onSaveClicked(
+        gameId: String?,
         title: String,
         rating: Float?,
         language: String?,
@@ -28,20 +29,40 @@ class EditUserGameViewModel (
             return
         }
 
-        val newGame = UserGame(
-            userId = uid,
-            gameId = "",
-            isCustom = true,
-            titleSnapshot = title,
-            personalRating = rating,
-            language = language,
-            edition = edition,
-            notes = notes
-        )
+        if (gameId == null) {
 
-        viewModelScope.launch {
-            repository.addUserGame(uid, newGame)
-            sendEvent(EditUserGameEvent.CloseScreen("Juego guardado"))
+            val newGame = UserGame(
+                userId = uid,
+                gameId = "",
+                isCustom = true,
+                titleSnapshot = title,
+                personalRating = rating,
+                language = language,
+                edition = edition,
+                notes = notes
+            )
+
+            viewModelScope.launch {
+                repository.addUserGame(uid, newGame)
+                sendEvent(EditUserGameEvent.CloseScreen("Juego guardado"))
+            }
+        } else {
+
+            val updated = UserGame(
+                id = gameId,
+                userId = uid,
+                titleSnapshot = title,
+                personalRating = rating,
+                language = language,
+                edition = edition,
+                notes = notes,
+                isCustom = true
+            )
+
+            viewModelScope.launch {
+                repository.updateUserGame(uid, updated)
+                sendEvent(EditUserGameEvent.CloseScreen("Juego actualizado"))
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.ludiary.android.ui.library
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.fragment.app.Fragment
@@ -31,6 +32,17 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        val gameId = arguments?.getString("gameId")
+        val isEditing = gameId != null
+
+        val titleScreen = view.findViewById<TextView>(R.id.titleEditGame)
+
+        titleScreen.text = if (isEditing) {
+            "Editar juego"
+        } else {
+            "Añadir juego a tu ludoteca"
+        }
+
         val inputTitle = view.findViewById<TextInputEditText>(R.id.inputTitle)
         val inputRating = view.findViewById<TextInputEditText>(R.id.inputRating)
         val inputLanguage = view.findViewById<TextInputEditText>(R.id.inputLanguage)
@@ -56,19 +68,28 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
                 rating = rating,
                 language = language,
                 edition = edition,
-                notes = notes
+                notes = notes,
+                gameId = gameId
             )
+        }
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.events.collect { event ->
-                    when (event) {
-                        is EditUserGameEvent.ShowError -> {
-                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is EditUserGameEvent.CloseScreen -> {
-                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-                            findNavController().navigateUp()
-                        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is EditUserGameEvent.ShowError -> {
+                        Toast.makeText(
+                            requireContext(),
+                            event.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is EditUserGameEvent.CloseScreen -> {
+                        Toast.makeText(
+                            requireContext(),
+                            event.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        findNavController().navigateUp()
                     }
                 }
             }

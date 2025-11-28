@@ -2,6 +2,7 @@ package com.ludiary.android.ui.library
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +30,12 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = UserGameAdapter(
-            onEdit = { gameId -> viewModel.onEditGameClicked(gameId) },
+            onEdit = { gameId ->
+                findNavController().navigate(
+                    R.id.nav_edit_user_game,
+                    bundleOf("gameId" to gameId)
+                )
+            },
             onDelete = { gameId -> viewModel.onDeleteGameClicked(gameId) }
         )
 
@@ -39,7 +45,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
 
         val fab = view.findViewById<FloatingActionButton>(R.id.fabAddGame)
         fab.setOnClickListener {
-            findNavController().navigate(R.id.action_library_to_edit_user_game)
+            findNavController().navigate(R.id.nav_edit_user_game)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
