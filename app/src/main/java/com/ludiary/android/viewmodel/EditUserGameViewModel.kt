@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.model.UserGame
 import com.ludiary.android.data.repository.UserGamesRepository
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -15,6 +16,19 @@ class EditUserGameViewModel (
 
     private val _events = Channel<EditUserGameEvent>()
     val events = _events.receiveAsFlow()
+
+    fun loadGame(gameId: String){
+        viewModelScope.launch {
+            val games = repository.getUserGames(uid).first()
+            val game = games.find { it.id == gameId }
+
+            if (game != null){
+                sendEvent(EditUserGameEvent.FillForm(game))
+            } else {
+                sendEvent(EditUserGameEvent.ShowError("Juego no encontrado"))
+            }
+        }
+    }
 
     fun onSaveClicked(
         gameId: String?,
@@ -79,4 +93,5 @@ class EditUserGameViewModel (
 sealed class EditUserGameEvent {
     data class ShowError(val message: String) : EditUserGameEvent()
     data class CloseScreen(val message: String) : EditUserGameEvent()
+    data class FillForm (val game: UserGame) : EditUserGameEvent()
 }

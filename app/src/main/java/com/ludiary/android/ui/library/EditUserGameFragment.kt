@@ -52,6 +52,10 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnCancel)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
+        if (gameId != null){
+            viewModel.loadGame(gameId)
+        }
+
         btnCancel.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -92,6 +96,13 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
                             Toast.LENGTH_SHORT
                         ).show()
                         findNavController().navigateUp()
+                    }
+                    is EditUserGameEvent.FillForm -> {
+                        inputTitle.setText(event.game.titleSnapshot)
+                        inputRating.setText(event.game.personalRating?.toString().orEmpty())
+                        inputLanguage.setText(event.game.language.orEmpty())
+                        inputEdition.setText(event.game.edition.orEmpty())
+                        inputNotes.setText(event.game.notes.orEmpty())
                     }
                 }
             }
