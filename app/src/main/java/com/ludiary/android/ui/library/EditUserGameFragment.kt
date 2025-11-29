@@ -22,7 +22,7 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
     private val viewModel: EditUserGameViewModel by viewModels{
         EditUserGameViewModelFactory(
             uid = "TEST_UID",
-            repository = FakeUserGamesRepository()
+            repository = FakeUserGamesRepository
         )
     }
 

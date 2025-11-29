@@ -32,8 +32,6 @@ class LibraryViewModel(
         }
     }
 
-    fun onAddGameClicked(){ }
-    fun onEditGameClicked(gameId: String){ }
     fun onDeleteGameClicked(gameId: String){
         viewModelScope.launch {
             userGamesRepository.deleteUserGame(uid, gameId)

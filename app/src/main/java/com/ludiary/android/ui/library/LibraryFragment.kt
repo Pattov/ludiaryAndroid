@@ -20,7 +20,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private val viewModel: LibraryViewModel by viewModels{
         LibraryViewModelFactory(
             uid = "TEST_UID",
-            repository = FakeUserGamesRepository()
+            repository = FakeUserGamesRepository
         )
     }
 

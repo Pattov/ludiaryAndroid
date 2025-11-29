@@ -4,7 +4,7 @@ import com.ludiary.android.data.model.UserGame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class FakeUserGamesRepository: UserGamesRepository {
+object FakeUserGamesRepository: UserGamesRepository {
 
     private val gamesState = MutableStateFlow(
         listOf(
@@ -30,10 +30,12 @@ class FakeUserGamesRepository: UserGamesRepository {
         val newGame = userGame.copy(id = newId)
         gamesState.value = current + newGame
     }
+
     override suspend fun deleteUserGame(uid: String, gameId: String) {
         val current = gamesState.value
         gamesState.value = current.filterNot { it.id == gameId }
     }
+
     override suspend fun updateUserGame(uid: String, userGame: UserGame) {
         val current = gamesState.value
         gamesState.value = current.map { existing ->

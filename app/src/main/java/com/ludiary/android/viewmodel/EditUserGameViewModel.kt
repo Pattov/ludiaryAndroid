@@ -20,9 +20,9 @@ class EditUserGameViewModel (
         gameId: String?,
         title: String,
         rating: Float?,
-        language: String?,
-        edition: String?,
-        notes: String?
+        language: String,
+        edition: String,
+        notes: String
     ){
         if (title.isBlank()){
             sendEvent(EditUserGameEvent.ShowError("El título es obligatorio"))
@@ -38,9 +38,9 @@ class EditUserGameViewModel (
                 isCustom = true,
                 titleSnapshot = title,
                 personalRating = rating,
-                language = language,
-                edition = edition,
-                notes = notes
+                language = language.ifBlank { null },
+                edition = edition.ifBlank { null },
+                notes = notes.ifBlank { null }
             )
 
             viewModelScope.launch {
@@ -57,9 +57,9 @@ class EditUserGameViewModel (
                 isCustom = true,
                 titleSnapshot = title,
                 personalRating = rating,
-                language = language,
-                edition = edition,
-                notes = notes
+                language = language.ifBlank { null },
+                edition = edition.ifBlank { null },
+                notes = notes.ifBlank { null }
             )
 
             viewModelScope.launch {
