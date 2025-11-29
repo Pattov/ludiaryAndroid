@@ -32,6 +32,7 @@ class EditUserGameViewModel (
         if (gameId == null) {
 
             val newGame = UserGame(
+                id = "",
                 userId = uid,
                 gameId = "",
                 isCustom = true,
@@ -46,17 +47,19 @@ class EditUserGameViewModel (
                 repository.addUserGame(uid, newGame)
                 sendEvent(EditUserGameEvent.CloseScreen("Juego guardado"))
             }
+
         } else {
 
             val updated = UserGame(
                 id = gameId,
                 userId = uid,
+                gameId = "",
+                isCustom = true,
                 titleSnapshot = title,
                 personalRating = rating,
                 language = language,
                 edition = edition,
-                notes = notes,
-                isCustom = true
+                notes = notes
             )
 
             viewModelScope.launch {

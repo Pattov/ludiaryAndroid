@@ -3,7 +3,6 @@ package com.ludiary.android.data.repository
 import com.ludiary.android.data.model.UserGame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 
 class FakeUserGamesRepository: UserGamesRepository {
 
@@ -37,6 +36,8 @@ class FakeUserGamesRepository: UserGamesRepository {
     }
     override suspend fun updateUserGame(uid: String, userGame: UserGame) {
         val current = gamesState.value
-        gamesState.value = current.map { if (it.id == userGame.id) userGame else it }
+        gamesState.value = current.map { existing ->
+            if (existing.id == userGame.id) userGame else existing
+        }
     }
 }

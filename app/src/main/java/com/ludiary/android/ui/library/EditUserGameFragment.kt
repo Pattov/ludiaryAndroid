@@ -63,13 +63,15 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
             val edition = inputEdition.text?.toString()?.trim().orEmpty()
             val notes = inputNotes.text?.toString()?.trim().orEmpty()
 
+            val gameId = arguments?.getString("gameId")
+
             viewModel.onSaveClicked(
+                gameId = gameId,
                 title = title,
                 rating = rating,
                 language = language,
                 edition = edition,
-                notes = notes,
-                gameId = gameId
+                notes = notes
             )
         }
 
