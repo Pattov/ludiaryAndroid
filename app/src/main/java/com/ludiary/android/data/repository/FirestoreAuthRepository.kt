@@ -21,7 +21,7 @@ import kotlinx.coroutines.tasks.await
  * @property auth Firebase Authentication para autenticación
  * @property db Firebase Firestore para el almacenamiento de datos
  */
-class FirebaseAuthRepository(
+class FirestoreAuthRepository(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore
 ) : AuthRepository {

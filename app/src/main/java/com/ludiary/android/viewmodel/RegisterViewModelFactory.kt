@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.repository.AuthRepository
-import com.ludiary.android.data.repository.FirebaseAuthRepository
+import com.ludiary.android.data.repository.FirestoreAuthRepository
 
 /**
  * Fábrica responsable de crear instancias de [RegisterViewModel].
@@ -22,7 +22,7 @@ class RegisterViewModelFactory : ViewModelProvider.Factory {
      */
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val repo: AuthRepository = FirebaseAuthRepository(
+        val repo: AuthRepository = FirestoreAuthRepository(
             FirebaseAuth.getInstance(),
             FirebaseFirestore.getInstance()
         )

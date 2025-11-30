@@ -10,8 +10,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.repository.FakeUserGamesRepository
+import com.ludiary.android.data.repository.FirestoreUserGamesRepository
 import com.ludiary.android.viewmodel.EditUserGameEvent
 import com.ludiary.android.viewmodel.EditUserGameViewModel
 import com.ludiary.android.viewmodel.EditUserGameViewModelFactory
@@ -21,8 +23,10 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
 
     private val viewModel: EditUserGameViewModel by viewModels{
         EditUserGameViewModelFactory(
-            uid = "TEST_UID",
-            repository = FakeUserGamesRepository
+            uid = FirebaseAuth.getInstance().currentUser!!.uid,
+            repository = FirestoreUserGamesRepository(
+                FirebaseFirestore.getInstance()
+            )
         )
     }
 

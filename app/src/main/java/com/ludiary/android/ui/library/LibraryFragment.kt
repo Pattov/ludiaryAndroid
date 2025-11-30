@@ -10,8 +10,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.repository.FakeUserGamesRepository
+import com.ludiary.android.data.repository.FirestoreUserGamesRepository
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.launch
@@ -19,8 +21,10 @@ import kotlinx.coroutines.launch
 class LibraryFragment : Fragment(R.layout.fragment_library) {
     private val viewModel: LibraryViewModel by viewModels{
         LibraryViewModelFactory(
-            uid = "TEST_UID",
-            repository = FakeUserGamesRepository
+            uid = FirebaseAuth.getInstance().currentUser!!.uid,
+            repository = FirestoreUserGamesRepository(
+                FirebaseFirestore.getInstance()
+            )
         )
     }
 
