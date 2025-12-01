@@ -18,7 +18,14 @@ import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.launch
 
+/**
+ * Pantalla principal del módulo de biblioteca.
+ */
 class LibraryFragment : Fragment(R.layout.fragment_library) {
+
+    /**
+     * ViewModel inyectado mediante Factory
+     */
     private val viewModel: LibraryViewModel by viewModels{
         LibraryViewModelFactory(
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
@@ -28,11 +35,18 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         )
     }
 
+    /**
+     * Adaptador para la lista de juegos del usuario.
+     */
     private lateinit var adapter: UserGameAdapter
 
+    /**
+     * Llamada al crear la vista del fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Adaptador con callbacks para editar y borrar
         adapter = UserGameAdapter(
             onEdit = { gameId ->
                 findNavController().navigate(
@@ -43,15 +57,18 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
             onDelete = { gameId -> viewModel.onDeleteGameClicked(gameId) }
         )
 
+        // Configurar RecyclerView
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerLibrary)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
+        // FAB → navegar al formulario de creación de juego
         val fab = view.findViewById<FloatingActionButton>(R.id.fabAddGame)
         fab.setOnClickListener {
             findNavController().navigate(R.id.nav_edit_user_game)
         }
 
+        // Observar el estado emitido por el ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { ui ->
                 adapter.submitList(ui.games)

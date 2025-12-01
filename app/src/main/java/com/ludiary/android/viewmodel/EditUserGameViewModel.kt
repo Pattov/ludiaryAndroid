@@ -9,16 +9,28 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel para la pantalla de creación y edición de juegos del usuario.
+ */
 class EditUserGameViewModel (
     private val uid: String,
     private val repository: UserGamesRepository
 ) : ViewModel() {
 
+    /**
+     * Eventos emitidos por el ViewModel.
+     */
     private val _events = Channel<EditUserGameEvent>()
     val events = _events.receiveAsFlow()
 
+    /**
+     * Carga los datos de un juego.
+     * Si el juego no existe, muestra un error.
+     * @param gameId Identificador único del juego.
+     */
     fun loadGame(gameId: String){
         viewModelScope.launch {
+            // Obtener la lista actual de juegos (solo la primera emisión)
             val games = repository.getUserGames(uid).first()
             val game = games.find { it.id == gameId }
 
@@ -30,6 +42,16 @@ class EditUserGameViewModel (
         }
     }
 
+    /**
+     * Acción principal del formulario: guardar o actualizar un juego.
+     *
+     * @param gameId Identificador único del juego.
+     * @param title Título del juego.
+     * @param rating Rating del juego.
+     * @param language Idioma del juego.
+     * @param edition Edición del juego.
+     * @param notes Notas del juego.
+     */
     fun onSaveClicked(
         gameId: String?,
         title: String,
@@ -38,13 +60,14 @@ class EditUserGameViewModel (
         edition: String,
         notes: String
     ){
+        // Validación básica
         if (title.isBlank()){
             sendEvent(EditUserGameEvent.ShowError("El título es obligatorio"))
             return
         }
 
         if (gameId == null) {
-
+            //Crear nuevo juego
             val newGame = UserGame(
                 id = "",
                 userId = uid,
@@ -64,6 +87,7 @@ class EditUserGameViewModel (
 
         } else {
 
+            //Actualizar juego existente
             val updated = UserGame(
                 id = gameId,
                 userId = uid,
@@ -83,6 +107,9 @@ class EditUserGameViewModel (
         }
     }
 
+    /**
+     * Envía un evento hacia la UI de forma segura.
+     */
     private fun sendEvent(event: EditUserGameEvent){
         viewModelScope.launch {
             _events.send(event)
@@ -90,8 +117,19 @@ class EditUserGameViewModel (
     }
 }
 
+/**
+ * Eventos usados por [EditUserGameViewModel] para comunicarse con la UI.
+ *
+ * Representan acciones puntuales, no estado continuo.
+ */
 sealed class EditUserGameEvent {
+
+    /** Muestra un mensaje de error (validación o fallo en Firestore). */
     data class ShowError(val message: String) : EditUserGameEvent()
+
+    /** Cierra la pantalla actual y muestra un mensaje de confirmación. */
     data class CloseScreen(val message: String) : EditUserGameEvent()
+
+    /** Rellena el formulario con los datos del juego cargado. */
     data class FillForm (val game: UserGame) : EditUserGameEvent()
 }

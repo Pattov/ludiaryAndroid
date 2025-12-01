@@ -19,8 +19,14 @@ import com.ludiary.android.viewmodel.EditUserGameViewModel
 import com.ludiary.android.viewmodel.EditUserGameViewModelFactory
 import kotlinx.coroutines.launch
 
+/**
+ * Fragmento para añadir o editar un juego del usuario.
+ */
 class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
 
+    /**
+     * ViewModel para gestionar la lógica del fragmento.
+     */
     private val viewModel: EditUserGameViewModel by viewModels{
         EditUserGameViewModelFactory(
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
@@ -30,15 +36,20 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
         )
     }
 
+    /**
+     * Llamada al crear la vista del fragmento.
+     */
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        //Saber si estamos editando o creando un juego nuevo.
         val gameId = arguments?.getString("gameId")
         val isEditing = gameId != null
 
+        // Título dinámico de la pantalla
         val titleScreen = view.findViewById<TextView>(R.id.titleEditGame)
 
         titleScreen.text = if (isEditing) {
@@ -56,14 +67,17 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnCancel)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
+        // Si estamos editando, rellenar el formulario con los datos del juego
         if (gameId != null){
             viewModel.loadGame(gameId)
         }
 
+        // Botón cancelar → volver atrás sin guardar
         btnCancel.setOnClickListener {
             findNavController().navigateUp()
         }
 
+        // Botón guardar → recoger datos de la UI y enviarlos al ViewModel
         btnSave.setOnClickListener {
             val title = inputTitle.text?.toString()?.trim().orEmpty()
             val rating = inputRating.text?.toString()?.toFloatOrNull()
@@ -83,9 +97,12 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
             )
         }
 
+        // Observar los eventos del ViewModel y actualizar la UI
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.events.collect { event ->
                 when (event) {
+
+                    /** Mostrar un error */
                     is EditUserGameEvent.ShowError -> {
                         Toast.makeText(
                             requireContext(),
@@ -93,6 +110,8 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+
+                    /** Cerrar pantalla tras añadir o editar correctamente */
                     is EditUserGameEvent.CloseScreen -> {
                         Toast.makeText(
                             requireContext(),
@@ -101,6 +120,8 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
                         ).show()
                         findNavController().navigateUp()
                     }
+
+                    /** Rellenar el formulario con los datos del juego (modo edición) */
                     is EditUserGameEvent.FillForm -> {
                         inputTitle.setText(event.game.titleSnapshot)
                         inputRating.setText(event.game.personalRating?.toString().orEmpty())

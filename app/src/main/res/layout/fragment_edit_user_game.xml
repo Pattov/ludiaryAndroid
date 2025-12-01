@@ -15,7 +15,7 @@
             android:id="@+id/titleEditGame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Añadir juego a tu ludoteca"
+            android:text="@string/edit_game_title_default"
             android:textSize="22sp"
             android:textStyle="bold"
             android:paddingBottom="16dp"/>
@@ -24,7 +24,7 @@
             android:id="@+id/inputLayoutTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Título del juego">
+            android:hint="@string/edit_game_hint_title">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputTitle"
@@ -38,7 +38,7 @@
             android:id="@+id/inputLayoutRating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Valoración personal (1-10)"
+            android:hint="@string/edit_game_hint_rating"
             android:paddingTop="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -54,7 +54,7 @@
             android:id="@+id/inputLayoutLanguage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Idioma"
+            android:hint="@string/edit_game_hint_language"
             android:paddingTop="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -68,7 +68,7 @@
             android:id="@+id/inputLayoutEdition"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Edición"
+            android:hint="@string/edit_game_hint_edition"
             android:paddingTop="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -82,7 +82,7 @@
             android:id="@+id/inputLayoutNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Notas"
+            android:hint="@string/edit_game_hint_notes"
             android:paddingTop="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -107,13 +107,13 @@
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancelar" />
+                android:text="@string/action_cancel" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Guardar"
+                android:text="@string/action_save"
                 android:layout_marginStart="8dp"/>
 
         </LinearLayout>

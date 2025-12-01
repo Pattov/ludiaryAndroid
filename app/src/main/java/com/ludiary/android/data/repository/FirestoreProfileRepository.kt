@@ -9,7 +9,13 @@ import com.ludiary.android.data.model.User
 import com.ludiary.android.data.model.UserPreferences
 import kotlinx.coroutines.tasks.await
 
-
+/**
+ * Implementación de [ProfileRepository] que utiliza Firestore para obtener y actualizar el perfil del usuario.
+ *
+ * @property auth Instancia de [FirebaseAuth] para autenticación de Firebase.
+ * @property db Instancia de [FirebaseFirestore] para acceso a la base de datos de Firestore.
+ * @property localUser Fuente de datos local
+ */
 class FirestoreProfileRepository (
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
