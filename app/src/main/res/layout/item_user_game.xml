@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
+    android:layout_margin="4dp"
     app:cardElevation="4dp"
     app:cardCornerRadius="12dp">
 
@@ -63,16 +63,6 @@
 
             </LinearLayout>
     </LinearLayout>
-
-        <!-- Imagen derecha -->
-        <ImageView
-            android:id="@+id/imageCover"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginLeft="8dp"
-            android:scaleType="centerCrop"
-            android:background="#EFEFEF"
-            android:contentDescription="@string/image_cover_description" />
 
     </LinearLayout>
 

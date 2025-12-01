@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
             android:text="@string/profile_title"
-            android:textSize="22sp"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView

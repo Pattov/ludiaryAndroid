@@ -30,7 +30,6 @@ class UserGameAdapter(
         val title: TextView = view.findViewById(R.id.textTitle)
         val players: TextView = view.findViewById(R.id.textPlayers)
         val duration : TextView = view.findViewById(R.id.textDuration)
-        val image : ImageView = view.findViewById(R.id.imageCover)
         val btnEdit: Button = view.findViewById(R.id.btnEdit)
         val btnDelete: Button = view.findViewById(R.id.btnDelete)
     }

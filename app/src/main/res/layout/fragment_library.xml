@@ -4,9 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="72dp">
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="96dp">
 
     <!-- Título -->
+
+    <!-- Buscador -->
     <TextView
         android:id="@+id/titleLibrary"
         android:layout_width="0dp"
@@ -14,18 +19,17 @@
         android:text="@string/library_title"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Buscador -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/library_hint_search"
-        android:paddingHorizontal="16dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/titleLibrary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -41,19 +45,21 @@
         android:id="@+id/recyclerLibrary"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingBottom="90dp"
-        app:layout_constraintTop_toBottomOf="@id/inputSearch"
-        app:layout_constraintStart_toStartOf="parent"
+        android:clipToPadding="false"
+        android:paddingTop="12dp"
+        android:paddingBottom="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputSearch" />
 
     <!-- Botón flotante añadir -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="28dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="48dp"
         android:contentDescription="@string/library_add_game"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
