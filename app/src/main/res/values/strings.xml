@@ -35,11 +35,11 @@
     <string name="profile_preferences">Preferencias</string>
 
     <string name="library_title">Ludoteca</string>
-    <string name="library_hint_search">Buscar juego...</string>
+    <string name="library_hint_search">Buscar juego&#8230;</string>
     <string name="library_add_game">Añadir juego</string>
     <string name="edit_game_title_default">Añadir juego a tu ludoteca</string>
     <string name="edit_game_hint_title">Título del juego</string>
-    <string name="edit_game_hint_rating">Valoración personal (1-10)</string>
+    <string name="edit_game_hint_rating">Valoración personal (1&#8211;10)</string>
     <string name="edit_game_hint_language">Idioma</string>
     <string name="edit_game_hint_edition">Edición</string>
     <string name="edit_game_hint_notes">Notas</string>
