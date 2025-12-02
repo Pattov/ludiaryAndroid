@@ -53,9 +53,9 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
         val titleScreen = view.findViewById<TextView>(R.id.titleEditGame)
 
         titleScreen.text = if (isEditing) {
-            "Editar juego"
+            getString(R.string.edit_game_edit_title_form)
         } else {
-            "Añadir juego a tu ludoteca"
+            getString(R.string.edit_game_add_title_form)
         }
 
         val inputTitle = view.findViewById<TextInputEditText>(R.id.inputTitle)

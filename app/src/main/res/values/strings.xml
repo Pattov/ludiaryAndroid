@@ -43,6 +43,8 @@
     <string name="edit_game_hint_language">Idioma</string>
     <string name="edit_game_hint_edition">Edición</string>
     <string name="edit_game_hint_notes">Notas</string>
+    <string name="edit_game_edit_title_form">Editar Juego</string>
+    <string name="edit_game_add_title_form">Añadir juego a tu ludoteca</string>
 
     <string name="action_save">Guardar</string>
     <string name="action_cancel">Cancelar</string>
