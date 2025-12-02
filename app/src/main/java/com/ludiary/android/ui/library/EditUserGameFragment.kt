@@ -3,7 +3,7 @@ package com.ludiary.android.ui.library
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import androidx.fragment.app.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -104,19 +104,19 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
 
                     /** Mostrar un error */
                     is EditUserGameEvent.ShowError -> {
-                        Toast.makeText(
-                            requireContext(),
+                        Snackbar.make(
+                            requireView(),
                             event.message,
-                            Toast.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT
                         ).show()
                     }
 
                     /** Cerrar pantalla tras añadir o editar correctamente */
                     is EditUserGameEvent.CloseScreen -> {
-                        Toast.makeText(
-                            requireContext(),
+                        Snackbar.make(
+                            requireView(),
                             event.message,
-                            Toast.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT
                         ).show()
                         findNavController().navigateUp()
                     }
