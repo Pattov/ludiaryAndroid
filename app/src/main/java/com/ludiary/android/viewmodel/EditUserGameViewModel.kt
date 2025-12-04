@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 /**
  * ViewModel para la pantalla de creación y edición de juegos del usuario.
@@ -67,9 +68,12 @@ class EditUserGameViewModel (
         }
 
         if (gameId == null) {
+
+            val newId = UUID.randomUUID().toString()
+
             //Crear nuevo juego
             val newGame = UserGame(
-                id = "",
+                id = newId,
                 userId = uid,
                 gameId = "",
                 isCustom = true,

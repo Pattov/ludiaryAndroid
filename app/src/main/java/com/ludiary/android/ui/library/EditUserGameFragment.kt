@@ -13,7 +13,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
+import com.ludiary.android.data.local.LocalUserGamesDataSource
+import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.repository.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.EditUserGameEvent
 import com.ludiary.android.viewmodel.EditUserGameViewModel
 import com.ludiary.android.viewmodel.EditUserGameViewModelFactory
@@ -27,12 +31,17 @@ class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
     /**
      * ViewModel para gestionar la lógica del fragmento.
      */
-    private val viewModel: EditUserGameViewModel by viewModels{
+    private val viewModel: EditUserGameViewModel by viewModels {
+        val appContext = requireContext().applicationContext
+        val db = LudiaryDatabase.getInstance(appContext)
+
+        val local = LocalUserGamesDataSource(db.userGameDao())
+        val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        val repository: UserGamesRepository = UserGamesRepositoryImpl(local, remote)
+
         EditUserGameViewModelFactory(
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
-            repository = FirestoreUserGamesRepository(
-                FirebaseFirestore.getInstance()
-            )
+            repository = repository
         )
     }
 

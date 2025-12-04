@@ -13,25 +13,34 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
+import com.ludiary.android.data.local.LocalUserGamesDataSource
+import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.repository.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.launch
 
 /**
- * Pantalla principal del módulo de biblioteca.
+ * Pantalla principal del módulo de Ludoteca.
  */
 class LibraryFragment : Fragment(R.layout.fragment_library) {
 
     /**
      * ViewModel inyectado mediante Factory
      */
-    private val viewModel: LibraryViewModel by viewModels{
+    private val viewModel: LibraryViewModel by viewModels {
+        val appContext = requireContext().applicationContext
+        val db = LudiaryDatabase.getInstance(appContext)
+
+        val local = LocalUserGamesDataSource(db.userGameDao())
+        val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        val repository: UserGamesRepository = UserGamesRepositoryImpl(local, remote)
+
         LibraryViewModelFactory(
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
-            repository = FirestoreUserGamesRepository(
-                FirebaseFirestore.getInstance()
-            )
+            repository = repository
         )
     }
 

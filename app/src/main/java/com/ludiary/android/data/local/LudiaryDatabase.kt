@@ -63,7 +63,7 @@ abstract class LudiaryDatabase: RoomDatabase() {
                     LudiaryDatabase::class.java,
                     "ludiary.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }
             }

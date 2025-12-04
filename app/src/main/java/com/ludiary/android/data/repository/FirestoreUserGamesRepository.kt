@@ -1,18 +1,14 @@
 package com.ludiary.android.data.repository
 
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.UserGame
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * Implementación de [UserGamesRepository] que opera directamente sobre Firebase
  */
 class FirestoreUserGamesRepository (
     private val firestore: FirebaseFirestore
-) : UserGamesRepository {
+) {
 
     /**
      * Devuelve una referencia a la colección de juegos del usuario en Firestore.
@@ -25,41 +21,13 @@ class FirestoreUserGamesRepository (
             .collection("userGames")
 
     /**
-     * Devuelve un flujo que emite una lista de juegos del usuario.
-     *
-     * @param uid Identificador único del usuario.
-     * @return Lista de juegos del usuario.
-     */
-    override fun getUserGames(uid: String): Flow<List<UserGame>> = callbackFlow {
-
-        val registration = userGamesCollection(uid)
-            .addSnapshotListener { querySnapshot, error ->
-                if (error != null) {
-                    trySend(emptyList())
-                    return@addSnapshotListener
-                }
-
-                val games: List<UserGame> = querySnapshot
-                    ?.documents
-                    ?.mapNotNull { doc: DocumentSnapshot ->
-                        doc.toUserGame()
-                    }
-                    ?: emptyList()
-
-                trySend(games)
-            }
-
-        awaitClose { registration.remove() }
-    }
-
-    /**
      * Devuelve un flujo que emite un juego del usuario.
      *
      * @param uid Identificador único del usuario.
-     * @param gameId Identificador único del juego.
+     * @param userGame Identificador único del juego.
      * @return Juego del usuario.
      */
-    override suspend fun addUserGame(uid: String, userGame: UserGame) {
+    fun addUserGame(uid: String, userGame: UserGame) {
         val data = userGame.toFirestoreMapWithoutId()
         userGamesCollection(uid).add(data)
     }
@@ -68,9 +36,8 @@ class FirestoreUserGamesRepository (
      * Elimina un juego del usuario.
      *
      * @param uid Identificador único del usuario.
-     * @param gameId Identificador único del juego.
      */
-    override suspend fun deleteUserGame(uid: String, gameId: String) {
+    fun deleteUserGame(uid: String) {
         userGamesCollection(uid)
             .document()
             .delete()
@@ -82,7 +49,7 @@ class FirestoreUserGamesRepository (
      * @param uid Identificador único del usuario.
      * @param userGame Juego del usuario.
      */
-    override suspend fun updateUserGame(uid: String, userGame: UserGame) {
+    fun updateUserGame(uid: String, userGame: UserGame) {
         if (userGame.id.isBlank()) return
 
         val data = userGame.toFirestoreMapWithoutId()
@@ -90,30 +57,6 @@ class FirestoreUserGamesRepository (
             .document(userGame.id)
             .set(data)
     }
-}
-
-/**
- * Convierte un [DocumentSnapshot] de Firestore a un [UserGame].
- */
-private fun DocumentSnapshot.toUserGame() : UserGame? {
-    val titleSnapshot = getString("title") ?: return null
-
-    return UserGame(
-        id = id,
-        userId = getString("userId") ?: "",
-        gameId = getString("gameId") ?: "",
-        isCustom = getBoolean("isCustom") ?: false,
-        titleSnapshot = titleSnapshot,
-        personalRating = getDouble("personalRating")?.toFloat(),
-        language = getString("language"),
-        edition = getString("edition"),
-        notes = getString("notes"),
-        location = getString("location"),
-        condition = getString("condition"),
-        purchaseDate = getLong("purchaseDate"),
-        baseGameVersionAtLastSync = (getLong("baseGameVersionAtLastSync")?.toInt()),
-        hasBaseUpdate = getBoolean("hasBaseUpdate") ?: false
-    )
 }
 
 /**
