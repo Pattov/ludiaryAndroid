@@ -99,6 +99,7 @@
       <w>confirma</w>
       <w>confirmación</w>
       <w>confirmar</w>
+      <w>construido</w>
       <w>contenedor</w>
       <w>contenido</w>
       <w>contexto</w>
@@ -141,6 +142,7 @@
       <w>desactivar</w>
       <w>desarrolladores</w>
       <w>descargable</w>
+      <w>desconocida</w>
       <w>desde</w>
       <w>destinada</w>
       <w>destruido</w>
@@ -194,6 +196,7 @@
       <w>estamos</w>
       <w>estilo</w>
       <w>esto</w>
+      <w>estructura</w>
       <w>evento</w>
       <w>eventos</w>
       <w>evitar</w>
@@ -340,11 +343,13 @@
       <w>ocurra</w>
       <w>ocurre</w>
       <w>ocurrió</w>
+      <w>oficial</w>
       <w>olvidaste</w>
       <w>opción</w>
       <w>operaciones</w>
       <w>operación</w>
       <w>ordenado</w>
+      <w>ordenados</w>
       <w>otro</w>
       <w>otros</w>
       <w>pantalla</w>
@@ -385,12 +390,14 @@
       <w>puede</w>
       <w>puntuaciones</w>
       <w>puntuales</w>
+      <w>quieres</w>
       <w>raíz</w>
       <w>reaccionar</w>
       <w>reaccione</w>
       <w>reactivo</w>
       <w>realizar</w>
       <w>realizó</w>
+      <w>recibe</w>
       <w>recibir</w>
       <w>recoger</w>
       <w>recomendada</w>
@@ -440,8 +447,10 @@
       <w>sido</w>
       <w>siempre</w>
       <w>siguientes</w>
+      <w>simplemente</w>
       <w>sincroniza</w>
       <w>sincronización</w>
+      <w>sincronizará</w>
       <w>sirve</w>
       <w>sistema</w>
       <w>sobre</w>

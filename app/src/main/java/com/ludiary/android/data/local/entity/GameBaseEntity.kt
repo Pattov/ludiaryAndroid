@@ -27,7 +27,7 @@ import com.ludiary.android.data.model.GameType
  * @property createdAtMillis Fecha de creación del juego
  * @property updatedAtMillis Fecha de actualización del juego
  */
-@Entity(tableName = "game_base")
+@Entity(tableName = "games_base")
 data class GameBaseEntity(
     @PrimaryKey
     val id: String,

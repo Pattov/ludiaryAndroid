@@ -21,6 +21,10 @@ import com.ludiary.android.data.repository.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.launch
+import com.ludiary.android.data.local.LocalGameBaseDataSource
+import com.ludiary.android.data.repository.GameBaseRepository
+import com.ludiary.android.data.repository.GameBaseRepositoryImpl
+import com.ludiary.android.data.repository.FirestoreGameBaseRepositoryImpl
 
 /**
  * Pantalla principal del módulo de Ludoteca.
@@ -34,15 +38,31 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         val appContext = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(appContext)
 
-        val local = LocalUserGamesDataSource(db.userGameDao())
-        val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
-        val repository: UserGamesRepository = UserGamesRepositoryImpl(local, remote)
+        // --- Repositorio de la ludoteca del usuario (userGames) ---
+        val localUserGames = LocalUserGamesDataSource(db.userGameDao())
+        val remoteUserGames = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        val userGamesRepository: UserGamesRepository =
+            UserGamesRepositoryImpl(localUserGames, remoteUserGames)
 
+        // --- Repositorio del catálogo oficial (games_base) ---
+        val gameBaseDao = db.gameBaseDao()
+        val localGameBaseDataSource = LocalGameBaseDataSource(gameBaseDao)
+
+        val firestore = FirebaseFirestore.getInstance()
+        val firestoreGameBaseRepository = FirestoreGameBaseRepositoryImpl(firestore)
+
+        val gameBaseRepository: GameBaseRepository =
+            GameBaseRepositoryImpl(local = localGameBaseDataSource, remote = firestoreGameBaseRepository)
+
+        // --- Factory del ViewModel ---
         LibraryViewModelFactory(
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
-            repository = repository
+            userGamesRepository = userGamesRepository,
+            gameBaseRepository = gameBaseRepository,
+            syncCatalogAutomatically = true   // pon false si quieres solo sync manual
         )
     }
+
 
     /**
      * Adaptador para la lista de juegos del usuario.

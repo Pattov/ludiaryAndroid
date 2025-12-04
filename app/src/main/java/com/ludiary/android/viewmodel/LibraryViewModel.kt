@@ -1,18 +1,27 @@
 package com.ludiary.android.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.GameBaseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel para la pantalla de biblioteca.
+ *
+ * @param uid Identificador único del usuario.
+ * @param userGamesRepository Repositorio de juegos del usuario.
+ * @param gameBaseRepository Repositorio de catálogo de juegos.
+ * @param syncCatalogAutomatically Indica si el catálogo se sincronizará automáticamente.
  */
 class LibraryViewModel(
     private val uid: String,
-    private val userGamesRepository: UserGamesRepository
+    private val userGamesRepository: UserGamesRepository,
+    private val gameBaseRepository: GameBaseRepository,
+    private val syncCatalogAutomatically: Boolean = true
 ) : ViewModel(){
 
     /**
@@ -23,6 +32,10 @@ class LibraryViewModel(
 
     init {
         loadUserGames()
+
+        if (syncCatalogAutomatically) {
+            syncCatalog()
+        }
     }
 
     /**
@@ -48,6 +61,20 @@ class LibraryViewModel(
     fun onDeleteGameClicked(gameId: String){
         viewModelScope.launch {
             userGamesRepository.deleteUserGame(uid, gameId)
+        }
+    }
+
+    /**
+     * Sincroniza el catálogo de juegos.
+     * @param forceFullSync Indica si se sincronizará el catálogo completo.
+     */
+    fun syncCatalog(forceFullSync: Boolean = false) {
+        viewModelScope.launch {
+            try {
+                gameBaseRepository.syncGamesBase(forceFullSync)
+            } catch (e: Exception) {
+                Log.e("LUDIARY", "Error syncing catalog", e)
+            }
         }
     }
 }

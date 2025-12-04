@@ -31,7 +31,7 @@ abstract class LudiaryDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
 
     /**
-     * DAO asociado a la tabla 'game_base'
+     * DAO asociado a la tabla 'games_base'
      * @return [GameBaseDao]
      */
     abstract fun gameBaseDao(): GameBaseDao

@@ -5,17 +5,17 @@ import com.ludiary.android.data.local.entity.GameBaseEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
- * DAO para operaciones de base de datos relacionadas con juegos.
+ * DAO para operaciones de base de datos relacionadas con el catálogo oficial de juegos.
  */
 @Dao
 interface GameBaseDao {
 
     /**
-     * Obtiene todos los juegos del catálogo ordenado por título.
+     * Obtiene todos los juegos del catálogo ordenados por título.
      *
      * @return [Flow] que emite una lista de juegos.
      */
-    @Query("SELECT * FROM game_base ORDER BY title")
+    @Query("SELECT * FROM games_base ORDER BY title")
     fun getAll(): Flow<List<GameBaseEntity>>
 
     /**
@@ -24,7 +24,7 @@ interface GameBaseDao {
      * @param id Identificador único del juego.
      * @return [GameBaseEntity] o null si no se encuentra el juego.
      */
-    @Query("SELECT * FROM game_base WHERE id = :id")
+    @Query("SELECT * FROM games_base WHERE id = :id")
     suspend fun getById(id: String): GameBaseEntity?
 
     /**
@@ -46,6 +46,14 @@ interface GameBaseDao {
     /**
      * Elimina todos los juegos de la base de datos.
      */
-    @Query("DELETE FROM game_base")
+    @Query("DELETE FROM games_base")
     suspend fun clear()
+
+    /**
+     * Obtiene la última marca de tiempo de actualización entre todos los juegos.
+     *
+     * @return Momento de última actualización en milisegundos desde epoch, o null si no hay datos.
+     */
+    @Query("SELECT MAX(updatedAtMillis) FROM games_base")
+    suspend fun getLastUpdatedAtMillis(): Long?
 }

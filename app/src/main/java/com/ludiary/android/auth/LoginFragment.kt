@@ -16,6 +16,8 @@ import com.ludiary.android.databinding.FragmentLoginBinding
 import com.ludiary.android.viewmodel.LoginViewModel
 import com.ludiary.android.viewmodel.LoginViewModelFactory
 import kotlinx.coroutines.launch
+import android.content.Intent
+import com.ludiary.android.data.local.LudiaryDatabase
 
 /**
  * Fragmento encargado de manejar la vista de inicio de sesión.
@@ -156,7 +158,15 @@ class LoginFragment : Fragment() {
 
                     //Estado de éxito -> navegar a la pantalla principal
                     if (st.success) {
-                        startActivity(android.content.Intent(requireContext(), com.ludiary.android.ui.main.MainActivity::class.java))
+                        // Inicializa la base de datos Room para que la estructura esté creada tras el login
+                        LudiaryDatabase.getInstance(requireContext().applicationContext)
+
+                        startActivity(
+                            Intent(
+                                requireContext(),
+                                com.ludiary.android.ui.main.MainActivity::class.java
+                            )
+                        )
                         requireActivity().finish()
                     }
                 }
