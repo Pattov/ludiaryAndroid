@@ -71,10 +71,11 @@ class LibraryViewModel(
     fun syncCatalog(forceFullSync: Boolean = false) {
         viewModelScope.launch {
             try {
-                gameBaseRepository.syncGamesBase(forceFullSync)
+                val count = gameBaseRepository.syncGamesBase(forceFullSync)
             } catch (e: Exception) {
-                Log.e("LUDIARY", "Error syncing catalog", e)
+                android.util.Log.e("LUDIARY", "Error al sincronizar el catálogo: ${e.message}", e)
             }
         }
     }
+
 }

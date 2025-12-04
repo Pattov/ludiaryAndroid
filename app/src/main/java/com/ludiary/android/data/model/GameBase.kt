@@ -31,7 +31,7 @@ data class GameBase(
     val year: Int? = null,
     val designers: List<String> = emptyList(),
     val publishers: List<String> = emptyList(),
-    val bggId: String? = null,
+    val bggId: Long? = null,
     val minPlayers: Int? = null,
     val maxPlayers: Int? = null,
     val durationMinutes: Int? = null,

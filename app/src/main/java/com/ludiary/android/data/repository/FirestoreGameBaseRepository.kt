@@ -82,13 +82,19 @@ class FirestoreGameBaseRepositoryImpl(
         val id = id // doc.id
         val title = getString("title") ?: return null
 
+        val bggId: Long? = when (val value = get("bggId")) {
+            is Number -> value.toLong()
+            is String -> value.toLongOrNull()
+            else -> null
+        }
+
         return GameBase(
             id = id,
             title = title,
             year = getLong("year")?.toInt(),
             designers = (get("designers") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             publishers = (get("publishers") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-            bggId = getString("bggId"),
+            bggId = bggId,
             minPlayers = getLong("minPlayers")?.toInt(),
             maxPlayers = getLong("maxPlayers")?.toInt(),
             durationMinutes = getLong("durationMinutes")?.toInt()
@@ -104,10 +110,23 @@ class FirestoreGameBaseRepositoryImpl(
             imageUrl = getString("imageUrl"),
             approved = getBoolean("approved") ?: true,
             version = getLong("version")?.toInt() ?: 1,
-            createdAt = (getTimestamp("createdAt") ?: getTimestamp("created_at"))?.toDate()
-                ?.toInstant(),
-            updatedAt = (getTimestamp("updatedAt") ?: getTimestamp("updated_at"))?.toDate()
-                ?.toInstant()
+            createdAt = getInstant("createdAt") ?: getInstant("created_at"),
+            updatedAt = getInstant("updatedAt") ?: getInstant("updated_at")
         )
     }
+
+    private fun com.google.firebase.firestore.DocumentSnapshot.getInstant(field: String): Instant? {
+        val value = get(field) ?: return null
+
+        return when (value) {
+            is com.google.firebase.Timestamp -> value.toDate().toInstant()
+            is java.util.Date -> value.toInstant()
+            is Number -> Instant.ofEpochMilli(value.toLong())
+            is String -> {
+                runCatching { Instant.parse(value) }.getOrNull()
+            }
+            else -> null
+        }
+    }
+
 }
