@@ -1,31 +1,32 @@
 data
  ┣ local
  │  ┣ LocalUserDataSource.kt
+ │  ┣ LocalUserGamesDataSource.kt
+ │  ┣ LudiaryConverters.kt
  │  ┣ LudiaryDatabase.kt
  │  ┣ dao
  │  │   ├─ UserDao.kt
- │  │   ├─ GameBaseDao.kt            // NUEVO
- │  │   ├─ UserGameDao.kt            // NUEVO
- │  │   ├─ GameSuggestionDao.kt      // NUEVO
- │  │   └─ PendingOperationDao.kt    // NUEVO
+ │  │   ├─ GameBaseDao.kt            
+ │  │   ├─ UserGameDao.kt            
+ │  │   └─ GameSuggestionDao.kt      
  │  ┣ entity
  │  │   ├─ UserEntity.kt
- │  │   ├─ GameBaseEntity.kt         // NUEVO
- │  │   ├─ UserGameEntity.kt         // NUEVO
- │  │   ├─ GameSuggestionEntity.kt   // NUEVO
- │  │   ├─ PendingOperationEntity.kt // NUEVO
- │  │   └─ LudiaryTypeConverters.kt  // NUEVO (listas, enums…)
+ │  │   ├─ GameBaseEntity.kt         
+ │  │   ├─ UserGameEntity.kt         
+ │  │   ├─ GameSuggestionEntity.kt   
+ │  │   └─ LudiaryTypeConverters.kt  
  ┣ model
  │  ├─ Session.kt
  │  ├─ User.kt
- │  ├─ UserGame.kt                   // lo adaptamos al modelo que definimos
- │  ├─ GameBase.kt                   // NUEVO
- │  ├─ GameSuggestion.kt             // NUEVO
+ │  ├─ UserGame.kt                   
+ │  ├─ GameBase.kt                   
+ │  ├─ GameSuggestion.kt             
  │  └─ enums
- │      └─ LudotecaEnums.kt          // NUEVO: GameType, GameCondition, SyncStatus...
  ┗ repository
     ├─ AuthRepository.kt
     ├─ FirebaseAuthRepository.kt
     ├─ FirestoreProfileRepository.kt
+    ├─ FirestoreUserGamesRepository.kt
     ├─ ProfileRepository.kt
-    └─ GamesRepository.kt            // NUEVO: lógicas de Ludoteca (local+Firebase)
+    ├─ UserGamesRepositoryImpl.kt
+    └─ UserGamesRepository.kt       
