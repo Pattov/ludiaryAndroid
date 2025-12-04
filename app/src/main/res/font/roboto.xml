@@ -4,4 +4,8 @@
         android:fontProviderPackage="com.google.android.gms"
         android:fontProviderQuery="Roboto"
         android:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/roboto" />
 </font-family>
