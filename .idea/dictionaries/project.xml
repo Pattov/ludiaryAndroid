@@ -28,6 +28,7 @@
       <w>ajustes</w>
       <w>almacena</w>
       <w>almacenada</w>
+      <w>almacenadas</w>
       <w>almacenado</w>
       <w>almacenamiento</w>
       <w>altura</w>
@@ -41,6 +42,7 @@
       <w>aproved</w>
       <w>archivo</w>
       <w>asegura</w>
+      <w>aseguramos</w>
       <w>asocia</w>
       <w>asociada</w>
       <w>asociado</w>
@@ -53,6 +55,7 @@
       <w>automáticamente</w>
       <w>autoridad</w>
       <w>añadir</w>
+      <w>basado</w>
       <w>biblioteca</w>
       <w>bordes</w>
       <w>borrar</w>
@@ -62,9 +65,12 @@
       <w>buscador</w>
       <w>buscar</w>
       <w>básica</w>
+      <w>básico</w>
+      <w>básicos</w>
       <w>cabecera</w>
       <w>cada</w>
       <w>cadena</w>
+      <w>cadenas</w>
       <w>calificación</w>
       <w>cambia</w>
       <w>cambiado</w>
@@ -129,6 +135,7 @@
       <w>creación</w>
       <w>creada</w>
       <w>creado</w>
+      <w>creamos</w>
       <w>creando</w>
       <w>crear</w>
       <w>credenciales</w>
@@ -137,6 +144,7 @@
       <w>cuenta</w>
       <w>código</w>
       <w>datos</w>
+      <w>dblocal</w>
       <w>declarado</w>
       <w>defecto</w>
       <w>definición</w>
@@ -148,11 +156,15 @@
       <w>desactivar</w>
       <w>desarrolladores</w>
       <w>descargable</w>
+      <w>descargado</w>
+      <w>descargamos</w>
+      <w>descargar</w>
       <w>desconocida</w>
       <w>desde</w>
       <w>destinada</w>
       <w>destruido</w>
       <w>destruye</w>
+      <w>devolvemos</w>
       <w>devuelve</w>
       <w>dinámicamente</w>
       <w>dinámico</w>
@@ -240,6 +252,7 @@
       <w>gestiona</w>
       <w>gestionar</w>
       <w>guardado</w>
+      <w>guardamos</w>
       <w>guardar</w>
       <w>habilitado</w>
       <w>hacemos</w>
@@ -254,6 +267,7 @@
       <w>incluye</w>
       <w>incorrectas</w>
       <w>incorrectos</w>
+      <w>indicado</w>
       <w>inflada</w>
       <w>información</w>
       <w>informativo</w>
@@ -262,6 +276,7 @@
       <w>inicial</w>
       <w>inicializa</w>
       <w>inicializado</w>
+      <w>inicializar</w>
       <w>iniciar</w>
       <w>inicio</w>
       <w>inmutable</w>
@@ -284,6 +299,7 @@
       <w>invitado</w>
       <w>inválido</w>
       <w>inválidos</w>
+      <w>inyección</w>
       <w>inyectado</w>
       <w>inyectar</w>
       <w>izquierda</w>
@@ -294,6 +310,8 @@
       <w>jugadores</w>
       <w>lanzamiento</w>
       <w>lectura</w>
+      <w>leemos</w>
+      <w>librerías</w>
       <w>limpia</w>
       <w>limpiamos</w>
       <w>limpiar</w>
@@ -326,8 +344,11 @@
       <w>muestra</w>
       <w>método</w>
       <w>mínimo</w>
+      <w>navega</w>
       <w>navegación</w>
       <w>navegar</w>
+      <w>necesarias</w>
+      <w>necesario</w>
       <w>ninguna</w>
       <w>ninguno</w>
       <w>nombre</w>
@@ -344,6 +365,7 @@
       <w>observar</w>
       <w>observarlo</w>
       <w>obtener</w>
+      <w>obtenida</w>
       <w>obtenido</w>
       <w>obtiene</w>
       <w>oculta</w>
@@ -363,6 +385,7 @@
       <w>paquete</w>
       <w>partida</w>
       <w>partidas</w>
+      <w>partir</w>
       <w>pedimos</w>
       <w>perfil</w>
       <w>permite</w>
@@ -468,6 +491,7 @@
       <w>sobre</w>
       <w>solicita</w>
       <w>solicitada</w>
+      <w>solicitado</w>
       <w>solicitud</w>
       <w>soportados</w>
       <w>subcolección</w>

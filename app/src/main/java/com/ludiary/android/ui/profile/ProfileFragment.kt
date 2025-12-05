@@ -50,10 +50,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    /**
+     * Configura la interfaz del perfil una vez que la vista ha sido creada.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //
+        // Elementos de UI
         val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
         val tvUid = view.findViewById<TextView>(R.id.tvUid)
         val tvCreatedAt = view.findViewById<TextView>(R.id.tvCreatedAt)
@@ -123,7 +126,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                     }
                 }
 
-                //Mientras loading = true -> desactivar botón guardar
+                //Mientras loading = true → desactivar botón guardar
                 btnSave.isEnabled = !st.loading
             }
         }
@@ -147,6 +150,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    /**
+     * Navega a la pantalla de autenticación.
+     */
     private fun goToAuth() {
         val intent = Intent(requireContext(), AuthActivity::class.java).apply {
             // Limpiamos el backstack para que no pueda volver al perfil

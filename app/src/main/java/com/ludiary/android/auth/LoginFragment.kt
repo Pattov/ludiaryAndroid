@@ -43,7 +43,7 @@ class LoginFragment : Fragment() {
     /**
      * ViewModel asociado al login, obtenido mediante un delegado de fragment
      */
-    private val vm: LoginViewModel by viewModels { LoginViewModelFactory() }
+    private val vm: LoginViewModel by viewModels { LoginViewModelFactory(requireContext()) }
 
     /**
      * Infla la vista de fragment utilizando *view binding*.
@@ -156,7 +156,7 @@ class LoginFragment : Fragment() {
                         }
                     }
 
-                    //Estado de éxito -> navegar a la pantalla principal
+                    //Estado de éxito → navegar a la pantalla principal
                     if (st.success) {
                         // Inicializa la base de datos Room para que la estructura esté creada tras el login
                         LudiaryDatabase.getInstance(requireContext().applicationContext)

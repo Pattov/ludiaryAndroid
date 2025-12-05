@@ -7,8 +7,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.R
+import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.model.User
+import com.ludiary.android.data.model.UserPreferences
+import com.ludiary.android.util.ResourceProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,10 +26,14 @@ import kotlinx.coroutines.tasks.await
  *
  * @property auth Firebase Authentication para autenticación
  * @property db Firebase Firestore para el almacenamiento de datos
+ * @property localUser Fuente de datos local para el almacenamiento del usuario
+ * @property resources Proveedor de recursos para mensajes de error
  */
 class FirestoreAuthRepository(
     private val auth: FirebaseAuth,
-    private val db: FirebaseFirestore
+    private val db: FirebaseFirestore,
+    private val localUser: LocalUserDataSource,
+    private val resources: ResourceProvider
 ) : AuthRepository {
     /**
      * Devuelve el usuario autenticado actualmente, o null si no hay sesión activa.
@@ -45,7 +55,7 @@ class FirestoreAuthRepository(
      *
      * @return Flujo reactivo de User
      */
-    override fun authState(): Flow<User?> = callbackFlow{
+    override fun authState(): Flow<User?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { fa ->
             val u = fa.currentUser?.let {
                 User(
@@ -74,27 +84,33 @@ class FirestoreAuthRepository(
         return try {
             auth.signInWithEmailAndPassword(email.trim(), password).await()
             val u = auth.currentUser ?: return AuthResult.Error("Usuario no encontrado")
+
+            // Nos aseguramos de que exista el documento en Firestore
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
-            AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
+
+            // Descargamos el perfil desde Firestore (si es posible) y lo guardamos en local
+            val profile = fetchUserFromFirestoreOrFallback(u)
+            localUser.saveLocalUser(profile)
+
+            AuthResult.Success(profile)
         }catch (e: Exception) {
             val msg = when (e) {
                 is FirebaseAuthInvalidUserException,
                 is FirebaseAuthInvalidCredentialsException -> {
                     // Credenciales incorrectas (correo o contraseña)
-                    "Correo electrónico o contraseña incorrectos"
+                    resources.getString(R.string.auth_error_invalid_credentials)
                 }
                 is FirebaseNetworkException -> {
                     // Problema de conexión
-                    "No hay conexión. Comprueba tu conexión a internet."
+                    resources.getString(R.string.auth_error_network)
                 }
                 else -> {
                     // Cualquier otro error genérico
-                    "No se ha podido iniciar sesión. Inténtalo de nuevo más tarde."
-                }
+                    resources.getString(R.string.auth_error_generic)                }
             }
 
             // Log para ti, pero el usuario solo ve el mensaje bonito
-            Log.e("FirebaseAuthRepository", "Error al iniciar sesión", e)
+            Log.e("LUDIARY_AUTH_REPO", "Error al iniciar sesión", e)
             AuthResult.Error(msg)
         }
     }
@@ -111,23 +127,30 @@ class FirestoreAuthRepository(
     override suspend fun register(email: String, password: String): AuthResult {
         return try {
             auth.createUserWithEmailAndPassword(email.trim(), password).await()
-            val u = auth.currentUser ?: return AuthResult.Error("Usuario no encontrado tras registro")
+            val u = auth.currentUser ?: return AuthResult.Error(resources.getString(R.string.auth_error_user_not_found_after_register))
+
+            // Creamos el documento de usuario en Firestore
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
-            AuthResult.Success(User(u.uid, u.email, u.displayName, u.isAnonymous))
+
+            // Leemos el perfil desde Firestore y lo guardamos en local
+            val profile = fetchUserFromFirestoreOrFallback(u)
+            localUser.saveLocalUser(profile)
+
+            AuthResult.Success(profile)
         }catch (e: Exception){
             val msg = when (e) {
                 is FirebaseAuthUserCollisionException -> {
-                    "Este correo ya está registrado."
+                    resources.getString(R.string.auth_error_collision)
                 }
                 is FirebaseNetworkException -> {
-                    "No hay conexión. Comprueba tu conexión a internet."
+                    resources.getString(R.string.auth_error_network)
                 }
                 else -> {
-                    "No se ha podido registrar el usuario. Inténtalo de nuevo más tarde."
+                    resources.getString(R.string.auth_error_generic_register)
                 }
             }
 
-            Log.e("FirebaseAuthRepository", "Error al registrar usuario", e)
+            Log.e("LUDIARY_AUTH_REPO", "Error al registrar usuario", e)
             AuthResult.Error(msg)
         }
     }
@@ -142,24 +165,36 @@ class FirestoreAuthRepository(
     override suspend fun loginAnonymously(): AuthResult {
         return try {
             auth.signInAnonymously().await()
-            val u = auth.currentUser ?: return AuthResult.Error("Usuario anónimo no encontrado")
-            return AuthResult.Success(
-                User(
-                    uid = u.uid,
-                    email = u.email,
-                    displayName = u.displayName,
-                    isAnonymous = u.isAnonymous
-                )
+            val u = auth.currentUser ?: return AuthResult.Error(resources.getString(R.string.auth_error_user_not_found))
+
+            // Usuario invitado solo en local
+            val now = System.currentTimeMillis()
+            val guest = User(
+                uid = u.uid,
+                email = null,
+                displayName = resources.getString(R.string.auth_guest_name),
+                isAnonymous = true,
+                createdAt = now,
+                updatedAt = now,
+                preferences = UserPreferences(
+                    language = "es",
+                    theme = "system"
+                ),
+                isAdmin = false
             )
+
+            localUser.saveLocalUser(guest)
+
+            AuthResult.Success(guest)
         } catch (e: Exception) {
             val msg = when (e) {
                 is FirebaseNetworkException ->
-                    "No hay conexión. Comprueba tu conexión a internet."
+                    resources.getString(R.string.auth_error_network)
                 else ->
-                    "No se ha podido iniciar sesión como invitado. Inténtalo de nuevo más tarde."
+                    resources.getString(R.string.auth_error_guest_failed)
             }
 
-            Log.e("FirebaseAuthRepository", "Error al iniciar sesión como invitado", e)
+            Log.e("LUDIARY_AUTH_REPO", "Error al iniciar sesión como invitado", e)
             AuthResult.Error(msg)
         }
     }
@@ -183,7 +218,7 @@ class FirestoreAuthRepository(
 
             if (snap.isEmpty) {
                 // No existe en nuestra base -> mensaje de error
-                return AuthResult.Error("No existe ninguna cuenta asociada a ese correo.")
+                return AuthResult.Error(resources.getString(R.string.auth_error_reset_no_user))
             }
 
             // 2) Si existe, ahora sí pedimos a Firebase que envíe el correo
@@ -192,10 +227,10 @@ class FirestoreAuthRepository(
         }catch (e: Exception){
             val msg = when (e) {
                 is FirebaseNetworkException -> {
-                    "No hay conexión. Comprueba tu conexión a internet."
+                    resources.getString(R.string.auth_error_network)
                 }
                 else -> {
-                    "No se ha podido enviar el correo de restablecimiento. Inténtalo de nuevo más tarde."
+                    resources.getString(R.string.auth_error_reset_generic)
                 }
             }
             AuthResult.Error(msg)
@@ -207,6 +242,7 @@ class FirestoreAuthRepository(
      */
     override suspend fun signOut() {
         auth.signOut()
+        localUser.clear()
     }
 
     /**
@@ -228,7 +264,7 @@ class FirestoreAuthRepository(
         val ref = db.collection("users").document(uid)
         val snap = ref.get().await()
         if(!snap.exists()){
-            val now = Timestamp.now()
+            val now: Timestamp = Timestamp.now()
             val payload = mapOf(
                 "uid" to uid,
                 "email" to email,
@@ -244,5 +280,70 @@ class FirestoreAuthRepository(
             )
             ref.set(payload).await()
         }
+    }
+
+    /**
+     * Intenta descargar el perfil del usuario desde Firestore.
+     *
+     * Si falla, devuelve un usuario con los datos básicos.
+     *
+     * @param firebaseUser Usuario de Firebase
+     * @return Perfil del usuario descargado o un usuario con los datos básicos
+     */
+    private suspend fun fetchUserFromFirestoreOrFallback(firebaseUser: FirebaseUser): User {
+        return try {
+            val doc = db.collection("users").document(firebaseUser.uid).get().await()
+            if (!doc.exists()) {
+                basicUserFromFirebase(firebaseUser)
+            } else {
+                doc.toUserModel(firebaseUser.uid, firebaseUser)
+            }
+        } catch (_: Exception) {
+            // Si algo falla con Firestore (sin conexión, etc.), devolvemos un usuario básico
+            basicUserFromFirebase(firebaseUser)
+        }
+    }
+
+    /**
+     * Crea un usuario básico a partir de los datos de Firebase.
+     *
+     * @param firebaseUser Usuario de Firebase
+     * @return Usuario básico con los datos básicos
+     */
+    private fun basicUserFromFirebase(firebaseUser: FirebaseUser): User {
+        return User(
+            uid = firebaseUser.uid,
+            email = firebaseUser.email,
+            displayName = firebaseUser.displayName,
+            isAnonymous = firebaseUser.isAnonymous
+        )
+    }
+
+    /**
+     * Convierte un documento de Firestore en un modelo de usuario.
+     *
+     * @param defaultUid UID por defecto si no se encuentra en el documento
+     * @param firebaseUser Usuario de Firebase
+     * @return Modelo de usuario con los datos del documento
+     */
+    private fun DocumentSnapshot.toUserModel(defaultUid: String, firebaseUser: FirebaseUser): User {
+        val pref = (this.get("preferences") as? Map<*, *>) ?: emptyMap<String, Any>()
+
+        val lang = pref["language"] as? String ?: "es"
+        val theme = pref["theme"] as? String ?: "system"
+
+        val createdTs = getTimestamp("createdAt")
+        val updatedTs = getTimestamp("updatedAt")
+
+        return User(
+            uid = getString("uid") ?: defaultUid,
+            email = getString("email") ?: firebaseUser.email,
+            displayName = getString("displayName") ?: firebaseUser.displayName ?: "",
+            isAnonymous = getBoolean("isAnonymous") ?: firebaseUser.isAnonymous,
+            createdAt = createdTs?.toDate()?.time,
+            updatedAt = updatedTs?.toDate()?.time,
+            preferences = UserPreferences(language = lang, theme = theme),
+            isAdmin = getBoolean("isAdmin") ?: false
+        )
     }
 }

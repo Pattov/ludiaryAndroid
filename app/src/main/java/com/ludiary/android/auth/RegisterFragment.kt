@@ -35,7 +35,7 @@ class RegisterFragment : Fragment() {
     private val binding get() = _binding!!
 
     /** ViewModel asociado al registro, creado con [RegisterViewModelFactory]. */
-    private val vm: RegisterViewModel by viewModels{ RegisterViewModelFactory() }
+    private val vm: RegisterViewModel by viewModels{ RegisterViewModelFactory(requireContext()) }
 
     /**
      * Infla el layout [FragmentRegisterBinding] correspondiente al fragmento.
@@ -46,7 +46,7 @@ class RegisterFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
