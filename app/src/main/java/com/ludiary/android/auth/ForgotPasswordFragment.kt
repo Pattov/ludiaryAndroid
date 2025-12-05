@@ -31,7 +31,7 @@ class ForgotPasswordFragment : Fragment() {
     private val binding get() = _binding!!
 
     /** ViewModel compartido con el flujo de autenticación, encargado de gestión la lógica de recuperación */
-    private val vm: LoginViewModel by viewModels{ LoginViewModelFactory() }
+    private val vm: LoginViewModel by viewModels{ LoginViewModelFactory(requireContext()) }
 
     /**
      * Infla el layout [FragmentForgotPasswordBinding] correspondiente al fragmento.
@@ -42,7 +42,7 @@ class ForgotPasswordFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
         return binding.root
     }

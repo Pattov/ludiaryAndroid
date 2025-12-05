@@ -18,18 +18,18 @@ class GameBaseRepositoryImpl(
 
     /**
      * Sincroniza el catálogo de juegos.
-     * @param forceFullSync Indica si se sincronizará el catálogo completo.
+     * @param forceGamesBase Indica si se sincronizará el catálogo completo.
      * @return Número de juegos sincronizados.
      * @throws Exception Si ocurre un error durante la sincronización.
      */
-    override suspend fun syncGamesBase(forceFullSync: Boolean): Int {
+    override suspend fun syncGamesBase(forceGamesBase: Boolean): Int {
         val lastUpdatedMillis: Long? =
-            if (forceFullSync) null else local.getLastUpdatedAtMillis()
+            if (forceGamesBase) null else local.getLastUpdatedAtMillis()
 
         val lastUpdatedInstant = lastUpdatedMillis?.let(Instant::ofEpochMilli)
 
         val remoteGames =
-            if (forceFullSync || lastUpdatedInstant == null) {
+            if (forceGamesBase || lastUpdatedInstant == null) {
                 remote.getAllGamesBase()
             } else {
                 remote.getGamesBaseUpdatedSince(lastUpdatedInstant)
@@ -37,7 +37,7 @@ class GameBaseRepositoryImpl(
 
         if (remoteGames.isEmpty()) return 0
 
-        if (forceFullSync) {
+        if (forceGamesBase) {
             local.clear()
         }
 
