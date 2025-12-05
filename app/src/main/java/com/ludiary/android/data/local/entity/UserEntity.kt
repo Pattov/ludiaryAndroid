@@ -20,6 +20,7 @@ import androidx.room.PrimaryKey
 data class UserEntity(
     @PrimaryKey val id: Int = 0,
     val uid: String = "local-guest",
+    val email: String?,
     val displayName: String = "Invitado",
     val language: String = "es",
     val theme: String = "system",

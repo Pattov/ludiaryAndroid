@@ -26,6 +26,7 @@ fun User.toEntity(): UserEntity =
     UserEntity(
         id = 0,
         uid = uid,
+        email = email,
         displayName = displayName ?: "Invitado",
         language = preferences?.language ?: "es",
         theme = preferences?.theme ?: "system",
