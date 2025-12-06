@@ -1,171 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="24dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="96dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <!-- Título de la pantalla -->
-
-        <!-- TARJETA DE DATOS DEL USUARIO -->
+        <!-- ======================= -->
+        <!--      TÍTULO GENERAL     -->
+        <!-- ======================= -->
         <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvProfileTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
             android:text="@string/profile_title"
             android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:paddingBottom="24dp" />
 
-        <com.google.android.material.card.MaterialCardView
+        <!-- ======================= -->
+        <!--   CABECERA (nombre)     -->
+        <!-- ======================= -->
+        <TextView
+            android:id="@+id/tvDisplayName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#DDDDDD"
-            android:padding="16dp">
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:orientation="vertical">
-
-                <!-- Email del usuario -->
-                <TextView
-                    android:id="@+id/tvEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="2dp"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_display_name_hint"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:paddingBottom="2dp"/>
-
-                <!-- Nombre visible -->
-                <EditText
-                    android:id="@+id/etDisplayName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="name"
-                    android:backgroundTint="@color/colorOnPrimary"
-                    android:hint="@string/profile_display_name"
-                    android:inputType="text"
-                    android:paddingVertical="4dp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Separador -->
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="24dp" />
-
-        <!-- Tarjeta de preferencias -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- EMAIL / SUBTÍTULO -->
+        <TextView
+            android:id="@+id/tvEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#DDDDDD"
-            android:padding="16dp">
+            android:textSize="14sp"
+            android:paddingBottom="32dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:orientation="vertical">
+        <!-- ======================= -->
+        <!--         OPCIONES        -->
+        <!-- ======================= -->
 
-                <TextView
-                    android:text="@string/profile_preferences"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:paddingBottom="8dp"/>
-
-                <!-- Idioma -->
-                <TextView
-                    android:id="@+id/tvLanguage"
-                    android:enabled="false"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <!-- Tema -->
-                <TextView
-                    android:id="@+id/tvTheme"
-                    android:enabled="false"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <!-- Fecha de registro -->
-                <TextView
-                    android:id="@+id/tvCreatedAt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp"/>
-
-                <!-- UID (solo para administradores, se oculta dinámicamente) -->
-                <TextView
-                    android:id="@+id/tvUid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:paddingTop="4dp"
-                    android:visibility="gone"/>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Separador -->
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="24dp" />
-
-        <!-- Acciones: Guardar / Cerrar sesión -->
+        <!-- EDITAR PERFIL -->
         <LinearLayout
-            android:orientation="horizontal"
-            android:gravity="center"
+            android:id="@+id/rowEditProfile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
 
-            <Button
-                android:id="@+id/btnSave"
-                android:text="@string/action_save"
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_round"
+                android:padding="8dp"
+                android:src="@drawable/ic_edit" />
+
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-            
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="wrap_content" />
+                android:layout_weight="1"
+                android:paddingStart="16dp"
+                android:text="Editar perfil"
 
-            <Button
-                android:id="@+id/btnLogout"
-                android:text="@string/profile_logout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:textSize="16sp" />
 
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_arrow_right" />
         </LinearLayout>
+
+
+        <!-- PREFERENCIAS -->
+        <LinearLayout
+            android:id="@+id/rowPreferences"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_round"
+                android:padding="8dp"
+                android:src="@drawable/ic_settings" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="16dp"
+                android:text="Preferencias"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_arrow_right" />
+        </LinearLayout>
+
+
+        <!-- SINCRONIZACIÓN -->
+        <LinearLayout
+            android:id="@+id/rowSync"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_round"
+                android:padding="8dp"
+                android:src="@drawable/ic_sync" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="16dp"
+                android:text="Sincronización"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_arrow_right" />
+        </LinearLayout>
+
+
+        <!-- ======================= -->
+        <!--      BOTÓN LOGOUT       -->
+        <!-- ======================= -->
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/profile_logout"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 

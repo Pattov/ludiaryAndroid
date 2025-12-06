@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_main"
     app:startDestination="@id/nav_dashboard">
 
@@ -31,7 +32,11 @@
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.ludiary.android.ui.profile.ProfileFragment"
-        android:label="Perfil"/>
+        android:label="Perfil">
+        <action
+            android:id="@+id/action_nav_profile_to_editProfileFragment"
+            app:destination="@id/nav_editProfileFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_edit_user_game"
@@ -44,5 +49,11 @@
             android:defaultValue="@null"/>
 
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_editProfileFragment"
+        android:name="com.ludiary.android.ui.profile.EditProfileFragment"
+        android:label="Editar perfil"
+        tools:layout="@layout/form_edit_profile" />
 
 </navigation>

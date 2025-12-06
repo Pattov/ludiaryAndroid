@@ -31,42 +31,52 @@ class FirestoreProfileRepository (
      * Obtiene el usuario actual del usuario autenticado en Firebase.
      */
     override suspend fun getOrCreate(): User {
-        val firebaseUser = auth.currentUser
-
         // Si el usuario no tiene Sesión Firebase, devuelve el usuario local
-        if (firebaseUser == null) {
-            return localUser.getLocalUser()
-        }
+        val firebaseUser = auth.currentUser ?: return localUser.getLocalUser()
 
         // Si el usuario tiene Sesión Firebase, intenta obtener su perfil de Firestore
         return try {
+            // 1) Obtener documento Firestore
             val doc = users().document(firebaseUser.uid).get().await()
-            if (!doc.exists()) {
+            val userFromDb = if (!doc.exists()) {
                 createProfileFromLocalOrAuth(firebaseUser)
             } else {
                 doc.toUserProfile()
             }
-        } catch (e: Exception) {
-            //Fallback si Firestore no está disponible
+
+            // 2) Obtener token y claims
+            val tokenResult = firebaseUser.getIdToken(true).await()
+            val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
+
+            // 3) Devolver usuario final combinando Firestore + token.claims
+            userFromDb.copy(isAdmin = isAdminClaim)
+
+        } catch (_: Exception) {
+
+            // Fallback offline
             val local = localUser.getLocalUser()
+
+            val firebaseUser = auth.currentUser
+            val tokenResult = firebaseUser?.getIdToken(false)?.await()
+            val isAdminClaim = tokenResult?.claims?.get("admin") == true
+
             User(
-                uid = firebaseUser.uid,
-                email = firebaseUser.email,
-                displayName = local.displayName ?: firebaseUser.displayName?: "",
+                uid = firebaseUser?.uid ?: local.uid,
+                email = firebaseUser?.email ?: local.email,
+                displayName = local.displayName ?: firebaseUser?.displayName ?: "",
                 isAnonymous = false,
-                createdAt = null,
-                updatedAt = null,
+                createdAt = local.createdAt,
+                updatedAt = local.updatedAt,
                 preferences = local.preferences ?: UserPreferences("es", "system"),
-                isAdmin = false
+                isAdmin = isAdminClaim
             )
         }
-
     }
 
     /**
      * Actualiza el perfil del usuario en Firestore con los datos proporcionados.
      */
-    override suspend fun update(displayName: String?, language: String?, theme: String?): User{
+    override suspend fun update(displayName: String?, language: String?, theme: String?): User {
         val firebaseUser = auth.currentUser
 
         //Modo local: actualiza solo la base de datos interna
@@ -95,8 +105,15 @@ class FirestoreProfileRepository (
 
         users().document(firebaseUser.uid).set(updates, SetOptions.merge()).await()
 
+        // Perfil tal y como está en Firestore
         val remote = users().document(firebaseUser.uid).get().await().toUserProfile()
-        return remote
+
+        // Obtener claim "admin" desde el token de Firebase
+        val tokenResult = firebaseUser.getIdToken(false).await()
+        val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
+
+        // Devolver perfil remoto pero con isAdmin actualizado desde el token
+        return remote.copy(isAdmin = isAdminClaim)
     }
 
     /**
@@ -159,6 +176,10 @@ class FirestoreProfileRepository (
         val local = localUser.getLocalUser()
         val now = com.google.firebase.Timestamp.now()
 
+        // Obtener el claim admin del token
+        val tokenResult = firebaseUser.getIdToken(true).await()
+        val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
+
         val profile = User(
             uid = firebaseUser.uid,
             email = firebaseUser.email,
@@ -167,7 +188,7 @@ class FirestoreProfileRepository (
             createdAt = now.toDate().time,
             updatedAt = now.toDate().time,
             preferences = local.preferences ?: UserPreferences("es", "system"),
-            isAdmin = false
+            isAdmin = isAdminClaim
         )
         users().document(firebaseUser.uid).set(profile.toMap()).await()
         return profile

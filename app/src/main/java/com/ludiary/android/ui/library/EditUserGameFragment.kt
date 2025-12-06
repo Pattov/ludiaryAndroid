@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 /**
  * Fragmento para añadir o editar un juego del usuario.
  */
-class EditUserGameFragment : Fragment(R.layout.fragment_edit_user_game) {
+class EditUserGameFragment : Fragment(R.layout.form_user_game) {
 
     /**
      * ViewModel para gestionar la lógica del fragmento.

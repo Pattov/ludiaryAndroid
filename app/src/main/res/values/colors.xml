@@ -9,4 +9,11 @@
     <color name="colorOutline">#B3B3B3</color>
     <color name="colorHint">#707070</color>
     <color name="colorSurfaceVariant">#F3F3F3</color>
+    <color name="profile_option_icon">@color/colorPrimary</color>
+
+    <color name="profile_bg">#F4F6FD</color>        <!-- Fondo general tipo mockup -->
+    <color name="profile_block_bg">#FFFFFFFF</color> <!-- Bloques blancos -->
+    <color name="profile_divider">#E5E7EB</color>    <!-- Líneas de separación -->
+    <color name="profile_section">#6C7280</color>    <!-- Texto gris azulado -->
+
 </resources>

@@ -10,8 +10,6 @@
     android:paddingBottom="96dp">
 
     <!-- Título -->
-
-    <!-- Buscador -->
     <TextView
         android:id="@+id/titleLibrary"
         android:layout_width="0dp"
@@ -24,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Buscador -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputSearch"
         android:layout_width="0dp"

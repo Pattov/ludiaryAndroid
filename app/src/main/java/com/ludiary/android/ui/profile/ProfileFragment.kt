@@ -4,13 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
@@ -22,9 +26,11 @@ import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.util.Date
 
 /**
- * Pantalla destinada a mostrar y editar la información del perfil del usuario.
+ * Pantalla destinada a mostrar la información del perfil del usuario y opciones de configuración.
  */
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -42,7 +48,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             localDS
         )
 
-        object : ViewModelProvider.Factory{
+        object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return ProfileViewModel(repo) as T
@@ -56,67 +62,58 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Elementos de UI
+        // Elementos de UI del nuevo layout
+        val tvDisplayName = view.findViewById<TextView>(R.id.tvDisplayName)
         val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
-        val tvUid = view.findViewById<TextView>(R.id.tvUid)
-        val tvCreatedAt = view.findViewById<TextView>(R.id.tvCreatedAt)
-        val tvLang = view.findViewById<TextView>(R.id.tvLanguage)
-        val tvTheme = view.findViewById<TextView>(R.id.tvTheme)
-        val etName = view.findViewById<EditText>(R.id.etDisplayName)
-
-        val btnSave = view.findViewById<Button>(R.id.btnSave)
+        val rowEditProfile = view.findViewById<LinearLayout>(R.id.rowEditProfile)
+        val rowPreferences = view.findViewById<LinearLayout>(R.id.rowPreferences)
+        val rowSync = view.findViewById<LinearLayout>(R.id.rowSync)
         val btnLogout = view.findViewById<Button>(R.id.btnLogout)
 
-        // --------------------- Observación del estado -------------------------.
+        // --------------------- Observación del estado -------------------------
         viewLifecycleOwner.lifecycleScope.launch {
             vm.ui.collectLatest { st: ProfileUiState ->
                 val user = st.user
 
                 if (user != null) {
-                    // Email
-                    val emailText = when {
-                        user.email != null ->
-                            getString(R.string.profile_email, user.email)
-                        user.isAnonymous ->
-                            getString(R.string.profile_email_guest)
-                        else ->
-                            getString(R.string.profile_email_unknown)
-                    }
-                    tvEmail.text = emailText
 
-                    // UID
-                    if (user.isAdmin) {
-                        tvUid.visibility = View.VISIBLE
-                        tvUid.text = getString(R.string.profile_uid, user.uid)
+                    val displayName = user.displayName?.takeIf { it.isNotBlank() }
+                    val emailRaw = user.email
+                    val isGuest = user.isAnonymous
+
+                    val mainTitle: String
+                    val subtitle: String?
+
+                    if (isGuest && displayName == null && emailRaw.isNullOrBlank()) {
+                        // Invitado sin nombre ni correo -> "Invitado" como título
+                        mainTitle = getString(R.string.profile_guest_name)
+                        subtitle = getString(R.string.profile_email_guest)
+                    } else if (displayName != null) {
+                        // Hay alias -> alias como título, email debajo
+                        mainTitle = displayName
+                        subtitle = when {
+                            emailRaw != null -> emailRaw
+                            isGuest -> getString(R.string.profile_email_guest)
+                            else -> getString(R.string.profile_email_unknown)
+                        }
                     } else {
-                        tvUid.visibility = View.GONE
+                        // No hay alias -> el correo (o texto) hace de título
+                        mainTitle = when {
+                            emailRaw != null -> emailRaw
+                            isGuest -> getString(R.string.profile_email_guest)
+                            else -> getString(R.string.profile_email_unknown)
+                        }
+                        subtitle = null
                     }
 
-                    // Nombre visible
-                    val displayName = user.displayName.orEmpty()
-                    if (etName.text.toString() != displayName) {
-                        etName.setText(displayName)
-                    }
+                    tvDisplayName.text = mainTitle
 
-                    // Fecha de registro
-                    val created = user.createdAt
-                    if (created != null) {
-                        val dateStr = java.text.DateFormat
-                            .getDateInstance()
-                            .format(java.util.Date(created))
-                        tvCreatedAt.text =
-                            getString(R.string.profile_created_at, dateStr)
+                    if (subtitle == null) {
+                        tvEmail.visibility = View.GONE
                     } else {
-                        tvCreatedAt.text =
-                            getString(R.string.profile_created_at_unknown)
+                        tvEmail.visibility = View.VISIBLE
+                        tvEmail.text = subtitle
                     }
-
-                    // Idioma y tema
-                    val lang = user.preferences?.language ?: "es"
-                    val theme = user.preferences?.theme ?: "system"
-
-                    tvLang.text = getString(R.string.profile_language, lang)
-                    tvTheme.text = getString(R.string.profile_theme, theme)
 
                     // Texto del botón según tipo de usuario
                     btnLogout.text = if (user.isAnonymous) {
@@ -125,29 +122,89 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                         getString(R.string.profile_logout)
                     }
                 }
-
-                //Mientras loading = true → desactivar botón guardar
-                btnSave.isEnabled = !st.loading
             }
         }
 
-        // Acciones de botones
-        btnSave.setOnClickListener {
-            vm.save(etName.text?.toString())
+        // --------------------- Acciones de botones / filas --------------------
+
+        rowEditProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_editProfileFragment)
+        }
+
+        rowPreferences.setOnClickListener {
+            // navegación futura a fragment de Preferencias
+        }
+
+        rowSync.setOnClickListener {
+            // navegación futura a fragment de Sincronización
         }
 
         btnLogout.setOnClickListener {
-
             val currentUser = vm.ui.value.user
             if (currentUser?.isAnonymous == true) {
                 // Invitado → ir al flujo de autenticación
                 goToAuth()
             } else {
-                // Usuario registrado → cerrar sesión en Firebase y navegar
+                // Usuario registrado  cerrar sesión en Firebase y navegar
                 vm.logout()
                 goToAuth()
             }
         }
+    }
+
+
+    /**
+     * Muestra el modal para editar el perfil.
+     */
+    private fun showEditProfileDialog(user: com.ludiary.android.data.model.User) {
+        val ctx = requireContext()
+        val dialogView = layoutInflater.inflate(R.layout.form_edit_profile, null)
+
+        val inputAlias = dialogView.findViewById<TextInputEditText>(R.id.inputAlias)
+        val inputEmail = dialogView.findViewById<TextInputEditText>(R.id.inputEmail)
+        val inputCreatedAt = dialogView.findViewById<TextInputEditText>(R.id.inputCreatedAt)
+        val inputUid = dialogView.findViewById<TextInputEditText>(R.id.inputUid)
+        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnCancel)
+        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnSave)
+
+        // Rellenar datos
+        inputAlias.setText(user.displayName.orEmpty())
+        inputEmail.setText(user.email.orEmpty())
+
+        val created = user.createdAt
+        if (created != null) {
+            val dateStr = DateFormat.getDateInstance().format(Date(created))
+            inputCreatedAt.setText(dateStr)
+        } else {
+            inputCreatedAt.setText("-")
+        }
+
+        inputUid.setText(user.uid)
+
+        // Invitado -> no dejamos editar alias ni correo
+        if (user.isAnonymous) {
+            inputAlias.isEnabled = false
+            inputEmail.isEnabled = false
+        }
+
+        val dialog = MaterialAlertDialogBuilder(ctx)
+            .setView(dialogView)
+            .create()
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnSave.setOnClickListener {
+            val newAlias = inputAlias.text?.toString()?.trim()
+
+            // De momento solo actualizamos el alias en el perfil
+            if (!user.isAnonymous) {
+                vm.save(newAlias)
+            }
+
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     /**
