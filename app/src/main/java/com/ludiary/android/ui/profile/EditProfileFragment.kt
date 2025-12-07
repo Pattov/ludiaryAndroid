@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -35,8 +35,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
     /**
      * ViewModel inicializado mediante un Factory que construye el repositorio con Firebase + Room.
      */
-    private val vm: ProfileViewModel by viewModels {
-
+    private val vm: ProfileViewModel by activityViewModels {
         val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
         val localDS = LocalUserDataSource(db)
 
