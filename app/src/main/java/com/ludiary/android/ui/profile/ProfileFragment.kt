@@ -152,7 +152,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-
     /**
      * Muestra el modal para editar el perfil.
      */
@@ -164,10 +163,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val inputEmail = dialogView.findViewById<TextInputEditText>(R.id.inputEmail)
         val inputCreatedAt = dialogView.findViewById<TextInputEditText>(R.id.inputCreatedAt)
         val inputUid = dialogView.findViewById<TextInputEditText>(R.id.inputUid)
-        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnCancel)
-        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnSave)
+        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnCancelEdit)
+        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnSaveEdit)
 
-        // Rellenar datos
         inputAlias.setText(user.displayName.orEmpty())
         inputEmail.setText(user.email.orEmpty())
 
@@ -200,10 +198,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             if (!user.isAnonymous) {
                 vm.save(newAlias)
             }
-
             dialog.dismiss()
         }
-
         dialog.show()
     }
 

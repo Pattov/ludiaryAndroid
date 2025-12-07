@@ -3,7 +3,6 @@ package com.ludiary.android.ui.profile
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -24,9 +23,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
+import com.google.android.material.textfield.TextInputLayout
 
+/**
+ * Fragmento para editar el perfil del usuario.
+ * @property vm Instancia del ViewModel
+ * @return Instancia del ViewModel
+ */
 class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
 
+    /**
+     * ViewModel inicializado mediante un Factory que construye el repositorio con Firebase + Room.
+     */
     private val vm: ProfileViewModel by viewModels {
 
         val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
@@ -46,6 +54,11 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
         }
     }
 
+    /**
+     * Configura la interfaz del perfil una vez que la vista ha sido creada.
+     * @param view Vista del fragmento
+     * @param savedInstanceState Estado de la instancia
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,7 +66,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
         val inputEmail = view.findViewById<TextInputEditText>(R.id.inputEmail)
         val inputCreatedAt = view.findViewById<TextInputEditText>(R.id.inputCreatedAt)
         val inputUid = view.findViewById<TextInputEditText>(R.id.inputUid)
-        val tvRoleValue = view.findViewById<TextView>(R.id.tvRoleValue)
+        val inputLayoutUid = view.findViewById<TextInputLayout>(R.id.inputLayoutUid)
 
         val btnCancel = view.findViewById<Button>(R.id.btnCancelEdit)
         val btnSave = view.findViewById<Button>(R.id.btnSaveEdit)
@@ -62,7 +75,16 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
             vm.ui.collectLatest { st: ProfileUiState ->
                 val user = st.user ?: return@collectLatest
 
-                bindUserToForm(user, inputAlias, inputEmail, inputCreatedAt, inputUid, tvRoleValue)
+                bindUserToForm(user, inputAlias, inputEmail, inputCreatedAt, inputUid)
+
+                // Mostrar / ocultar UID solo para admins
+                if (user.isAdmin) {
+                    inputLayoutUid.visibility = View.VISIBLE
+                    inputUid.setText(user.uid)
+                } else {
+                    inputLayoutUid.visibility = View.GONE
+                    inputUid.text = null
+                }
 
                 btnSave.isEnabled = !st.loading
             }
@@ -87,13 +109,20 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
         }
     }
 
+    /**
+     * Rellena el formulario con los datos del usuario.
+     * @param user Usuario a mostrar
+     * @param inputAlias Input para el alias
+     * @param inputEmail Input para el email
+     * @param inputCreatedAt Input para la fecha de creación
+     * @param inputUid Input para el UID
+     */
     private fun bindUserToForm(
         user: User,
         inputAlias: TextInputEditText,
         inputEmail: TextInputEditText,
         inputCreatedAt: TextInputEditText,
-        inputUid: TextInputEditText,
-        tvRoleValue: TextView
+        inputUid: TextInputEditText
     ) {
         inputAlias.setText(user.displayName.orEmpty())
         inputEmail.setText(user.email.orEmpty())
@@ -107,12 +136,6 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
         }
 
         inputUid.setText(user.uid)
-
-        tvRoleValue.text = if (user.isAdmin) {
-            getString(R.string.profile_admin_yes)
-        } else {
-            getString(R.string.profile_admin_no)
-        }
 
         // Invitado -> no permitimos cambiar alias ni email
         if (user.isAnonymous) {
