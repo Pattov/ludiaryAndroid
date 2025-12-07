@@ -115,6 +115,11 @@ class FirestoreGameBaseRepositoryImpl(
         )
     }
 
+    /**
+     * Convierte un valor de Firestore en una instancia de [Instant].
+     * @param field Nombre del campo en Firestore.
+     * @return Instancia de [Instant] o null si el valor es nulo.
+     */
     private fun com.google.firebase.firestore.DocumentSnapshot.getInstant(field: String): Instant? {
         val value = get(field) ?: return null
 

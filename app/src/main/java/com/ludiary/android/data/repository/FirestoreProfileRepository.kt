@@ -11,7 +11,6 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * Implementación de [ProfileRepository] que utiliza Firestore para obtener y actualizar el perfil del usuario.
- *
  * @property auth Instancia de [FirebaseAuth] para autenticación de Firebase.
  * @property db Instancia de [FirebaseFirestore] para acceso a la base de datos de Firestore.
  * @property localUser Fuente de datos local
@@ -23,12 +22,16 @@ class FirestoreProfileRepository (
 ) : ProfileRepository {
 
     /**
-     * Devuelve la referencia a la colección de usuarios en Firestore.
+     * Referencia a la colección de usuarios en Firestore.
      */
     private fun users() = db.collection("users")
 
     /**
-     * Obtiene el usuario actual del usuario autenticado en Firebase.
+     * Obtiene el perfil del usuario.
+     *
+     * - Si no hay sesión Firebase → devuelve usuario local invitado en Room.
+     * - Si hay sesión Firebase → intenta obtener/crear el documento en Firestore.
+     * - Si falla por falta de conexión u otro error → fallback a Room, combinando con claims si es posible.
      */
     override suspend fun getOrCreate(): User {
         // Si el usuario no tiene Sesión Firebase, devuelve el usuario local
@@ -36,7 +39,8 @@ class FirestoreProfileRepository (
 
         // Si el usuario tiene Sesión Firebase, intenta obtener su perfil de Firestore
         return try {
-            // 1) Obtener documento Firestore
+
+            // Obtener documento Firestore
             val doc = users().document(firebaseUser.uid).get().await()
             val userFromDb = if (!doc.exists()) {
                 createProfileFromLocalOrAuth(firebaseUser)
@@ -44,32 +48,40 @@ class FirestoreProfileRepository (
                 doc.toUserProfile()
             }
 
-            // 2) Obtener token y claims
+            // Obtener token y claim "admin"
             val tokenResult = firebaseUser.getIdToken(true).await()
             val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
 
-            // 3) Devolver usuario final combinando Firestore + token.claims
-            userFromDb.copy(isAdmin = isAdminClaim)
+            // Usuario final (Firestore + claim admin)
+            val finalUser = userFromDb.copy(isAdmin = isAdminClaim)
+
+            // Sincronizar Room → para que el modo offline tenga la última versión
+            localUser.saveLocalUser(finalUser)
+
+            finalUser
 
         } catch (_: Exception) {
 
-            // Fallback offline
             val local = localUser.getLocalUser()
 
-            val firebaseUser = auth.currentUser
-            val tokenResult = firebaseUser?.getIdToken(false)?.await()
+            val currentFirebaseUser = auth.currentUser
+            val tokenResult = currentFirebaseUser?.getIdToken(false)?.await()
             val isAdminClaim = tokenResult?.claims?.get("admin") == true
 
-            User(
-                uid = firebaseUser?.uid ?: local.uid,
-                email = firebaseUser?.email ?: local.email,
-                displayName = local.displayName ?: firebaseUser?.displayName ?: "",
+            val offlineUser = User(
+                uid = currentFirebaseUser?.uid ?: local.uid,
+                email = currentFirebaseUser?.email ?: local.email,
+                displayName = local.displayName ?: currentFirebaseUser?.displayName.orEmpty(),
                 isAnonymous = false,
                 createdAt = local.createdAt,
                 updatedAt = local.updatedAt,
                 preferences = local.preferences ?: UserPreferences("es", "system"),
                 isAdmin = isAdminClaim
             )
+
+            localUser.saveLocalUser(offlineUser)
+
+            offlineUser
         }
     }
 
@@ -113,7 +125,12 @@ class FirestoreProfileRepository (
         val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
 
         // Devolver perfil remoto pero con isAdmin actualizado desde el token
-        return remote.copy(isAdmin = isAdminClaim)
+        val finalUser = remote.copy(isAdmin = isAdminClaim)
+
+        // Sincronizar en Room
+        localUser.saveLocalUser(finalUser)
+
+        return finalUser
     }
 
     /**
@@ -121,6 +138,7 @@ class FirestoreProfileRepository (
      */
     override suspend fun signOut() {
         auth.signOut()
+        localUser.clear()
     }
 
     /**
@@ -183,7 +201,7 @@ class FirestoreProfileRepository (
         val profile = User(
             uid = firebaseUser.uid,
             email = firebaseUser.email,
-            displayName = local.displayName ?: firebaseUser.displayName ?: "",
+            displayName = local.displayName ?: firebaseUser.displayName.orEmpty(),
             isAnonymous = false,
             createdAt = now.toDate().time,
             updatedAt = now.toDate().time,
@@ -191,6 +209,7 @@ class FirestoreProfileRepository (
             isAdmin = isAdminClaim
         )
         users().document(firebaseUser.uid).set(profile.toMap()).await()
+        localUser.saveLocalUser(profile)
         return profile
     }
 }

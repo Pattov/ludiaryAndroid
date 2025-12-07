@@ -20,7 +20,7 @@ interface UserGamesRepository {
      * Devuelve un flujo que emite un juego del usuario.
      *
      * @param uid Identificador único del usuario.
-     * @param gameId Identificador único del juego.
+     * @param userGame Identificador único del juego.
      */
     suspend fun addUserGame(uid: String, userGame: UserGame)
 

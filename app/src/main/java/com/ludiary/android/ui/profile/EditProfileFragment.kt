@@ -137,7 +137,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
 
         inputUid.setText(user.uid)
 
-        // Invitado -> no permitimos cambiar alias ni email
+        // Invitado → no permitimos cambiar alias ni email
         if (user.isAnonymous) {
             inputAlias.isEnabled = false
             inputEmail.isEnabled = false

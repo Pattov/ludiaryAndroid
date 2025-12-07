@@ -85,11 +85,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                     val subtitle: String?
 
                     if (isGuest && displayName == null && emailRaw.isNullOrBlank()) {
-                        // Invitado sin nombre ni correo -> "Invitado" como título
+                        // Invitado sin nombre ni correo → "Invitado" como título
                         mainTitle = getString(R.string.profile_guest_name)
                         subtitle = getString(R.string.profile_email_guest)
                     } else if (displayName != null) {
-                        // Hay alias -> alias como título, email debajo
+                        // Hay alias → alias como título, email debajo
                         mainTitle = displayName
                         subtitle = when {
                             emailRaw != null -> emailRaw
@@ -97,7 +97,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                             else -> getString(R.string.profile_email_unknown)
                         }
                     } else {
-                        // No hay alias -> el correo (o texto) hace de título
+                        // No hay alias → el correo (o texto) hace de título
                         mainTitle = when {
                             emailRaw != null -> emailRaw
                             isGuest -> getString(R.string.profile_email_guest)
@@ -150,57 +150,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 goToAuth()
             }
         }
-    }
-
-    /**
-     * Muestra el modal para editar el perfil.
-     */
-    private fun showEditProfileDialog(user: com.ludiary.android.data.model.User) {
-        val ctx = requireContext()
-        val dialogView = layoutInflater.inflate(R.layout.form_edit_profile, null)
-
-        val inputAlias = dialogView.findViewById<TextInputEditText>(R.id.inputAlias)
-        val inputEmail = dialogView.findViewById<TextInputEditText>(R.id.inputEmail)
-        val inputCreatedAt = dialogView.findViewById<TextInputEditText>(R.id.inputCreatedAt)
-        val inputUid = dialogView.findViewById<TextInputEditText>(R.id.inputUid)
-        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnCancelEdit)
-        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnSaveEdit)
-
-        inputAlias.setText(user.displayName.orEmpty())
-        inputEmail.setText(user.email.orEmpty())
-
-        val created = user.createdAt
-        if (created != null) {
-            val dateStr = DateFormat.getDateInstance().format(Date(created))
-            inputCreatedAt.setText(dateStr)
-        } else {
-            inputCreatedAt.setText("-")
-        }
-
-        inputUid.setText(user.uid)
-
-        // Invitado -> no dejamos editar alias ni correo
-        if (user.isAnonymous) {
-            inputAlias.isEnabled = false
-            inputEmail.isEnabled = false
-        }
-
-        val dialog = MaterialAlertDialogBuilder(ctx)
-            .setView(dialogView)
-            .create()
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
-
-        btnSave.setOnClickListener {
-            val newAlias = inputAlias.text?.toString()?.trim()
-
-            // De momento solo actualizamos el alias en el perfil
-            if (!user.isAnonymous) {
-                vm.save(newAlias)
-            }
-            dialog.dismiss()
-        }
-        dialog.show()
     }
 
     /**

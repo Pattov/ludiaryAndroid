@@ -217,7 +217,7 @@ class FirestoreAuthRepository(
                 .await()
 
             if (snap.isEmpty) {
-                // No existe en nuestra base -> mensaje de error
+                // No existe en nuestra base → mensaje de error
                 return AuthResult.Error(resources.getString(R.string.auth_error_reset_no_user))
             }
 
