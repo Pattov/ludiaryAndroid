@@ -12,9 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
@@ -26,8 +23,6 @@ import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.util.Date
 
 /**
  * Pantalla destinada a mostrar la información del perfil del usuario y opciones de configuración.
@@ -100,7 +95,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                         // No hay alias → el correo (o texto) hace de título
                         mainTitle = when {
                             emailRaw != null -> emailRaw
-                            isGuest -> getString(R.string.profile_email_guest)
                             else -> getString(R.string.profile_email_unknown)
                         }
                         subtitle = null
