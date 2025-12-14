@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ludiary</string>
+    <string name="brand_name">udiary</string>
+
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="login_go_register">Don\'t have an account? Register</string>
+    <string name="login_forgot_password">Forgot your password?</string>
+    <string name="login_or_continue">or continue as</string>
+    <string name="login_anonymous">Guest User</string>
+    <string name="auth_guest_name">Guest</string>
+
+    <string name="register_create_account">Create Account</string>
+    <string name="register_confirm_password_hint">Confirm Password</string>
+    <string name="register_go_login">Already have an account? Sign In</string>
+
+    <string name="forgot_title">Recover Password</string>
+    <string name="forgot_subtitle">Enter your email to receive a recovery link</string>
+    <string name="forgot_send_link">Send Link</string>
+    <string name="forgot_back_to_login">Back to Sign In</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_email_guest">Email: (guest)</string>
+    <string name="profile_email_unknown">Email: -</string>
+    <string name="profile_preferences_language">Language</string>
+    <string name="profile_preferences_theme">Theme</string>
+    <string name="profile_logout">Log Out</string>
+    <string name="profile_preferences">Preferences</string>
+    <string name="profile_sync">Synchronization</string>
+    <string name="profile_edit_title">Edit Profile</string>
+    <string name="profile_alias_label">Alias</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_created_at_label">Registered</string>
+    <string name="profile_uid_label">UID</string>
+    <string name="profile_guest_name">Guest</string>
+    <string name="profile_alias_placeholder">Enter your username</string>
+
+    <string name="profile_sync_mode_title">Sync Mode</string>
+    <string name="profile_sync_mode_auto_label">Automatic synchronization</string>
+    <string name="profile_sync_mode_help">
+        If automatic synchronization is enabled, Ludiary will try to keep your data updated when you have an internet connection. If disabled, you will need to sync manually.
+    </string>
+    <string name="profile_sync_status_title">Sync Status</string>
+    <string name="profile_sync_last_catalog_label">Official catalog:</string>
+    <string name="profile_sync_last_library_label">Personal library:</string>
+    <string name="profile_sync_never">Never</string>
+    <string name="profile_sync_manual_warning">You have unsynced changes. Check your connection and press &quot;Sync now&quot;.</string>
+    <string name="profile_sync_now">Sync now</string>
+
+    <string name="library_title">Library</string>
+    <string name="library_hint_search">Search game…</string>
+    <string name="library_add_game">Add game</string>
+
+    <string name="edit_game_title_default">Add game to your library</string>
+    <string name="edit_game_hint_title">Game title</string>
+    <string name="edit_game_hint_rating">Personal rating (1–10)</string>
+    <string name="edit_game_hint_language">Language</string>
+    <string name="edit_game_hint_edition">Edition</string>
+    <string name="edit_game_hint_notes">Notes</string>
+    <string name="edit_game_edit_title_form">Edit Game</string>
+    <string name="edit_game_add_title_form">Add game to your library</string>
+
+    <string name="auth_error_invalid_credentials">Incorrect email or password</string>
+    <string name="auth_error_network">No connection. Please check your internet connection.</string>
+    <string name="auth_error_generic">Couldn\'t sign in. Please try again later.</string>
+    <string name="auth_error_generic_register">Couldn\'t register user. Please try again later.</string>
+    <string name="auth_error_user_not_found">Anonymous user not found</string>
+    <string name="auth_error_user_not_found_after_register">User not found after registration</string>
+    <string name="auth_error_collision">This email is already registered.</string>
+    <string name="auth_error_guest_failed">Could not sign in as guest. Try again later.</string>
+    <string name="auth_error_reset_no_user">No account found with that email.</string>
+    <string name="auth_error_reset_generic">Could not send reset email. Try again later.</string>
+
+    <string name="session_title">Partida</string>
+    <string name="dashboard_title">Dashboard</string>
+
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_edit_profile">Edit Profile</string>
+    <string name="action_close">Close</string>
+    <string name="action_ok">OK</string>
+    <string name="action_back">Back</string>
+
+    <string name="image_cover_description">Game cover image</string>
+</resources>

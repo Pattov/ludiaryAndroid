@@ -19,13 +19,13 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user")
 data class UserEntity(
     @PrimaryKey val id: Int = 0,
-    val uid: String = "local-guest",
+    val uid: String,
     val email: String?,
-    val displayName: String = "Invitado",
-    val language: String = "es",
-    val theme: String = "system",
-    val isAnonymous: Boolean = true,
-    val createdAt: Long? = null,
-    val updatedAt: Long? = null,
-    val isAdmin: Boolean = false
+    val displayName: String,
+    val language: String,
+    val theme: String,
+    val isAnonymous: Boolean,
+    val createdAt: Long?,
+    val updatedAt: Long?,
+    val isAdmin: Boolean
 )

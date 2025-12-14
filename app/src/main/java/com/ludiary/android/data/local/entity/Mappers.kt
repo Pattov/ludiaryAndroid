@@ -2,6 +2,7 @@ package com.ludiary.android.data.local.entity
 
 import com.ludiary.android.data.model.*
 import java.time.Instant
+import java.util.Locale
 
 // User
 /**
@@ -28,7 +29,7 @@ fun User.toEntity(): UserEntity =
         uid = uid,
         email = email,
         displayName = displayName ?: "Invitado",
-        language = preferences?.language ?: "es",
+        language = preferences?.language ?: Locale.getDefault().language,
         theme = preferences?.theme ?: "system",
         isAnonymous = isAnonymous,
         createdAt = createdAt,

@@ -1,5 +1,6 @@
 package com.ludiary.android.ui.profile
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -114,6 +115,25 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                     } else {
                         getString(R.string.profile_logout)
                     }
+                    val userLang = user.preferences?.language
+                    if (!userLang.isNullOrEmpty()) {
+                        val prefs = requireContext()
+                            .getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
+                        val currentLang = prefs.getString("app_language", null)
+
+                        if (currentLang != userLang) {
+                            // Guardamos el idioma del usuario como idioma de la app
+                            prefs.edit()
+                                .putString("app_language", userLang)
+                                .apply()
+
+                            // Si ya había un idioma previo distinto, recreamos la Activity
+                            // para que se aplique el cambio en toda la interfaz.
+                            if (currentLang != null) {
+                                requireActivity().recreate()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -125,11 +145,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         rowPreferences.setOnClickListener {
-            // navegación futura a fragment de Preferencias
+            findNavController().navigate(R.id.action_nav_profile_to_preferencesFragment)
         }
 
         rowSync.setOnClickListener {
-            // navegación futura a fragment de Sincronización
+            findNavController().navigate(R.id.action_nav_profile_to_syncFragment)
         }
 
         btnLogout.setOnClickListener {

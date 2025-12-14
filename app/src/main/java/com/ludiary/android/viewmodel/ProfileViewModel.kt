@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * @property user Información del perfil del usuario.
  */
 data class ProfileUiState(
-    val loading: Boolean = true,
+    val loading: Boolean = false,
     val error: String? = null,
     val user: User? = null
 )
@@ -39,7 +39,7 @@ class ProfileViewModel(
      * Estado interno mutable.
      * Nunca se expone a la vista directamente.
      */
-    private val _ui = MutableStateFlow(ProfileUiState())
+    private val _ui = MutableStateFlow(ProfileUiState(loading = true))
 
     /**
      * Estado observable por la UI.
@@ -62,24 +62,41 @@ class ProfileViewModel(
     fun loadProfile() = viewModelScope.launch {
         _ui.value = ProfileUiState(loading = true)
         runCatching { repo.getOrCreate() }
-            .onSuccess { user -> _ui.value = ProfileUiState(loading = false, user = user )}
-            .onFailure { e -> _ui.value = ProfileUiState(loading = false,error = e.message) }
-    }
-
-    /**
-     * Guarda los cambios del perfil.
-     */
-    fun save(displayName: String?) = viewModelScope.launch {
-        val current = _ui.value.user
-        _ui.value = _ui.value.copy(loading = true)
-
-        runCatching{ repo.update(displayName, language = null, theme = null) }
-            .onSuccess{ updated -> _ui.value = ProfileUiState(loading = false, user = updated) }
-            .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current) }
+            .onSuccess { user -> _ui.value = ProfileUiState(loading = false, user = user, error = null )}
+            .onFailure { e -> _ui.value = ProfileUiState(loading = false, user = null ,error = e.message) }
     }
 
     /**
      * Cierra la sesión del usuario Firebase.
      */
-    fun logout() = viewModelScope.launch { repo.signOut() }
+    fun logout() = viewModelScope.launch { runCatching { repo.signOut() } }
+
+    /**
+     * Actualiza únicamente las preferencias (idioma/tema) del usuario.
+     * @param language Idioma del usuario.
+     * @param theme Tema del usuario.
+     */
+    fun updatePreferences(language: String?, theme: String?) {
+        val current = _ui.value.user
+
+        viewModelScope.launch {
+            _ui.value = _ui.value.copy(loading = true)
+
+            runCatching { repo.update(displayName = null, language = language, theme = theme) }
+                .onSuccess { updated -> _ui.value = ProfileUiState(loading = false, user = updated, error = null) }
+                .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current) }
+        }
+    }
+
+    /**
+     * Actualiza el alias del usuario.
+     */
+    fun save(displayName: String?) = viewModelScope.launch {
+        val current = _ui.value.user
+        _ui.value = _ui.value.copy(loading = true)
+
+        runCatching { repo.update(displayName = displayName, language = null, theme = null) }
+            .onSuccess { updated -> _ui.value = ProfileUiState(loading = false, user = updated, error = null) }
+            .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current ) }
+    }
 }

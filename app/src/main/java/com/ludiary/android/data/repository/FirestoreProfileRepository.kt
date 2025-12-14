@@ -8,6 +8,7 @@ import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.model.UserPreferences
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 /**
  * Implementación de [ProfileRepository] que utiliza Firestore para obtener y actualizar el perfil del usuario.
@@ -75,7 +76,7 @@ class FirestoreProfileRepository (
                 isAnonymous = false,
                 createdAt = local.createdAt,
                 updatedAt = local.updatedAt,
-                preferences = local.preferences ?: UserPreferences("es", "system"),
+                preferences = local.preferences ?: UserPreferences(Locale.getDefault().language, "system"),
                 isAdmin = isAdminClaim
             )
 
@@ -97,7 +98,7 @@ class FirestoreProfileRepository (
             val updated = current.copy(
                 displayName = displayName ?: current.displayName,
                 preferences = UserPreferences(
-                    language = language ?: current.preferences?.language?: "es",
+                    language = language ?: current.preferences?.language ?: Locale.getDefault().language,
                     theme = theme ?: current.preferences?.theme ?: "system"
                 )
             )
@@ -107,13 +108,17 @@ class FirestoreProfileRepository (
 
         // modo online autenticado: actualiza el perfil en Firestore
         val now = com.google.firebase.Timestamp.now()
-        val updates = mutableMapOf<String, Any?>(
+        val updates = mutableMapOf<String, Any>(
             "updatedAt" to now
         )
 
         displayName?.let { updates["displayName"] = it }
-        language?.let { updates["preferences.language"] = it }
-        theme?.let { updates["preferences.theme"] = it }
+        val prefUpdates = mutableMapOf<String, Any>()
+        language?.let { prefUpdates["language"] = it }
+        theme?.let { prefUpdates["theme"] = it }
+        if (prefUpdates.isNotEmpty()) {
+            updates["preferences"] = prefUpdates
+        }
 
         users().document(firebaseUser.uid).set(updates, SetOptions.merge()).await()
 
@@ -156,7 +161,7 @@ class FirestoreProfileRepository (
             "createdAt" to createdTs,
             "updatedAt" to updatedTs,
             "preferences" to mapOf(
-                "language" to (preferences?.language ?: "es"),
+                "language" to (preferences?.language ?: Locale.getDefault().language),
                 "theme" to (preferences?.theme ?: "system")
             ),
             "isAdmin" to isAdmin
@@ -169,8 +174,16 @@ class FirestoreProfileRepository (
     private fun com.google.firebase.firestore.DocumentSnapshot.toUserProfile(): User {
         val pref = (this.get("preferences") as? Map<*, *>) ?: emptyMap<String, Any>()
 
-        val lang = pref["language"] as? String ?: "es"
-        val theme = pref["theme"] as? String ?: "system"
+        val legacyLang = getString("preferences.language")
+        val legacyTheme = getString("preferences.theme")
+
+        val lang = (pref["language"] as? String)
+            ?: legacyLang
+            ?: Locale.getDefault().language
+
+        val theme = (pref["theme"] as? String)
+            ?: legacyTheme
+            ?: "system"
 
         val createdTs = getTimestamp("createdAt")
         val updatedTs = getTimestamp("updatedAt")
@@ -198,6 +211,8 @@ class FirestoreProfileRepository (
         val tokenResult = firebaseUser.getIdToken(true).await()
         val isAdminClaim = (tokenResult.claims["admin"] as? Boolean) == true
 
+        val defaultLang = Locale.getDefault().language
+
         val profile = User(
             uid = firebaseUser.uid,
             email = firebaseUser.email,
@@ -205,9 +220,10 @@ class FirestoreProfileRepository (
             isAnonymous = false,
             createdAt = now.toDate().time,
             updatedAt = now.toDate().time,
-            preferences = local.preferences ?: UserPreferences("es", "system"),
+            preferences = local.preferences ?: UserPreferences(defaultLang, "system"),
             isAdmin = isAdminClaim
         )
+
         users().document(firebaseUser.uid).set(profile.toMap()).await()
         localUser.saveLocalUser(profile)
         return profile

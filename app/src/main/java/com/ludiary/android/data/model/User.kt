@@ -7,8 +7,8 @@ package com.ludiary.android.data.model
  * @property theme Tema del usuario (claro, oscuro o sistema).
  */
 data class UserPreferences(
-    val language: String? = "es",
-    val theme: String? = "system"
+    val language: String?,
+    val theme: String?
 )
 
 /**

@@ -19,6 +19,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 /**
  * Implementación de AuthRepository que utiliza Firebase Authentication para autenticación.
@@ -177,7 +178,7 @@ class FirestoreAuthRepository(
                 createdAt = now,
                 updatedAt = now,
                 preferences = UserPreferences(
-                    language = "es",
+                    language = Locale.getDefault().language,
                     theme = "system"
                 ),
                 isAdmin = false
@@ -273,7 +274,7 @@ class FirestoreAuthRepository(
                 "createdAt" to now,
                 "updatedAt" to now,
                 "preferences" to mapOf(
-                    "language" to "es",
+                    "language" to Locale.getDefault().language,
                     "theme" to "system"
                 ),
                 "isAdmin" to false
@@ -329,7 +330,7 @@ class FirestoreAuthRepository(
     private fun DocumentSnapshot.toUserModel(defaultUid: String, firebaseUser: FirebaseUser): User {
         val pref = (this.get("preferences") as? Map<*, *>) ?: emptyMap<String, Any>()
 
-        val lang = pref["language"] as? String ?: "es"
+        val lang = pref["language"] as? String ?: Locale.getDefault().language
         val theme = pref["theme"] as? String ?: "system"
 
         val createdTs = getTimestamp("createdAt")

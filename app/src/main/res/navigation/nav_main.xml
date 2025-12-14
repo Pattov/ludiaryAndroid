@@ -36,6 +36,14 @@
         <action
             android:id="@+id/action_nav_profile_to_editProfileFragment"
             app:destination="@id/nav_editProfileFragment" />
+
+        <action
+            android:id="@+id/action_nav_profile_to_preferencesFragment"
+            app:destination="@id/nav_preferencesFragment" />
+
+        <action
+            android:id="@+id/action_nav_profile_to_syncFragment"
+            app:destination="@id/nav_syncFragment" />
     </fragment>
 
     <fragment
@@ -55,5 +63,17 @@
         android:name="com.ludiary.android.ui.profile.EditProfileFragment"
         android:label="Editar perfil"
         tools:layout="@layout/form_edit_profile" />
+
+    <fragment
+        android:id="@+id/nav_preferencesFragment"
+        android:name="com.ludiary.android.ui.profile.PreferencesFragment"
+        android:label="@string/profile_preferences"
+        tools:layout="@layout/form_preferences_profile" />
+
+    <fragment
+        android:id="@+id/nav_syncFragment"
+        android:name="com.ludiary.android.ui.profile.SyncFragment"
+        android:label="@string/profile_sync"
+        tools:layout="@layout/form_sync_profile" />
 
 </navigation>
