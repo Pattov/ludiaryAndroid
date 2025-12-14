@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FD7A1C</color>
-    <color name="colorSecondary">#EC4899</color>
+    <color name="colorPrimary">#70D2CF</color>
+    <color name="colorSecondary">#677CD5</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorOnSecondary">#1A1A1A</color>
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnSurface">#1A1A1A</color>
     <color name="colorOutline">#B3B3B3</color>
@@ -11,9 +11,9 @@
     <color name="colorSurfaceVariant">#F3F3F3</color>
     <color name="profile_option_icon">@color/colorPrimary</color>
 
-    <color name="profile_bg">#F4F6FD</color>        <!-- Fondo general tipo mockup -->
-    <color name="profile_block_bg">#FFFFFFFF</color> <!-- Bloques blancos -->
-    <color name="profile_divider">#E5E7EB</color>    <!-- Líneas de separación -->
-    <color name="profile_section">#6C7280</color>    <!-- Texto gris azulado -->
+    <color name="profile_bg">#F4F6FD</color>
+    <color name="profile_block_bg">#FFFFFFFF</color>
+    <color name="profile_divider">#E5E7EB</color>
+    <color name="profile_section">#6C7280</color>
 
 </resources>

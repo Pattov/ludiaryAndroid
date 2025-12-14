@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#70D2CF</color>
+    <color name="colorSecondary">#677CD5</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnSecondary">#0B0F14</color>
+    <color name="colorSurface">#121318</color>
+    <color name="colorOnSurface">#EAEAF0</color>
+    <color name="colorOutline">#3A3D4A</color>
+    <color name="colorHint">#A6A8B3</color>
+    <color name="colorSurfaceVariant">#1B1D25</color>
+    <color name="profile_option_icon">@color/colorPrimary</color>
+
+    <color name="profile_bg">#121318</color>
+    <color name="profile_block_bg">#1B1D25</color>
+    <color name="profile_divider">#2B2E3A</color>
+    <color name="profile_section">#A6A8B3</color>
+
+</resources>

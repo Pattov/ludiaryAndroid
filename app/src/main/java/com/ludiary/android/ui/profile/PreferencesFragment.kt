@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
@@ -48,6 +47,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
 
     private lateinit var spinnerLanguage: Spinner
     private lateinit var spinnerTheme: Spinner
+    private lateinit var languageValues: Array<String>
+    private lateinit var themeValues: Array<String>
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
 
@@ -66,19 +67,22 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
 
     private fun setupSpinners() {
 
-        val languages = listOf("es", "en")
-        val themes = listOf("system", "light", "dark")
+        val languageEntries = resources.getStringArray(R.array.language_entries)
+        languageValues = resources.getStringArray(R.array.language_values)
 
         spinnerLanguage.adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
-            languages
+            languageEntries
         )
+
+        val themeEntries = resources.getStringArray(R.array.theme_entries)
+        themeValues = resources.getStringArray(R.array.theme_values)
 
         spinnerTheme.adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
-            themes
+            themeEntries
         )
     }
 
@@ -93,25 +97,18 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
                 val lang = user.preferences?.language ?: "es"
                 val theme = user.preferences?.theme ?: "system"
 
-                setSpinnerSelection(spinnerLanguage, lang)
-                setSpinnerSelection(spinnerTheme, theme)
+                setSpinnerSelectionByValue(spinnerLanguage, languageValues, lang)
+                setSpinnerSelectionByValue(spinnerTheme, themeValues, theme)
             }
         }
     }
 
     /**
-     * Establece la selección del Spinner.
-     * @param spinner Spinner a configurar
-     * @param value Valor a seleccionar
+     * Selecciona el índice del spinner según un array de valores internos.
      */
-    private fun setSpinnerSelection(spinner: Spinner, value: String) {
-        val adapter = spinner.adapter ?: return
-        for (i in 0 until adapter.count) {
-            if (adapter.getItem(i)?.toString() == value) {
-                spinner.setSelection(i)
-                break
-            }
-        }
+    private fun setSpinnerSelectionByValue(spinner: Spinner, values: Array<String>, value: String) {
+        val idx = values.indexOf(value).takeIf { it >= 0 } ?: 0
+        spinner.setSelection(idx)
     }
 
     /**
@@ -119,8 +116,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
      */
     private fun setupListeners() {
         btnSave.setOnClickListener {
-            val selectedLanguage = spinnerLanguage.selectedItem?.toString()
-            val selectedTheme = spinnerTheme.selectedItem?.toString()
+            val selectedLanguage = languageValues[spinnerLanguage.selectedItemPosition]
+            val selectedTheme = themeValues[spinnerTheme.selectedItemPosition]
 
             viewLifecycleOwner.lifecycleScope.launch {
                 // Actualizar en Firestore + Room (vía ViewModel/Repository)
@@ -134,8 +131,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
                     .getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
 
                 prefs.edit {
-                    putString("app_language", selectedLanguage) // "es", "en"...
-                    .putString("app_theme", selectedTheme)       // "system", "light", "dark"
+                    putString("app_language", selectedLanguage)
+                    putString("app_theme", selectedTheme)
                 }
 
                 // Aplicar el tema inmediatamente
@@ -147,7 +144,7 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
         }
 
         btnCancel.setOnClickListener {
-            findNavController().navigateUp()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 }
