@@ -13,7 +13,6 @@ class FirestoreUserGamesRepository (
 
     /**
      * Devuelve una referencia a la colección de juegos del usuario en Firestore.
-     *
      * @param uid Identificador único del usuario.
      */
     private fun userGamesCollection(uid: String) =
@@ -23,7 +22,6 @@ class FirestoreUserGamesRepository (
 
     /**
      * Devuelve un flujo que emite un juego del usuario.
-     *
      * @param uid Identificador único del usuario.
      * @param userGame Identificador único del juego.
      * @return Juego del usuario.
@@ -35,7 +33,6 @@ class FirestoreUserGamesRepository (
 
     /**
      * Elimina un juego del usuario.
-     *
      * @param uid Identificador único del usuario.
      */
     suspend fun deleteUserGame(uid: String, gameId: String) {
@@ -48,7 +45,6 @@ class FirestoreUserGamesRepository (
 
     /**
      * Crea o actualiza un userGame
-     *
      * @param uid Identificador único del usuario.
      * @param userGame Juego del usuario.
      */

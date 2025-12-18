@@ -23,6 +23,10 @@ import java.util.Date
 import androidx.core.content.edit
 import com.ludiary.android.sync.SyncScheduler
 
+/**
+ * Fragmento para sincronización de juegos del usuario.
+ * Permite activar/desactivar la sincronización, ofrecer sincronización manual y mostrar la información del usuario.
+ */
 class SyncFragment : Fragment(R.layout.form_sync_profile) {
 
     private lateinit var switchAutoSync: SwitchCompat
@@ -31,13 +35,21 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     private lateinit var tvManualWarning: TextView
     private lateinit var btnSyncNow: Button
 
+    /**
+     * Obtiene las preferencias de la sincronización.
+     */
     private val prefs by lazy {
         requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     private val auth by lazy { FirebaseAuth.getInstance() }
 
-    // Repo real (Room + Firestore)
+    /**
+     * Repositorio de juegos del usuario.
+     * Se inicializa al crear el fragmento.
+     * @return Instancia de [UserGamesRepository].
+     * @throws Exception si ocurre un error al inicializar el repositorio.
+     */
     private val userGamesRepo: UserGamesRepository by lazy {
         val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
         val localDS = LocalUserGamesDataSource(db.userGameDao())
@@ -57,6 +69,12 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         setupUi()
     }
 
+    /**
+     * Configura la interfaz de usuario.
+     * Carga las preferencias y configura los listeners.
+     * @return Instancia de [SyncFragment].
+     * @throws Exception si ocurre un error al cargar las preferencias.
+     */
     private fun setupUi() {
         // Estado inicial desde SharedPreferences
         val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
@@ -67,8 +85,10 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         tvLastCatalogSync.text = formatDateOrNever(lastCatalogSync)
         tvLastLibrarySync.text = formatDateOrNever(lastLibrarySync)
 
+        // Al entrar, recalculamos pendientes desde Room para mostrar warning/botón correctamente.
         refreshPendingAndRender()
 
+        // Activar/desactivar sync automática
         switchAutoSync.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit {
                 putBoolean(KEY_AUTO_SYNC, isChecked)
@@ -83,6 +103,7 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
             refreshPendingAndRender()
         }
 
+        // Sincronización manual bajo demanda
         btnSyncNow.setOnClickListener {
             val uid = auth.currentUser?.uid
             if (uid.isNullOrBlank()) {
@@ -90,6 +111,7 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
                 return@setOnClickListener
             }
 
+            // Evita dobles toques mientras se ejecuta la operación
             btnSyncNow.isEnabled = false
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -124,6 +146,11 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         }
     }
 
+    /**
+     * Actualiza el estado de sincronización.
+     * @return Instancia de [SyncFragment].
+     * @throws Exception si ocurre un error al cargar las preferencias.
+     */
     private fun refreshPendingAndRender() {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrBlank()) {
@@ -150,6 +177,11 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         }
     }
 
+    /**
+     * Renderiza el estado de sincronización.
+     * @return Instancia de [SyncFragment].
+     * @throws Exception si ocurre un error al cargar las preferencias.
+     */
     private fun renderManualState(autoSyncEnabled: Boolean, hasPending: Boolean) {
         if (autoSyncEnabled) {
             tvManualWarning.visibility = View.GONE
@@ -165,6 +197,9 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         }
     }
 
+    /**
+     * Formatea un timestamp en texto legible. Si no hay timestamp, devuelve "Nunca".
+     */
     private fun formatDateOrNever(timestamp: Long): String {
         if (timestamp <= 0L) return getString(R.string.profile_sync_never)
 

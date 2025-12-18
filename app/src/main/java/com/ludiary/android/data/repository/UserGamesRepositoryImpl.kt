@@ -64,6 +64,12 @@ class UserGamesRepositoryImpl(
         local.upsert(pending)
     }
 
+    /**
+     * Borra un juego del usuario de forma diferida.
+     * @param uid Identificador único del usuario.
+     * @param gameId Identificador único del juego.
+     * @return Instancia de [UserGamesRepositoryImpl].
+     */
     override suspend fun deleteUserGame(uid: String, gameId: String) {
         val current = local.getById(gameId) ?: return
         // El registro se marca como delete
@@ -75,6 +81,12 @@ class UserGamesRepositoryImpl(
         local.upsert(deleted)
     }
 
+    /**
+     * Sincroniza los cambios pendientes (PENDING/DELETED) y actualiza Room.
+     * @param uid Identificador único del usuario.
+     * @return número de elementos sincronizados correctamente
+     * @throws Exception si ocurre un error durante la sincronización.
+     */
     override suspend fun syncPending(uid: String): Int {
         val pendingList = local.getPending(uid)
         var syncedCount = 0
@@ -113,5 +125,11 @@ class UserGamesRepositoryImpl(
         return syncedCount
     }
 
+    /**
+     * Cuenta los registros pendientes de sincronización en local para un usuario específico.
+     * @param uid Identificador único del usuario.
+     * @return número total de registros pendientes.
+     * @throws Exception si ocurre un error al contar los registros.
+     */
     override suspend fun countPending(uid: String): Int = local.countPending(uid)
 }
