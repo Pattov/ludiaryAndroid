@@ -11,16 +11,23 @@ class LocalUserGamesDataSource (
     private val userGameDao: UserGameDao
 ) {
 
+    suspend fun countPending(uid: String): Int = userGameDao.countPending(uid)
+
+    suspend fun delete(game: UserGame) = userGameDao.delete(game.toEntity())
+
+    suspend fun getById(id: String) = userGameDao.getById(id)?.toModel()
+
+    suspend fun getPending(uid: String): List<UserGame> =
+        userGameDao.getPending(uid).map { it.toModel() }
+
     fun getUserGames(uid: String): Flow<List<UserGame>> =
         userGameDao.getUserGames(uid).map { entities ->
             entities.map { it.toModel() }
         }
 
+    suspend fun hardDeleteById(id: String) = userGameDao.deleteById(id)
+
     suspend fun upsert(game: UserGame) = userGameDao.upsert(game.toEntity())
-
-    suspend fun delete(game: UserGame) = userGameDao.delete(game.toEntity())
-
-    suspend fun getById(id: String) = userGameDao.getById(id)?.toModel()
 
     suspend fun upsertAll(games: List<UserGame>) = games.forEach { userGameDao.upsert(it.toEntity()) }
 }

@@ -8,6 +8,7 @@
       <w>aceptable</w>
       <w>aceptar</w>
       <w>activa</w>
+      <w>activada</w>
       <w>actividad</w>
       <w>actua</w>
       <w>actuales</w>
@@ -26,6 +27,7 @@
       <w>adaptador</w>
       <w>adelante</w>
       <w>administradores</w>
+      <w>afectadas</w>
       <w>ahora</w>
       <w>ajustes</w>
       <w>almacena</w>
@@ -57,11 +59,13 @@
       <w>autenticar</w>
       <w>automática</w>
       <w>automáticamente</w>
+      <w>automático</w>
       <w>autoridad</w>
       <w>añadir</w>
       <w>basado</w>
       <w>biblioteca</w>
       <w>bordes</w>
+      <w>borrados</w>
       <w>borrar</w>
       <w>botones</w>
       <w>botón</w>
@@ -80,11 +84,13 @@
       <w>cambiado</w>
       <w>cambiar</w>
       <w>cancelar</w>
+      <w>cantidad</w>
       <w>captura</w>
       <w>caracteres</w>
       <w>características</w>
       <w>cargado</w>
       <w>cargando</w>
+      <w>cargar</w>
       <w>caso</w>
       <w>catan</w>
       <w>catálogo</w>
@@ -107,6 +113,7 @@
       <w>comprueba</w>
       <w>comunicarse</w>
       <w>concreto</w>
+      <w>condicionado</w>
       <w>condición</w>
       <w>conexión</w>
       <w>configura</w>
@@ -153,22 +160,26 @@
       <w>datos</w>
       <w>dblocal</w>
       <w>debajo</w>
+      <w>deberías</w>
       <w>declarado</w>
       <w>defecto</w>
       <w>definición</w>
       <w>definido</w>
+      <w>definitiva</w>
       <w>degradado</w>
       <w>dejamos</w>
       <w>delegado</w>
       <w>dependencias</w>
       <w>derecha</w>
       <w>desactivar</w>
+      <w>desactivas</w>
       <w>desarrolladores</w>
       <w>descargable</w>
       <w>descargado</w>
       <w>descargamos</w>
       <w>descargar</w>
       <w>desconocida</w>
+      <w>desconocido</w>
       <w>desde</w>
       <w>destinada</w>
       <w>destruido</w>
@@ -194,9 +205,11 @@
       <w>efecto</w>
       <w>eficientes</w>
       <w>ejecuta</w>
+      <w>ejemplo</w>
       <w>electrónico</w>
       <w>elemento</w>
       <w>elimina</w>
+      <w>eliminados</w>
       <w>eliminar</w>
       <w>emisión</w>
       <w>emite</w>
@@ -224,13 +237,16 @@
       <w>esquinas</w>
       <w>establece</w>
       <w>estamos</w>
+      <w>estar</w>
       <w>estilo</w>
       <w>esto</w>
       <w>estructura</w>
       <w>evento</w>
       <w>eventos</w>
+      <w>evitamos</w>
       <w>evitar</w>
       <w>excelente</w>
+      <w>excluyendo</w>
       <w>exista</w>
       <w>existe</w>
       <w>existente</w>
@@ -274,6 +290,7 @@
       <w>hemos</w>
       <w>identificador</w>
       <w>idioma</w>
+      <w>ignorado</w>
       <w>implementa</w>
       <w>implementación</w>
       <w>importe</w>
@@ -286,6 +303,7 @@
       <w>inflada</w>
       <w>información</w>
       <w>informativo</w>
+      <w>inglés</w>
       <w>ingresa</w>
       <w>inicia</w>
       <w>inicial</w>
@@ -294,12 +312,14 @@
       <w>inicializar</w>
       <w>iniciar</w>
       <w>inicio</w>
+      <w>inmediato</w>
       <w>inmutable</w>
       <w>inserta</w>
       <w>insertar</w>
       <w>instancia</w>
       <w>instancias</w>
       <w>intenta</w>
+      <w>intentará</w>
       <w>interacción</w>
       <w>interactua</w>
       <w>interactuar</w>
@@ -334,6 +354,7 @@
       <w>lista</w>
       <w>llamada</w>
       <w>llamadas</w>
+      <w>llamar</w>
       <w>localmente</w>
       <w>ludoteca</w>
       <w>lógica</w>
@@ -342,7 +363,10 @@
       <w>manejadores</w>
       <w>manejar</w>
       <w>manera</w>
+      <w>mantener</w>
       <w>manualmente</w>
+      <w>marcados</w>
+      <w>marcar</w>
       <w>mediante</w>
       <w>menos</w>
       <w>mensaje</w>
@@ -356,6 +380,7 @@
       <w>modo</w>
       <w>momento</w>
       <w>moneda</w>
+      <w>mostramos</w>
       <w>mostrando</w>
       <w>mostrar</w>
       <w>muestra</w>
@@ -366,6 +391,7 @@
       <w>navegar</w>
       <w>necesarias</w>
       <w>necesario</w>
+      <w>necesitas</w>
       <w>ninguna</w>
       <w>ninguno</w>
       <w>ningún</w>
@@ -406,6 +432,7 @@
       <w>partidas</w>
       <w>partir</w>
       <w>pedimos</w>
+      <w>pendientes</w>
       <w>perfil</w>
       <w>permite</w>
       <w>permitimos</w>
@@ -416,6 +443,7 @@
       <w>personalizados</w>
       <w>poblar</w>
       <w>pobre</w>
+      <w>podemos</w>
       <w>poder</w>
       <w>podido</w>
       <w>portada</w>
@@ -441,6 +469,7 @@
       <w>pudo</w>
       <w>pueda</w>
       <w>puede</w>
+      <w>pulsa</w>
       <w>puntuaciones</w>
       <w>puntuales</w>
       <w>quieres</w>
@@ -449,6 +478,7 @@
       <w>reaccionar</w>
       <w>reaccione</w>
       <w>reactivo</w>
+      <w>realizada</w>
       <w>realizar</w>
       <w>realizó</w>
       <w>recibe</w>
@@ -467,6 +497,7 @@
       <w>referencia</w>
       <w>referencias</w>
       <w>reflejarse</w>
+      <w>refrescamos</w>
       <w>registra</w>
       <w>registrada</w>
       <w>registradas</w>
@@ -480,6 +511,7 @@
       <w>rellenar</w>
       <w>remota</w>
       <w>remoto</w>
+      <w>repetidos</w>
       <w>repositorio</w>
       <w>repositorios</w>
       <w>representa</w>
@@ -491,6 +523,7 @@
       <w>resultado</w>
       <w>resumen</w>
       <w>reutiliza</w>
+      <w>revisa</w>
       <w>revisó</w>
       <w>secciones</w>
       <w>sección</w>
@@ -507,11 +540,14 @@
       <w>siempre</w>
       <w>siguientes</w>
       <w>simplemente</w>
+      <w>simulamos</w>
       <w>sincroniza</w>
       <w>sincronización</w>
       <w>sincronizados</w>
+      <w>sincronizando</w>
       <w>sincronizar</w>
       <w>sincronizará</w>
+      <w>sincronizó</w>
       <w>sirve</w>
       <w>sistema</w>
       <w>sobre</w>
@@ -531,6 +567,7 @@
       <w>tarde</w>
       <w>tarjeta</w>
       <w>tarjetas</w>
+      <w>tendrás</w>
       <w>tener</w>
       <w>texto</w>
       <w>tiene</w>
@@ -546,6 +583,7 @@
       <w>usados</w>
       <w>usamos</w>
       <w>usando</w>
+      <w>usergames</w>
       <w>usuario</w>
       <w>usuarios</w>
       <w>utiliza</w>

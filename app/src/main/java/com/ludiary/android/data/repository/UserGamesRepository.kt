@@ -9,14 +9,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserGamesRepository {
 
     /**
-     * Devuelve un flujo que emite una lista de juegos del usuario.
-     *
-     * @param uid Identificador único del usuario.
-     * @return Lista de juegos del usuario.
-     */
-    fun getUserGames(uid: String): Flow<List<UserGame>>
-
-    /**
      * Devuelve un flujo que emite un juego del usuario.
      *
      * @param uid Identificador único del usuario.
@@ -33,10 +25,27 @@ interface UserGamesRepository {
     suspend fun deleteUserGame(uid: String, gameId: String)
 
     /**
+     * Devuelve un flujo que emite una lista de juegos del usuario.
+     *
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario.
+     */
+    fun getUserGames(uid: String): Flow<List<UserGame>>
+
+    /**
      * Actualiza un juego del usuario.
      *
      * @param uid Identificador único del usuario.
      * @param userGame Juego del usuario.
      */
     suspend fun updateUserGame(uid: String, userGame: UserGame)
+
+    /**
+     * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.
+     *
+     * @return número de elementos sincronizados correctamente
+     */
+    suspend fun syncPending(uid: String): Int
+
+    suspend fun countPending(uid: String): Int
 }

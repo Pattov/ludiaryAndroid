@@ -2,6 +2,7 @@ package com.ludiary.android.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.UserGame
+import kotlinx.coroutines.tasks.await
 
 /**
  * Implementación de [UserGamesRepository] que opera directamente sobre Firebase
@@ -37,25 +38,27 @@ class FirestoreUserGamesRepository (
      *
      * @param uid Identificador único del usuario.
      */
-    fun deleteUserGame(uid: String) {
+    suspend fun deleteUserGame(uid: String, gameId: String) {
+        if (gameId.isBlank()) return
         userGamesCollection(uid)
-            .document()
+            .document(gameId)
             .delete()
+            .await()
     }
 
     /**
-     * Actualiza un juego del usuario.
+     * Crea o actualiza un userGame
      *
      * @param uid Identificador único del usuario.
      * @param userGame Juego del usuario.
      */
-    fun updateUserGame(uid: String, userGame: UserGame) {
-        if (userGame.id.isBlank()) return
-
+    suspend fun updateUserGame(uid: String, userGame: UserGame) {
+        require(userGame.id.isNotBlank()) { "UserGame.id no puede estar vacío para upsert en Firestore" }
         val data = userGame.toFirestoreMapWithoutId()
         userGamesCollection(uid)
             .document(userGame.id)
             .set(data)
+            .await()
     }
 }
 

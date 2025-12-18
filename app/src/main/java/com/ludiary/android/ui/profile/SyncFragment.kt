@@ -4,17 +4,28 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
+import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.data.local.LocalUserGamesDataSource
+import com.ludiary.android.data.repository.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
+import androidx.core.content.edit
+import com.ludiary.android.sync.SyncScheduler
 
 class SyncFragment : Fragment(R.layout.form_sync_profile) {
 
-    private lateinit var switchAutoSync: Switch
+    private lateinit var switchAutoSync: SwitchCompat
     private lateinit var tvLastCatalogSync: TextView
     private lateinit var tvLastLibrarySync: TextView
     private lateinit var tvManualWarning: TextView
@@ -22,6 +33,16 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
 
     private val prefs by lazy {
         requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    private val auth by lazy { FirebaseAuth.getInstance() }
+
+    // Repo real (Room + Firestore)
+    private val userGamesRepo: UserGamesRepository by lazy {
+        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
+        val localDS = LocalUserGamesDataSource(db.userGameDao())
+        val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        UserGamesRepositoryImpl(localDS, remote)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,68 +58,103 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     }
 
     private fun setupUi() {
-        // Cargar estado inicial desde SharedPreferences
+        // Estado inicial desde SharedPreferences
         val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
         val lastCatalogSync = prefs.getLong(KEY_LAST_CATALOG_SYNC, 0L)
         val lastLibrarySync = prefs.getLong(KEY_LAST_LIBRARY_SYNC, 0L)
-        val hasPending = prefs.getBoolean(KEY_HAS_PENDING, false)
 
         switchAutoSync.isChecked = autoSyncEnabled
         tvLastCatalogSync.text = formatDateOrNever(lastCatalogSync)
         tvLastLibrarySync.text = formatDateOrNever(lastLibrarySync)
 
-        renderManualState(autoSyncEnabled, hasPending)
+        refreshPendingAndRender()
 
-        // Cambios en el switch
         switchAutoSync.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit()
-                .putBoolean(KEY_AUTO_SYNC, isChecked)
-                .apply()
+            prefs.edit {
+                putBoolean(KEY_AUTO_SYNC, isChecked)
+            }
 
-            val pending = prefs.getBoolean(KEY_HAS_PENDING, false)
-            renderManualState(isChecked, pending)
+            if(isChecked) {
+                SyncScheduler.enableAutoSync(requireContext().applicationContext)
+            } else {
+                SyncScheduler.disableAutoSync(requireContext().applicationContext)
+            }
+
+            refreshPendingAndRender()
         }
 
-        // Botón de sincronización manual
         btnSyncNow.setOnClickListener {
-            // Evitamos toques repetidos
+            val uid = auth.currentUser?.uid
+            if (uid.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "Necesitas iniciar sesión para sincronizar", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             btnSyncNow.isEnabled = false
 
-            // Aquí deberías llamar a TU lógica real de sincronización.
-            // Por ejemplo: sincronizar catálogo, ludoteca, etc.
-            //
-            // TODO:
-            //  - Llamar a tu repositorio / viewmodel de sync
-            //  - Manejar errores correctamente
-            //
-            // De momento, simulamos éxito inmediato:
-            Toast.makeText(requireContext(), "Sincronización realizada", Toast.LENGTH_SHORT).show()
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val synced = userGamesRepo.syncPending(uid)
 
-            val now = System.currentTimeMillis()
+                    // Actualizar fecha de última sync de ludoteca si se sincronizó algo
+                    if (synced > 0) {
+                        val now = System.currentTimeMillis()
+                        prefs.edit {
+                            putLong(KEY_LAST_LIBRARY_SYNC, now)
+                        }
+                        tvLastLibrarySync.text = formatDateOrNever(now)
+                    }
 
-            // Actualizamos meta-datos de sync
-            prefs.edit()
-                .putLong(KEY_LAST_CATALOG_SYNC, now)
-                .putLong(KEY_LAST_LIBRARY_SYNC, now)
-                .putBoolean(KEY_HAS_PENDING, false)
-                .apply()
+                    Toast.makeText(
+                        requireContext(),
+                        "Sincronización realizada (${synced})",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-            // Refrescamos UI
-            tvLastCatalogSync.text = formatDateOrNever(now)
-            tvLastLibrarySync.text = formatDateOrNever(now)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al sincronizar: ${e.message ?: "desconocido"}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } finally {
+                    refreshPendingAndRender()
+                }
+            }
+        }
+    }
 
-            val autoSync = prefs.getBoolean(KEY_AUTO_SYNC, true)
-            renderManualState(autoSync, hasPending = false)
+    private fun refreshPendingAndRender() {
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) {
+            // Sin usuario: no podemos sincronizar contra Firestore
+            val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
+            renderManualState(autoSyncEnabled, hasPending = false)
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val pendingCount = try {
+                userGamesRepo.countPending(uid)
+            } catch (_: Exception) {
+                0
+            }
+
+            val hasPending = pendingCount > 0
+            prefs.edit {
+                putBoolean(KEY_HAS_PENDING, hasPending)
+            }
+
+            val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
+            renderManualState(autoSyncEnabled, hasPending)
         }
     }
 
     private fun renderManualState(autoSyncEnabled: Boolean, hasPending: Boolean) {
         if (autoSyncEnabled) {
-            // Si es automático, no mostramos warning ni dejamos el botón condicionado
             tvManualWarning.visibility = View.GONE
             btnSyncNow.isEnabled = false
         } else {
-            // Modo manual
             if (hasPending) {
                 tvManualWarning.visibility = View.VISIBLE
                 btnSyncNow.isEnabled = true
@@ -110,9 +166,8 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     }
 
     private fun formatDateOrNever(timestamp: Long): String {
-        if (timestamp <= 0L) {
-            return getString(R.string.profile_sync_never)
-        }
+        if (timestamp <= 0L) return getString(R.string.profile_sync_never)
+
         val df = DateFormat.getDateTimeInstance(
             DateFormat.SHORT,
             DateFormat.SHORT

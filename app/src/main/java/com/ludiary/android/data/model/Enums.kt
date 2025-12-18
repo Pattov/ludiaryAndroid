@@ -35,5 +35,6 @@ enum class SuggestionStatus {
 enum class SyncStatus {
     CLEAN,
     PENDING,
-    CONFLICT
+    CONFLICT,
+    DELETED
 }

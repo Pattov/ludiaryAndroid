@@ -48,6 +48,7 @@
     <string name="profile_sync_never">Never</string>
     <string name="profile_sync_manual_warning">You have unsynced changes. Check your connection and press &quot;Sync now&quot;.</string>
     <string name="profile_sync_now">Sync now</string>
+    <string name="profile_sync_syncing">Synchronizing…</string>
 
     <string name="library_title">Library</string>
     <string name="library_hint_search">Search game…</string>
