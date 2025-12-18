@@ -47,7 +47,7 @@
                 android:text="@string/profile_sync_mode_auto_label"
                 android:textSize="16sp" />
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchAutoSync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
