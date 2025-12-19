@@ -1,6 +1,5 @@
 package com.ludiary.android.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.repository.UserGamesRepository
@@ -31,6 +30,10 @@ class LibraryViewModel(
     val uiState: StateFlow<LibraryUiState> = _uiState
 
     init {
+        viewModelScope.launch {
+            userGamesRepository.initialSyncIfNeeded(uid)
+        }
+
         loadUserGames()
 
         if (syncCatalogAutomatically) {
@@ -71,7 +74,7 @@ class LibraryViewModel(
     fun syncCatalog(forceFullSync: Boolean = false) {
         viewModelScope.launch {
             try {
-                val count = gameBaseRepository.syncGamesBase(forceFullSync)
+                gameBaseRepository.syncGamesBase(forceFullSync)
             } catch (e: Exception) {
                 android.util.Log.e("LUDIARY", "Error al sincronizar el catálogo: ${e.message}", e)
             }

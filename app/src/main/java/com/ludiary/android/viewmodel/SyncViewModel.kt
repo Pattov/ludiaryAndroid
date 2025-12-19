@@ -60,7 +60,10 @@ class SyncViewModel(
             _ui.value = _ui.value.copy(syncing = true, lastError = null)
 
             try {
+                //Sube pendientes
                 val synced = userGamesRepo.syncPending(uid)
+                //Baja Firebase
+                userGamesRepo.syncDown(uid)
                 val countAfter = userGamesRepo.countPending(uid)
 
                 _ui.value = _ui.value.copy(

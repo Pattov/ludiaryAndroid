@@ -128,7 +128,7 @@ class UserGamesRepositoryImpl(
 
                     else -> {
                         Log.w(
-                            "UserGamesSync",
+                            "Ludiary_UserGamesSync",
                             "UserGame id=${game.id} con estado ${game.syncStatus} ignorado en sync"
                         )
                     }
@@ -155,7 +155,10 @@ class UserGamesRepositoryImpl(
 
     override suspend fun initialSyncIfNeeded(uid: String) {
         if (local.isEmpty(uid)) {
+            Log.d("SYNC_INIT", "local empty -> syncDown")
             syncDown(uid)
+        } else {
+            Log.d("SYNC_INIT", "local not empty -> Manejamos conflicto")
         }
     }
 }
