@@ -43,8 +43,16 @@ interface UserGamesRepository {
      */
     suspend fun countPending(uid: String): Int
 
+    /**
+     * Realiza la sincronización inicial si la lista local está vacía.
+     * @param uid Identificador único del usuario.
+     */
     suspend fun initialSyncIfNeeded(uid: String)
 
+    /**
+     * Sincronización descendente completa (Firestore → Room).
+     * @param uid Identificador único del usuario.
+     */
     suspend fun syncDown(uid: String)
 
     /**

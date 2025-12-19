@@ -62,9 +62,19 @@ class LocalUserGamesDataSource (
      */
     suspend fun hardDeleteById(id: String) = userGameDao.deleteById(id)
 
-
+    /**
+     * Comprueba si la base de datos local está vacía para un usuario concreto.
+     * @param uid Identificador único del usuario.
+     * @return true si la base de datos está vacía, false en caso contrario.
+     */
     suspend fun isEmpty(uid: String): Boolean = userGameDao.countByUser(uid) == 0
 
+    /**
+     * Reemplaza completamente todos los juegos del usuario en la base de datos local.
+     * @param uid Identificador único del usuario.
+     * @param games Lista de juegos a reemplazar.
+     * @return Cantidad de juegos eliminados.
+     */
     suspend fun replaceAllByUser(uid: String, games: List<UserGame>) {
         userGameDao.deleteAllByUser(uid)
         userGameDao.upsertAll(games.map { it.toEntity() })

@@ -53,6 +53,11 @@ class FirestoreUserGamesRepository (
         upsertUserGame(uid, userGame)
     }
 
+    /**
+     * Crea o actualiza un userGame
+     * @param uid Identificador único del usuario.
+     * @param userGame Juego del usuario.
+     */
     suspend fun upsertUserGame(uid: String, userGame: UserGame) {
         require(userGame.id.isNotBlank()) { "UserGame.id no puede estar vacío para upsert en Firestore" }
 
@@ -63,6 +68,11 @@ class FirestoreUserGamesRepository (
             .await()
     }
 
+    /**
+     * Se devuelve una lista de juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario en Firebase.
+     */
     suspend fun fetchAll(uid: String): List<UserGame> {
         val snapshot = userGamesCollection(uid).get().await()
 

@@ -11,7 +11,6 @@ import java.util.UUID
  * Implementación de [UserGamesRepository] que opera tanto en Room como en Firestore.
  * @param local Fuente de datos local (Room).
  * @param remote Fuente de datos remoto (Firestore).
- * @return Instancia de [UserGamesRepositoryImpl].
  */
 class UserGamesRepositoryImpl(
     private val local: LocalUserGamesDataSource,
@@ -153,6 +152,11 @@ class UserGamesRepositoryImpl(
      */
     override suspend fun countPending(uid: String): Int = local.countPending(uid)
 
+    /**
+     * Realiza la sincronización inicial si la lista local está vacía.
+     * @param uid Identificador único del usuario.
+     * @throws Exception si ocurre un error durante la sincronización inicial.
+     */
     override suspend fun initialSyncIfNeeded(uid: String) {
         if (local.isEmpty(uid)) {
             Log.d("SYNC_INIT", "local empty -> syncDown")
