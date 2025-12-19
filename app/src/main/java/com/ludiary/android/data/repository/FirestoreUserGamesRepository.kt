@@ -1,10 +1,12 @@
 package com.ludiary.android.data.repository
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.PurchasePrice
 import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.data.model.UserGame
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 
 /**
  * Implementación de [UserGamesRepository] que opera directamente sobre Firebase
@@ -53,6 +55,11 @@ class FirestoreUserGamesRepository (
         upsertUserGame(uid, userGame)
     }
 
+    /**
+     * Crea o actualiza un userGame
+     * @param uid Identificador único del usuario.
+     * @param userGame Juego del usuario.
+     */
     suspend fun upsertUserGame(uid: String, userGame: UserGame) {
         require(userGame.id.isNotBlank()) { "UserGame.id no puede estar vacío para upsert en Firestore" }
 
@@ -63,44 +70,60 @@ class FirestoreUserGamesRepository (
             .await()
     }
 
+    /**
+     * Se devuelve una lista de juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario en Firebase.
+     */
     suspend fun fetchAll(uid: String): List<UserGame> {
         val snapshot = userGamesCollection(uid).get().await()
 
         return snapshot.documents.map { doc ->
             val data = doc.data.orEmpty()
 
-            val amount = (data["purchasePrice"] as? Number)?.toDouble()
-            val currency = data["purchaseCurrency"] as? String
+            val titleSnapshot = (data["titleSnapshot"] as? String)
+                ?: (data["title"] as? String)
+                ?: ""
+
+            val purchasePriceMap = data["purchasePrice"] as? Map<*, *>
+            val amount = (purchasePriceMap?.get("amount") as? Number)?.toDouble()
+            val currency = purchasePriceMap?.get("currency") as? String
 
             val purchasePrice =
-                if (amount != null && currency != null) PurchasePrice(
-                    amount = amount,
-                    currency = currency
-                )
-                else null
+                if (amount != null && !currency.isNullOrBlank()) {
+                    PurchasePrice(amount = amount, currency = currency)
+                } else {
+                    null
+                }
+
+            val purchaseDateMillis = (data["purchaseDate"] as? Timestamp)?.toDate()?.time
+            val createdAtMillis = (data["createdAt"] as? Timestamp)?.toDate()?.time
+            val updatedAtMillis = (data["updatedAt"] as? Timestamp)?.toDate()?.time
 
             UserGame(
                 id = doc.id,
                 userId = (data["userId"] as? String) ?: uid,
                 gameId = (data["gameId"] as? String) ?: "",
                 isCustom = (data["isCustom"] as? Boolean) ?: false,
-                titleSnapshot = (data["titleSnapshot"] as? String) ?: "",
+
+                titleSnapshot = titleSnapshot,
+
                 personalRating = (data["personalRating"] as? Number)?.toFloat(),
                 language = data["language"] as? String,
                 edition = data["edition"] as? String,
                 condition = data["condition"] as? String,
                 location = data["location"] as? String,
-                purchaseDate = (data["purchaseDate"] as? Number)?.toLong(),
-                purchasePrice = purchasePrice,
                 notes = data["notes"] as? String,
 
-                createdAt = (data["createdAt"] as? Number)?.toLong(),
-                updatedAt = (data["updatedAt"] as? Number)?.toLong(),
+                purchaseDate = purchaseDateMillis,
+                purchasePrice = purchasePrice,
+
+                createdAt = createdAtMillis,
+                updatedAt = updatedAtMillis,
 
                 baseGameVersionAtLastSync = (data["baseGameVersionAtLastSync"] as? Number)?.toInt(),
                 hasBaseUpdate = (data["hasBaseUpdate"] as? Boolean) ?: false,
 
-                // Todo lo que baja entra CLEAN
                 syncStatus = SyncStatus.CLEAN
             )
         }
@@ -115,16 +138,25 @@ private fun UserGame.toFirestoreMapWithoutId(): Map<String, Any?> =
         "userId" to userId,
         "gameId" to gameId,
         "isCustom" to isCustom,
-        "titleSnapshot" to titleSnapshot,
+        "title" to titleSnapshot.ifBlank { null },
+        "titleSnapshot" to titleSnapshot.ifBlank { null },
         "personalRating" to personalRating,
         "language" to language,
         "edition" to edition,
-        "notes" to notes,
-        "location" to location,
         "condition" to condition,
-        "purchaseDate" to purchaseDate,
-        "purchasePrice" to purchasePrice?.amount,
-        "purchaseCurrency" to purchasePrice?.currency,
+        "location" to location,
+        "notes" to notes,
+        "purchaseDate" to purchaseDate?.let {
+            Timestamp(Date(it))
+        },
+        "purchasePrice" to purchasePrice?.let {
+            mapOf(
+                "amount" to it.amount,
+                "currency" to it.currency
+            )
+        },
         "baseGameVersionAtLastSync" to baseGameVersionAtLastSync,
-        "hasBaseUpdate" to hasBaseUpdate
+        "hasBaseUpdate" to hasBaseUpdate,
+        "createdAt" to createdAt?.let { Timestamp(Date(it)) },
+        "updatedAt" to Timestamp(Date(updatedAt ?: System.currentTimeMillis()))
     )
