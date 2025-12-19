@@ -9,6 +9,13 @@ import kotlinx.coroutines.flow.Flow
 interface UserGamesRepository {
 
     /**
+     * Devuelve un flujo que emite una lista de juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario.
+     */
+    fun getUserGames(uid: String): Flow<List<UserGame>>
+
+    /**
      * Devuelve un flujo que emite un juego del usuario.
      * @param uid Identificador único del usuario.
      * @param userGame Identificador único del juego.
@@ -23,13 +30,6 @@ interface UserGamesRepository {
     suspend fun deleteUserGame(uid: String, gameId: String)
 
     /**
-     * Devuelve un flujo que emite una lista de juegos del usuario.
-     * @param uid Identificador único del usuario.
-     * @return Lista de juegos del usuario.
-     */
-    fun getUserGames(uid: String): Flow<List<UserGame>>
-
-    /**
      * Actualiza un juego del usuario.
      * @param uid Identificador único del usuario.
      * @param userGame Juego del usuario.
@@ -37,15 +37,19 @@ interface UserGamesRepository {
     suspend fun updateUserGame(uid: String, userGame: UserGame)
 
     /**
-     * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.
-     * @return número de elementos sincronizados correctamente
-     */
-    suspend fun syncPending(uid: String): Int
-
-    /**
      * Cuenta los registros pendientes de sincronización en local para un usuario específico.
      * @param uid Identificador único del usuario.
      * @return número total de registros pendientes.
      */
     suspend fun countPending(uid: String): Int
+
+    suspend fun initialSyncIfNeeded(uid: String)
+
+    suspend fun syncDown(uid: String)
+
+    /**
+     * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.
+     * @return número de elementos sincronizados correctamente
+     */
+    suspend fun syncPending(uid: String): Int
 }

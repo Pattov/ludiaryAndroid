@@ -18,34 +18,12 @@ interface UserGameDao {
     fun getUserGames(userId: String): Flow<List<UserGameEntity>>
 
     /**
-     * Obtiene un juego por su ID.
-     * @param id Identificador único del juego.
-     * @return [UserGameEntity] que representa el juego o nulo si no se encuentra.
-     */
-    @Query("SELECT * FROM user_games WHERE id = :id")
-    suspend fun getById(id: String): UserGameEntity?
-
-    /**
-     * Inserta o actualiza una lista de juegos en la base de datos.
-     * @param game Lista de juegos a insertar o actualizar.
-     */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(game: UserGameEntity)
-
-    /**
-     * Elimina todos los juegos de la base de datos.
-     * @param game Juego a eliminar.
-     */
-    @Delete
-    suspend fun delete(game: UserGameEntity)
-
-    /**
-     * Devuelve los juegos pendientes de sincronizar.
+     * Cuenta la cantidad de juegos del usuario.
      * @param uid Identificador único del usuario.
-     * @return Cantidad de juegos pendientes.
+     * @return Cantidad de juegos.
      */
-    @Query("SELECT * FROM user_games WHERE userId = :uid AND (syncStatus = 'PENDING' OR syncStatus = 'DELETED')")
-    suspend fun getPending(uid: String): List<UserGameEntity>
+    @Query("SELECT COUNT(*) FROM user_games WHERE userId = :uid")
+    suspend fun countByUser(uid: String): Int
 
     /**
      * Cuenta la cantidad de juegos pendientes del usuario.
@@ -56,10 +34,48 @@ interface UserGameDao {
     suspend fun countPending(uid: String): Int
 
     /**
+     * Elimina todos los juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Cantidad de juegos eliminados.
+     */
+    @Query("DELETE FROM user_games WHERE userId = :uid")
+    suspend fun deleteAllByUser(uid: String)
+
+    /**
      * Elimina de forma definitiva un juego por su ID almacenado en local pero ya sincronizados.
      * @param id Identificador único del juego.
      * @return Cantidad de juegos eliminados.
      */
     @Query("DELETE FROM user_games WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    /**
+     * Obtiene un juego por su ID.
+     * @param id Identificador único del juego.
+     * @return [UserGameEntity] que representa el juego o nulo si no se encuentra.
+     */
+    @Query("SELECT * FROM user_games WHERE id = :id")
+    suspend fun getById(id: String): UserGameEntity?
+
+    /**
+     * Devuelve los juegos pendientes de sincronizar.
+     * @param uid Identificador único del usuario.
+     * @return Cantidad de juegos pendientes.
+     */
+    @Query("SELECT * FROM user_games WHERE userId = :uid AND (syncStatus = 'PENDING' OR syncStatus = 'DELETED')")
+    suspend fun getPending(uid: String): List<UserGameEntity>
+
+    /**
+     * Inserta o actualiza una lista de juegos en la base de datos.
+     * @param game Lista de juegos a insertar o actualizar.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(game: UserGameEntity)
+
+    /**
+     * Inserta o actualiza una lista de juegos en la base de datos.
+     * @param games Lista de juegos a insertar o actualizar.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(games: List<UserGameEntity>)
 }

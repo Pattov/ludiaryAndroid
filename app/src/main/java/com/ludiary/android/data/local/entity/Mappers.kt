@@ -155,6 +155,16 @@ fun UserGame.toEntity(): UserGameEntity =
         syncStatus = syncStatus
     )
 
+/**
+ * Convierte un modelo del dominio [UserGame] en una entidad Room [UserGameEntity].
+ * @param uid Identificador único del usuario.
+ */
+fun UserGame.toEntityFromRemote(uid: String): UserGameEntity =
+    this.copy(
+        userId = uid,
+        syncStatus = SyncStatus.CLEAN
+    ).toEntity()
+
 // GameSuggestion
 /**
  * Convierte una entidad Room [GameSuggestionEntity] en el modelo del dominio [GameSuggestion].

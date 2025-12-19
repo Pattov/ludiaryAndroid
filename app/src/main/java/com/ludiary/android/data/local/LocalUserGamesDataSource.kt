@@ -28,14 +28,14 @@ class LocalUserGamesDataSource (
      * Elimina un juego de la base de datos local.
      * @param game Juego a eliminar.
      */
-    suspend fun delete(game: UserGame) = userGameDao.delete(game.toEntity())
+    suspend fun delete(game: UserGame) = userGameDao.deleteById(game.id)
 
     /**
      * Recupera un juego del usuario por su ID.
      * @param id Identificador único del juego.
      * @return Juego recuperado o nulo si no se encuentra.
      */
-    suspend fun getById(id: String) = userGameDao.getById(id)?.toModel()
+    suspend fun getById(id: String): UserGame? = userGameDao.getById(id)?.toModel()
 
     /**
      * Recupera los juegos pendientes de sincronización del usuario.
@@ -62,6 +62,14 @@ class LocalUserGamesDataSource (
      */
     suspend fun hardDeleteById(id: String) = userGameDao.deleteById(id)
 
+
+    suspend fun isEmpty(uid: String): Boolean = userGameDao.countByUser(uid) == 0
+
+    suspend fun replaceAllByUser(uid: String, games: List<UserGame>) {
+        userGameDao.deleteAllByUser(uid)
+        userGameDao.upsertAll(games.map { it.toEntity() })
+    }
+
     /**
      * Inserta o actualiza un juego en la base de datos local.
      * @param game Juego a insertar o actualizar.
@@ -72,5 +80,6 @@ class LocalUserGamesDataSource (
      * Inserta o actualiza una lista de juegos en la base de datos local.
      * @param games Lista de juegos a insertar o actualizar.
      */
-    suspend fun upsertAll(games: List<UserGame>) = games.forEach { userGameDao.upsert(it.toEntity()) }
+    suspend fun upsertAll(games: List<UserGame>) =
+        userGameDao.upsertAll(games.map { it.toEntity() })
 }

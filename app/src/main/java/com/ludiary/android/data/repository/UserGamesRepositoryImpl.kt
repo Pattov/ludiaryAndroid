@@ -41,8 +41,10 @@ class UserGamesRepositoryImpl(
             id = id,
             userId = uid,
             syncStatus = SyncStatus.PENDING,
-            updatedAt = System.currentTimeMillis()
+            updatedAt = System.currentTimeMillis(),
+            createdAt = userGame.createdAt ?: System.currentTimeMillis()
         )
+
         local.upsert(pending)
     }
 
@@ -59,8 +61,10 @@ class UserGamesRepositoryImpl(
             id = id,
             userId = uid,
             syncStatus = SyncStatus.PENDING,
-            updatedAt = System.currentTimeMillis()
+            updatedAt = System.currentTimeMillis(),
+            createdAt = userGame.createdAt ?: System.currentTimeMillis()
         )
+
         local.upsert(pending)
     }
 
@@ -72,13 +76,27 @@ class UserGamesRepositoryImpl(
      */
     override suspend fun deleteUserGame(uid: String, gameId: String) {
         val current = local.getById(gameId) ?: return
+
         // El registro se marca como delete
         val deleted = current.copy(
             userId = uid,
             syncStatus = SyncStatus.DELETED,
             updatedAt = System.currentTimeMillis()
         )
+
         local.upsert(deleted)
+    }
+
+    /**
+     * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.
+     * @param uid Identificador único del usuario.
+     * @return Instancia de [UserGamesRepositoryImpl].
+     * @throws Exception si ocurre un error durante la sincronización.
+     */
+    override suspend fun syncDown(uid: String) {
+        val remoteList = remote.fetchAll(uid)
+        val cleaned = remoteList.map { it.copy(userId = uid, syncStatus = SyncStatus.CLEAN) }
+        local.replaceAllByUser(uid, cleaned)
     }
 
     /**
@@ -95,7 +113,7 @@ class UserGamesRepositoryImpl(
             try {
                 when(game.syncStatus) {
                     SyncStatus.PENDING -> {
-                        remote.addUserGame(uid, game)
+                        remote.upsertUserGame(uid, game.copy(userId = uid))
 
                         // Marcar como Clean en local
                         local.upsert(game.copy(syncStatus = SyncStatus.CLEAN, updatedAt = System.currentTimeMillis()))
@@ -107,6 +125,7 @@ class UserGamesRepositoryImpl(
                         local.hardDeleteById(game.id)
                         syncedCount++
                     }
+
                     else -> {
                         Log.w(
                             "UserGamesSync",
@@ -122,6 +141,7 @@ class UserGamesRepositoryImpl(
                 )
             }
         }
+
         return syncedCount
     }
 
@@ -132,4 +152,10 @@ class UserGamesRepositoryImpl(
      * @throws Exception si ocurre un error al contar los registros.
      */
     override suspend fun countPending(uid: String): Int = local.countPending(uid)
+
+    override suspend fun initialSyncIfNeeded(uid: String) {
+        if (local.isEmpty(uid)) {
+            syncDown(uid)
+        }
+    }
 }

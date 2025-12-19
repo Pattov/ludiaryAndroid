@@ -1,6 +1,8 @@
 package com.ludiary.android.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.data.model.PurchasePrice
+import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.data.model.UserGame
 import kotlinx.coroutines.tasks.await
 
@@ -26,9 +28,8 @@ class FirestoreUserGamesRepository (
      * @param userGame Identificador único del juego.
      * @return Juego del usuario.
      */
-    fun addUserGame(uid: String, userGame: UserGame) {
-        val data = userGame.toFirestoreMapWithoutId()
-        userGamesCollection(uid).add(data)
+    suspend fun addUserGame(uid: String, userGame: UserGame) {
+        upsertUserGame(uid, userGame)
     }
 
     /**
@@ -49,12 +50,60 @@ class FirestoreUserGamesRepository (
      * @param userGame Juego del usuario.
      */
     suspend fun updateUserGame(uid: String, userGame: UserGame) {
+        upsertUserGame(uid, userGame)
+    }
+
+    suspend fun upsertUserGame(uid: String, userGame: UserGame) {
         require(userGame.id.isNotBlank()) { "UserGame.id no puede estar vacío para upsert en Firestore" }
+
         val data = userGame.toFirestoreMapWithoutId()
         userGamesCollection(uid)
             .document(userGame.id)
             .set(data)
             .await()
+    }
+
+    suspend fun fetchAll(uid: String): List<UserGame> {
+        val snapshot = userGamesCollection(uid).get().await()
+
+        return snapshot.documents.map { doc ->
+            val data = doc.data.orEmpty()
+
+            val amount = (data["purchasePrice"] as? Number)?.toDouble()
+            val currency = data["purchaseCurrency"] as? String
+
+            val purchasePrice =
+                if (amount != null && currency != null) PurchasePrice(
+                    amount = amount,
+                    currency = currency
+                )
+                else null
+
+            UserGame(
+                id = doc.id,
+                userId = (data["userId"] as? String) ?: uid,
+                gameId = (data["gameId"] as? String) ?: "",
+                isCustom = (data["isCustom"] as? Boolean) ?: false,
+                titleSnapshot = (data["titleSnapshot"] as? String) ?: "",
+                personalRating = (data["personalRating"] as? Number)?.toFloat(),
+                language = data["language"] as? String,
+                edition = data["edition"] as? String,
+                condition = data["condition"] as? String,
+                location = data["location"] as? String,
+                purchaseDate = (data["purchaseDate"] as? Number)?.toLong(),
+                purchasePrice = purchasePrice,
+                notes = data["notes"] as? String,
+
+                createdAt = (data["createdAt"] as? Number)?.toLong(),
+                updatedAt = (data["updatedAt"] as? Number)?.toLong(),
+
+                baseGameVersionAtLastSync = (data["baseGameVersionAtLastSync"] as? Number)?.toInt(),
+                hasBaseUpdate = (data["hasBaseUpdate"] as? Boolean) ?: false,
+
+                // Todo lo que baja entra CLEAN
+                syncStatus = SyncStatus.CLEAN
+            )
+        }
     }
 }
 
