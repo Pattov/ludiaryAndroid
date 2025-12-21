@@ -19,7 +19,6 @@ object SyncScheduler {
     /**
      * Programa una tarea de sincronización automática de juegos del usuario.
      * @param context Contexto de la aplicación.
-     * @param constraints Restricciones para la ejecución del trabajo.
      * @return [WorkRequest] para la ejecución programada.
      */
     fun enableAutoSync(context: Context) {
@@ -37,6 +36,8 @@ object SyncScheduler {
             ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
+
+        runOneTimeSyncNow(context)
     }
 
     /**

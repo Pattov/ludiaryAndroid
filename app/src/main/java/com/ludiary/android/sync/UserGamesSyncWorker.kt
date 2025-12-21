@@ -41,6 +41,8 @@ class UserGamesSyncWorker(
         return try {
             val synced = repo.syncPending(uid)
 
+            repo.syncDown(uid)
+
             if (synced > 0) {
                 val prefs = applicationContext.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
                 val now = System.currentTimeMillis()
