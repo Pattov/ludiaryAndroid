@@ -61,6 +61,12 @@ class FirestoreUserGamesRepository (
         return snapshot.documents.map { doc -> doc.toUserGame(uid) }
     }
 
+    /**
+     * Se devuelve una lista de juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario en Firebase.
+     * @throws Exception si ocurre un error al obtener los juegos.
+     */
     suspend fun fetchChangedSince(uid: String, since: Long): List<UserGame> {
         val snapshot = userGamesCollection(uid)
             .whereGreaterThan("updatedAt", since)
@@ -102,6 +108,11 @@ private fun UserGame.toFirestoreMapWithoutId(): Map<String, Any?> =
         "updatedAt" to Timestamp(Date(updatedAt ?: System.currentTimeMillis()))
     )
 
+/**
+ * Convierte un [com.google.firebase.firestore.DocumentSnapshot] de Firestore a un [UserGame].
+ * @param uid Identificador único del usuario.
+ * @return Instancia de [UserGame].
+ */
 private fun com.google.firebase.firestore.DocumentSnapshot.toUserGame(uid: String): UserGame {
     val data = this.data.orEmpty()
 

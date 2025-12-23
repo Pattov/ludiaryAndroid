@@ -43,8 +43,14 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    /**
+     * Obtiene la instancia de Firebase Authentication.
+     */
     private val auth by lazy { FirebaseAuth.getInstance() }
 
+    /**
+     * Obtiene las preferencias de sincronización.
+     */
     private val syncPrefs by lazy { SyncPrefs(requireContext().applicationContext) }
 
     /**
@@ -60,6 +66,13 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         UserGamesRepositoryImpl(localDS, remote)
     }
 
+    /**
+     * Configura la interfaz de usuario al crear el fragmento.
+     * @param view La vista del fragmento.
+     * @param savedInstanceState El estado guardado del fragmento.
+     * @return Instancia de [SyncFragment].
+     * @throws Exception si ocurre un error al cargar las preferencias.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -79,7 +92,6 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
      * @throws Exception si ocurre un error al cargar las preferencias.
      */
     private fun setupUi() {
-        // Estado inicial desde SharedPreferences
         val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
         val lastCatalogSync = prefs.getLong(KEY_LAST_CATALOG_SYNC, 0L)
         val lastLibrarySync = prefs.getLong(KEY_LAST_LIBRARY_SYNC, 0L)
@@ -88,10 +100,8 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         tvLastCatalogSync.text = formatDateOrNever(lastCatalogSync)
         tvLastLibrarySync.text = formatDateOrNever(lastLibrarySync)
 
-        // Pintar estado de manual según pendientes en Room
         refreshPendingAndRender()
 
-        // Toggle auto-sync
         switchAutoSync.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit { putBoolean(KEY_AUTO_SYNC, isChecked) }
 
@@ -209,6 +219,11 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         return df.format(Date(timestamp))
     }
 
+    /**
+     * Claves de SharedPreferences
+     * @return Instancia de [SyncFragment].
+     * @throws Exception si ocurre un error al cargar las preferencias.
+     */
     companion object {
         private const val PREFS_NAME = "sync_prefs"
 
