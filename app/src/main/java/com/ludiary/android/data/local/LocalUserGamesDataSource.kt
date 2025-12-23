@@ -18,6 +18,14 @@ class LocalUserGamesDataSource (
 ) {
 
     /**
+     * Elimina todos los juegos del usuario de la base de datos local.
+     * @param uid Identificador único del usuario.
+     */
+    suspend fun clearUser(uid: String) {
+        userGameDao.deleteAllByUser(uid)
+    }
+
+    /**
      * Cuenta los registros pendientes de sincronización en local para un usuario específico.
      * @param uid Identificador único del usuario.
      * @return número total de registros pendientes.

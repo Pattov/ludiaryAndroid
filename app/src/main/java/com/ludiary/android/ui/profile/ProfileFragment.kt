@@ -9,19 +9,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
 import com.ludiary.android.auth.AuthActivity
-import com.ludiary.android.data.local.LocalUserDataSource
-import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreProfileRepository
 import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
+import com.ludiary.android.viewmodel.ProfileViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -34,21 +28,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
      * ViewModel inicializado mediante un Factory que construye el repositorio con Firebase + Room.
      */
     private val vm: ProfileViewModel by activityViewModels {
-        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
-        val localDS = LocalUserDataSource(db)
-
-        val repo = FirestoreProfileRepository(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
-            localDS
-        )
-
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(repo) as T
-            }
-        }
+        ProfileViewModelFactory(requireContext())
     }
 
     /**
@@ -127,8 +107,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                                 .putString("app_language", userLang)
                                 .apply()
 
-                            // Si ya había un idioma previo distinto, recreamos la Activity
-                            // para que se aplique el cambio en toda la interfaz.
+                            // Si hay un idioma previo, recreamos la Activity
                             if (currentLang != null) {
                                 requireActivity().recreate()
                             }
@@ -153,13 +132,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         btnLogout.setOnClickListener {
-            val currentUser = vm.ui.value.user
-            if (currentUser?.isAnonymous == true) {
-                // Invitado → ir al flujo de autenticación
-                goToAuth()
-            } else {
-                // Usuario registrado  cerrar sesión en Firebase y navegar
-                vm.logout()
+            vm.logout(requireContext()) {
                 goToAuth()
             }
         }

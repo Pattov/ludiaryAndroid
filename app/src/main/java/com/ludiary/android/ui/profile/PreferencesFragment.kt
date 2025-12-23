@@ -8,41 +8,21 @@ import android.widget.Button
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.local.LocalUserDataSource
-import com.ludiary.android.data.repository.FirestoreProfileRepository
 import com.ludiary.android.util.ThemeManager
 import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.ludiary.android.viewmodel.ProfileViewModelFactory
 
 class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
 
     // Compartimos el mismo ViewModel que el resto de fragments de perfil
     private val vm: ProfileViewModel by activityViewModels {
-
-        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
-        val localDS = LocalUserDataSource(db)
-        val repo = FirestoreProfileRepository(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
-            localDS
-        )
-
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(repo) as T
-            }
-        }
+        ProfileViewModelFactory(requireContext())
     }
 
     private lateinit var spinnerLanguage: Spinner
@@ -120,13 +100,11 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
             val selectedTheme = themeValues[spinnerTheme.selectedItemPosition]
 
             viewLifecycleOwner.lifecycleScope.launch {
-                // Actualizar en Firestore + Room (vía ViewModel/Repository)
                 vm.updatePreferences(
                     language = selectedLanguage,
                     theme = selectedTheme
                 )
 
-                // Guardar también en SharedPreferences para que MainActivity lo lea
                 val prefs = requireContext()
                     .getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
 
@@ -135,10 +113,7 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
                     putString("app_theme", selectedTheme)
                 }
 
-                // Aplicar el tema inmediatamente
                 ThemeManager.applyTheme(selectedTheme)
-
-                // Recrear la Activity para que se aplique el idioma en toda la UI
                 requireActivity().recreate()
             }
         }

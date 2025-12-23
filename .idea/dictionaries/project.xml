@@ -86,6 +86,7 @@
       <w>cambia</w>
       <w>cambiado</w>
       <w>cambiar</w>
+      <w>cancela</w>
       <w>cancelar</w>
       <w>cantidad</w>
       <w>captura</w>
@@ -111,6 +112,7 @@
       <w>compara</w>
       <w>compartidas</w>
       <w>compartido</w>
+      <w>compartimos</w>
       <w>completa</w>
       <w>completamente</w>
       <w>compra</w>
@@ -218,6 +220,8 @@
       <w>eficientes</w>
       <w>ejecución</w>
       <w>ejecuta</w>
+      <w>ejecutar</w>
+      <w>ejecute</w>
       <w>ejemplo</w>
       <w>electrónico</w>
       <w>elemento</w>
@@ -345,6 +349,7 @@
       <w>intermediario</w>
       <w>interna</w>
       <w>interno</w>
+      <w>internos</w>
       <w>introducido</w>
       <w>introduciendo</w>
       <w>introducir</w>
@@ -395,6 +400,7 @@
       <w>mientras</w>
       <w>milisegundos</w>
       <w>minutos</w>
+      <w>mismo</w>
       <w>modelo</w>
       <w>modo</w>
       <w>momento</w>
@@ -426,6 +432,7 @@
       <w>obligatorio</w>
       <w>observa</w>
       <w>observación</w>
+      <w>observador</w>
       <w>observar</w>
       <w>observarlo</w>
       <w>obtener</w>
@@ -433,6 +440,7 @@
       <w>obtenido</w>
       <w>obtiene</w>
       <w>oculta</w>
+      <w>ocultar</w>
       <w>ocurra</w>
       <w>ocurre</w>
       <w>ocurrió</w>
@@ -514,6 +522,7 @@
       <w>reciente</w>
       <w>recoger</w>
       <w>recomendada</w>
+      <w>recreamos</w>
       <w>recupera</w>
       <w>recuperación</w>
       <w>recuperado</w>
@@ -559,6 +568,7 @@
       <w>reutiliza</w>
       <w>revisa</w>
       <w>revisó</w>
+      <w>salir</w>
       <w>secciones</w>
       <w>sección</w>
       <w>secundario</w>
@@ -606,6 +616,7 @@
       <w>tarjetas</w>
       <w>tendrás</w>
       <w>tener</w>
+      <w>terminar</w>
       <w>texto</w>
       <w>tiene</w>
       <w>tienes</w>
@@ -645,6 +656,8 @@
       <w>válidos</w>
       <w>época</w>
       <w>éxito</w>
+      <w>índice</w>
+      <w>únicamente</w>
       <w>único</w>
     </words>
   </dictionary>

@@ -1,9 +1,14 @@
 package com.ludiary.android.viewmodel
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.repository.ProfileRepository
+import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,7 +37,9 @@ data class ProfileUiState(
  * @param repo Implementación de [ProfileRepository] que se utiliza para interactuar con los dos repositorios.
  */
 class ProfileViewModel(
-    private val repo: ProfileRepository
+    private val repo: ProfileRepository,
+    private val userGamesRepo: UserGamesRepository,
+    private val localUserGames: LocalUserGamesDataSource
 ) : ViewModel() {
 
     /**
@@ -63,13 +70,40 @@ class ProfileViewModel(
         _ui.value = ProfileUiState(loading = true)
         runCatching { repo.getOrCreate() }
             .onSuccess { user -> _ui.value = ProfileUiState(loading = false, user = user, error = null )}
-            .onFailure { e -> _ui.value = ProfileUiState(loading = false, user = null ,error = e.message) }
+            .onFailure { e -> _ui.value = ProfileUiState(loading = false, user = null, error = e.message) }
     }
 
     /**
      * Cierra la sesión del usuario Firebase.
+     * @param onDone Callback a ejecutar al terminar.
      */
-    fun logout() = viewModelScope.launch { runCatching { repo.signOut() } }
+    fun logout(context: Context, onDone: () -> Unit = {}) = viewModelScope.launch {
+        val user = ui.value.user
+        if (user == null) {
+            onDone()
+            return@launch
+        }
+
+        // Cancela auto-sync para que no se ejecute sin usuario
+        SyncScheduler.disableAutoSync(context.applicationContext)
+
+        if (!user.isAnonymous) {
+            runCatching {
+                val pending = userGamesRepo.countPending(user.uid)
+                if (pending > 0) userGamesRepo.syncPending(user.uid)
+            }.onFailure {
+                Log.w("LUDIARY_LOGOUT", "No se pudo sincronizar antes de salir: ${it.message}")
+            }
+        }
+
+        runCatching { repo.signOut() }
+            .onFailure { Log.e("LUDIARY_LOGOUT", "Error en signOut: ${it.message}", it) }
+
+        runCatching { localUserGames.clearUser(user.uid) }
+            .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar Room: ${it.message}") }
+
+        onDone()
+    }
 
     /**
      * Actualiza únicamente las preferencias (idioma/tema) del usuario.

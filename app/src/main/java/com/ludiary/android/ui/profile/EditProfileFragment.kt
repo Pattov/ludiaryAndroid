@@ -5,18 +5,11 @@ import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LocalUserDataSource
-import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.model.User
-import com.ludiary.android.data.repository.FirestoreProfileRepository
 import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -24,6 +17,7 @@ import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
 import com.google.android.material.textfield.TextInputLayout
+import com.ludiary.android.viewmodel.ProfileViewModelFactory
 
 /**
  * Fragmento para editar el perfil del usuario.
@@ -36,21 +30,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
      * ViewModel inicializado mediante un Factory que construye el repositorio con Firebase + Room.
      */
     private val vm: ProfileViewModel by activityViewModels {
-        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
-        val localDS = LocalUserDataSource(db)
-
-        val repo = FirestoreProfileRepository(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
-            localDS
-        )
-
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(repo) as T
-            }
-        }
+        ProfileViewModelFactory(requireContext())
     }
 
     /**
