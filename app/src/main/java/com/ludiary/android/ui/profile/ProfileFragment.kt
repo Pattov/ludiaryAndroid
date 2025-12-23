@@ -18,6 +18,7 @@ import com.ludiary.android.viewmodel.ProfileViewModel
 import com.ludiary.android.viewmodel.ProfileViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 /**
  * Pantalla destinada a mostrar la información del perfil del usuario y opciones de configuración.
@@ -103,9 +104,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
                         if (currentLang != userLang) {
                             // Guardamos el idioma del usuario como idioma de la app
-                            prefs.edit()
-                                .putString("app_language", userLang)
-                                .apply()
+                            prefs.edit {
+                                putString("app_language", userLang)
+                            }
+
 
                             // Si hay un idioma previo, recreamos la Activity
                             if (currentLang != null) {

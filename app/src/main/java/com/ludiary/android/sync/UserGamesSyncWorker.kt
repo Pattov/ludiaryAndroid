@@ -31,23 +31,26 @@ class UserGamesSyncWorker(
      * @throws Exception si ocurre un error durante la ejecución del trabajo.
      */
     override suspend fun doWork(): Result {
-
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return Result.success()
+
         val db = LudiaryDatabase.getInstance(applicationContext)
         val localDS = LocalUserGamesDataSource(db.userGameDao())
         val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
         val repo = UserGamesRepositoryImpl(localDS, remote)
 
+        val syncPrefs = SyncPrefs(applicationContext)
+
         return try {
-            val synced = repo.syncPending(uid)
+            repo.syncPending(uid)
 
-            repo.syncDown(uid)
+            val lastPull = syncPrefs.getLastUserGamesPull(uid)
+            repo.syncDownIncremental(uid, lastPull)
 
-            if (synced > 0) {
-                val prefs = applicationContext.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
-                val now = System.currentTimeMillis()
-                prefs.edit { putLong(SyncFragment.KEY_LAST_LIBRARY_SYNC, now) }
-            }
+            val now = System.currentTimeMillis()
+            syncPrefs.setLastUserGamesPull(uid, now)
+
+            val prefs = applicationContext.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
+            prefs.edit { putLong(SyncFragment.KEY_LAST_LIBRARY_SYNC, now) }
 
             Result.success()
         } catch (_: Exception) {

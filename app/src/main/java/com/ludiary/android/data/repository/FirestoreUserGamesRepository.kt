@@ -25,16 +25,6 @@ class FirestoreUserGamesRepository (
             .collection("userGames")
 
     /**
-     * Devuelve un flujo que emite un juego del usuario.
-     * @param uid Identificador único del usuario.
-     * @param userGame Identificador único del juego.
-     * @return Juego del usuario.
-     */
-    suspend fun addUserGame(uid: String, userGame: UserGame) {
-        upsertUserGame(uid, userGame)
-    }
-
-    /**
      * Elimina un juego del usuario.
      * @param uid Identificador único del usuario.
      */
@@ -44,15 +34,6 @@ class FirestoreUserGamesRepository (
             .document(gameId)
             .delete()
             .await()
-    }
-
-    /**
-     * Crea o actualiza un userGame
-     * @param uid Identificador único del usuario.
-     * @param userGame Juego del usuario.
-     */
-    suspend fun updateUserGame(uid: String, userGame: UserGame) {
-        upsertUserGame(uid, userGame)
     }
 
     /**
@@ -77,56 +58,16 @@ class FirestoreUserGamesRepository (
      */
     suspend fun fetchAll(uid: String): List<UserGame> {
         val snapshot = userGamesCollection(uid).get().await()
+        return snapshot.documents.map { doc -> doc.toUserGame(uid) }
+    }
 
-        return snapshot.documents.map { doc ->
-            val data = doc.data.orEmpty()
+    suspend fun fetchChangedSince(uid: String, since: Long): List<UserGame> {
+        val snapshot = userGamesCollection(uid)
+            .whereGreaterThan("updatedAt", since)
+            .get()
+            .await()
 
-            val titleSnapshot = (data["titleSnapshot"] as? String)
-                ?: (data["title"] as? String)
-                ?: ""
-
-            val purchasePriceMap = data["purchasePrice"] as? Map<*, *>
-            val amount = (purchasePriceMap?.get("amount") as? Number)?.toDouble()
-            val currency = purchasePriceMap?.get("currency") as? String
-
-            val purchasePrice =
-                if (amount != null && !currency.isNullOrBlank()) {
-                    PurchasePrice(amount = amount, currency = currency)
-                } else {
-                    null
-                }
-
-            val purchaseDateMillis = (data["purchaseDate"] as? Timestamp)?.toDate()?.time
-            val createdAtMillis = (data["createdAt"] as? Timestamp)?.toDate()?.time
-            val updatedAtMillis = (data["updatedAt"] as? Timestamp)?.toDate()?.time
-
-            UserGame(
-                id = doc.id,
-                userId = (data["userId"] as? String) ?: uid,
-                gameId = (data["gameId"] as? String) ?: "",
-                isCustom = (data["isCustom"] as? Boolean) ?: false,
-
-                titleSnapshot = titleSnapshot,
-
-                personalRating = (data["personalRating"] as? Number)?.toFloat(),
-                language = data["language"] as? String,
-                edition = data["edition"] as? String,
-                condition = data["condition"] as? String,
-                location = data["location"] as? String,
-                notes = data["notes"] as? String,
-
-                purchaseDate = purchaseDateMillis,
-                purchasePrice = purchasePrice,
-
-                createdAt = createdAtMillis,
-                updatedAt = updatedAtMillis,
-
-                baseGameVersionAtLastSync = (data["baseGameVersionAtLastSync"] as? Number)?.toInt(),
-                hasBaseUpdate = (data["hasBaseUpdate"] as? Boolean) ?: false,
-
-                syncStatus = SyncStatus.CLEAN
-            )
-        }
+        return snapshot.documents.map { doc -> doc.toUserGame(uid) }
     }
 }
 
@@ -160,3 +101,33 @@ private fun UserGame.toFirestoreMapWithoutId(): Map<String, Any?> =
         "createdAt" to createdAt?.let { Timestamp(Date(it)) },
         "updatedAt" to Timestamp(Date(updatedAt ?: System.currentTimeMillis()))
     )
+
+private fun com.google.firebase.firestore.DocumentSnapshot.toUserGame(uid: String): UserGame {
+    val data = this.data.orEmpty()
+
+    val amount = (data["purchasePrice"] as? Number)?.toDouble()
+    val currency = data["purchaseCurrency"] as? String
+    val purchasePrice =
+        if (amount != null && currency != null) PurchasePrice(amount = amount, currency = currency) else null
+
+    return UserGame(
+        id = this.id,
+        userId = (data["userId"] as? String) ?: uid,
+        gameId = (data["gameId"] as? String) ?: "",
+        isCustom = (data["isCustom"] as? Boolean) ?: false,
+        titleSnapshot = (data["titleSnapshot"] as? String) ?: "",
+        personalRating = (data["personalRating"] as? Number)?.toFloat(),
+        language = data["language"] as? String,
+        edition = data["edition"] as? String,
+        condition = data["condition"] as? String,
+        location = data["location"] as? String,
+        purchaseDate = (data["purchaseDate"] as? Number)?.toLong(),
+        purchasePrice = purchasePrice,
+        notes = data["notes"] as? String,
+        createdAt = (data["createdAt"] as? Number)?.toLong(),
+        updatedAt = (data["updatedAt"] as? Number)?.toLong(),
+        baseGameVersionAtLastSync = (data["baseGameVersionAtLastSync"] as? Number)?.toInt(),
+        hasBaseUpdate = (data["hasBaseUpdate"] as? Boolean) ?: false,
+        syncStatus = SyncStatus.CLEAN
+    )
+}

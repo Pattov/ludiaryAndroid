@@ -6,9 +6,10 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
@@ -17,11 +18,11 @@ import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.repository.FirestoreUserGamesRepository
 import com.ludiary.android.data.repository.UserGamesRepository
 import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import com.ludiary.android.sync.SyncScheduler
+import com.ludiary.android.sync.SyncPrefs
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
-import androidx.core.content.edit
-import com.ludiary.android.sync.SyncScheduler
 
 /**
  * Fragmento para sincronización de juegos del usuario.
@@ -29,7 +30,7 @@ import com.ludiary.android.sync.SyncScheduler
  */
 class SyncFragment : Fragment(R.layout.form_sync_profile) {
 
-    private lateinit var switchAutoSync: SwitchCompat
+    private lateinit var switchAutoSync: MaterialSwitch
     private lateinit var tvLastCatalogSync: TextView
     private lateinit var tvLastLibrarySync: TextView
     private lateinit var tvManualWarning: TextView
@@ -43,6 +44,8 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     }
 
     private val auth by lazy { FirebaseAuth.getInstance() }
+
+    private val syncPrefs by lazy { SyncPrefs(requireContext().applicationContext) }
 
     /**
      * Repositorio de juegos del usuario.
@@ -85,16 +88,14 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         tvLastCatalogSync.text = formatDateOrNever(lastCatalogSync)
         tvLastLibrarySync.text = formatDateOrNever(lastLibrarySync)
 
-        // Al entrar, recalculamos pendientes desde Room para mostrar warning/botón correctamente.
+        // Pintar estado de manual según pendientes en Room
         refreshPendingAndRender()
 
-        // Activar/desactivar sync automática
+        // Toggle auto-sync
         switchAutoSync.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit {
-                putBoolean(KEY_AUTO_SYNC, isChecked)
-            }
+            prefs.edit { putBoolean(KEY_AUTO_SYNC, isChecked) }
 
-            if(isChecked) {
+            if (isChecked) {
                 SyncScheduler.enableAutoSync(requireContext().applicationContext)
             } else {
                 SyncScheduler.disableAutoSync(requireContext().applicationContext)
@@ -103,7 +104,7 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
             refreshPendingAndRender()
         }
 
-        // Sincronización manual bajo demanda
+        // Sync manual
         btnSyncNow.setOnClickListener {
             val uid = auth.currentUser?.uid
             if (uid.isNullOrBlank()) {
@@ -111,25 +112,26 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
                 return@setOnClickListener
             }
 
-            // Evita dobles toques mientras se ejecuta la operación
             btnSyncNow.isEnabled = false
 
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
-                    val synced = userGamesRepo.syncPending(uid)
+                    val syncedUp = userGamesRepo.syncPending(uid)
 
-                    // Actualizar fecha de última sync de ludoteca si se sincronizó algo
-                    if (synced > 0) {
-                        val now = System.currentTimeMillis()
-                        prefs.edit {
-                            putLong(KEY_LAST_LIBRARY_SYNC, now)
-                        }
+                    val since = syncPrefs.getLastUserGamesPull(uid)
+                    val appliedDown = userGamesRepo.syncDownIncremental(uid, since)
+
+                    val now = System.currentTimeMillis()
+                    syncPrefs.setLastUserGamesPull(uid, now)
+
+                    if (syncedUp > 0 || appliedDown > 0) {
+                        prefs.edit { putLong(KEY_LAST_LIBRARY_SYNC, now) }
                         tvLastLibrarySync.text = formatDateOrNever(now)
                     }
 
                     Toast.makeText(
                         requireContext(),
-                        "Sincronización realizada (${synced})",
+                        "Sync OK ↑ Subidos: $syncedUp ↓ Bajados: $appliedDown",
                         Toast.LENGTH_SHORT
                     ).show()
 
@@ -147,15 +149,15 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     }
 
     /**
-     * Actualiza el estado de sincronización.
-     * @return Instancia de [SyncFragment].
-     * @throws Exception si ocurre un error al cargar las preferencias.
+     * Recalcula pendientes en Room y muestra:
+     * - si auto-sync ON → ocultar warning y deshabilitar botón
+     * - si auto-sync OFF → mostrar warning+botón solo si hay pendientes
      */
     private fun refreshPendingAndRender() {
+        val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
+
         val uid = auth.currentUser?.uid
         if (uid.isNullOrBlank()) {
-            // Sin usuario: no podemos sincronizar contra Firestore
-            val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
             renderManualState(autoSyncEnabled, hasPending = false)
             return
         }
@@ -168,11 +170,8 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
             }
 
             val hasPending = pendingCount > 0
-            prefs.edit {
-                putBoolean(KEY_HAS_PENDING, hasPending)
-            }
+            prefs.edit { putBoolean(KEY_HAS_PENDING, hasPending) }
 
-            val autoSyncEnabled = prefs.getBoolean(KEY_AUTO_SYNC, true)
             renderManualState(autoSyncEnabled, hasPending)
         }
     }

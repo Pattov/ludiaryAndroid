@@ -22,10 +22,8 @@ class UserGamesRepositoryImpl(
      * @param uid Identificador único del usuario.
      * @return Lista de juegos del usuario.
      */
-    override fun getUserGames(uid: String): Flow<List<UserGame>> {
-        // La UI siempre escucha a Room
-        return local.getUserGames(uid)
-    }
+
+    override fun getUserGames(uid: String): Flow<List<UserGame>> = local.getUserGames(uid)
 
     /**
      * Actualiza la lista de juegos del usuario en Room y Firestore.
@@ -93,13 +91,46 @@ class UserGamesRepositoryImpl(
      * @throws Exception si ocurre un error durante la sincronización.
      */
     override suspend fun syncDown(uid: String) {
-        if (local.countPending(uid) > 0) {
-            Log.w("SYNC_DOWN", "Hay pendientes, no hago replaceAll para no pisar cambios locales")
-            return
-        }
         val remoteList = remote.fetchAll(uid)
         val cleaned = remoteList.map { it.copy(userId = uid, syncStatus = SyncStatus.CLEAN) }
         local.replaceAllByUser(uid, cleaned)
+    }
+
+    /**
+     * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.
+     * @param uid Identificador único del usuario.
+     * @return Instancia de [UserGamesRepositoryImpl].
+     * @throws Exception si ocurre un error durante la sincronización.
+     */
+    override suspend fun syncDownIncremental(uid: String, since: Long): Int {
+        val remoteChanged = remote.fetchChangedSince(uid, since)
+        var applied = 0
+
+        for (remoteGame in remoteChanged) {
+            val localGame = local.getById(remoteGame.id)
+
+            // No existe local -> insert
+            if (localGame == null) {
+                local.upsert(remoteGame.copy(userId = uid, syncStatus = SyncStatus.CLEAN))
+                applied++
+                continue
+            }
+
+            // Si hay cambios locales pendientes, no pisamos
+            if (localGame.syncStatus == SyncStatus.PENDING || localGame.syncStatus == SyncStatus.DELETED) {
+                continue
+            }
+
+            val r = remoteGame.updatedAt ?: 0L
+            val l = localGame.updatedAt ?: 0L
+
+            if (r > l) {
+                local.upsert(remoteGame.copy(userId = uid, syncStatus = SyncStatus.CLEAN))
+                applied++
+            }
+        }
+
+        return applied
     }
 
     /**
@@ -112,14 +143,17 @@ class UserGamesRepositoryImpl(
         val pendingList = local.getPending(uid)
         var syncedCount = 0
 
-        for (game in pendingList){
+        for (game in pendingList) {
             try {
-                when(game.syncStatus) {
+                when (game.syncStatus) {
                     SyncStatus.PENDING -> {
                         remote.upsertUserGame(uid, game.copy(userId = uid))
-
-                        // Marcar como Clean en local
-                        local.upsert(game.copy(syncStatus = SyncStatus.CLEAN, updatedAt = System.currentTimeMillis()))
+                        local.upsert(
+                            game.copy(
+                                syncStatus = SyncStatus.CLEAN,
+                                updatedAt = System.currentTimeMillis()
+                            )
+                        )
                         syncedCount++
                     }
 
@@ -130,18 +164,11 @@ class UserGamesRepositoryImpl(
                     }
 
                     else -> {
-                        Log.w(
-                            "Ludiary_UserGamesSync",
-                            "UserGame id=${game.id} con estado ${game.syncStatus} ignorado en sync"
-                        )
+                        Log.w("Ludiary_UserGamesSync", "UserGame id=${game.id} con estado ${game.syncStatus} ignorado en sync")
                     }
                 }
             } catch (e: Exception) {
-                Log.e(
-                    "Ludiary_UserGamesSync",
-                    "Error sincronizando gameId=${game.id} status=${game.syncStatus}",
-                    e
-                )
+                Log.e("Ludiary_UserGamesSync", "Error sincronizando gameId=${game.id} status=${game.syncStatus}", e)
             }
         }
 
@@ -163,10 +190,10 @@ class UserGamesRepositoryImpl(
      */
     override suspend fun initialSyncIfNeeded(uid: String) {
         if (local.isEmpty(uid)) {
-            Log.d("SYNC_INIT", "local empty -> syncDown")
+            Log.d("LUDIARY_SYNC_INIT", "local empty -> syncDown")
             syncDown(uid)
         } else {
-            Log.d("SYNC_INIT", "local not empty -> Manejamos conflicto")
+            Log.d("LUDIARY_SYNC_INIT", "local not empty -> Manejamos conflicto")
         }
     }
 }
