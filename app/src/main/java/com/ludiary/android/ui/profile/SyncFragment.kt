@@ -129,21 +129,19 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
                     val syncedUp = userGamesRepo.syncPending(uid)
 
                     val since = syncPrefs.getLastUserGamesPull(uid)
-                    val appliedDown = userGamesRepo.syncDownIncremental(uid, since)
+                    val (appliedDown, maxTs) = userGamesRepo.syncDownIncremental(uid, since)
 
                     val now = System.currentTimeMillis()
-                    syncPrefs.setLastUserGamesPull(uid, now)
+
+                    if (maxTs != null) {
+                        syncPrefs.setLastUserGamesPull(uid, maxTs)
+                    }
 
                     if (syncedUp > 0 || appliedDown > 0) {
                         prefs.edit { putLong(KEY_LAST_LIBRARY_SYNC, now) }
                         tvLastLibrarySync.text = formatDateOrNever(now)
                     }
 
-                    Toast.makeText(
-                        requireContext(),
-                        "Sync OK ↑ Subidos: $syncedUp ↓ Bajados: $appliedDown",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
                 } catch (e: Exception) {
                     Toast.makeText(

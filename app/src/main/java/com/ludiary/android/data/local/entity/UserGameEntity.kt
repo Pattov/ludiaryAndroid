@@ -50,6 +50,8 @@ data class UserGameEntity(
 
     val createdAt: Long? = null,
     val updatedAt: Long? = null,
+    val isDeleted: Boolean = false,
+    val deletedAt: Long? = null,
 
     val baseGameVersionAtLastSync: Int? = null,
     val hasBaseUpdate: Boolean = false,

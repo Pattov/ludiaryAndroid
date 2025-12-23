@@ -68,9 +68,11 @@ class SyncViewModel(
                 val syncedUp = userGamesRepo.syncPending(uid)
 
                 val lastPull = syncPrefs.getLastUserGamesPull(uid)
-                val appliedDown = userGamesRepo.syncDownIncremental(uid, lastPull)
+                val (appliedDown, maxTs) = userGamesRepo.syncDownIncremental(uid, lastPull)
 
-                syncPrefs.setLastUserGamesPull(uid, System.currentTimeMillis())
+                if (maxTs != null) {
+                    syncPrefs.setLastUserGamesPull(uid, maxTs)
+                }
 
                 val countAfter = userGamesRepo.countPending(uid)
 

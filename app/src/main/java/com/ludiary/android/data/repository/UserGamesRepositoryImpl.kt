@@ -102,14 +102,32 @@ class UserGamesRepositoryImpl(
      * @return Instancia de [UserGamesRepositoryImpl].
      * @throws Exception si ocurre un error durante la sincronización.
      */
-    override suspend fun syncDownIncremental(uid: String, since: Long): Int {
+    override suspend fun syncDownIncremental(uid: String, since: Long):  Pair<Int, Long?> {
         val remoteChanged = remote.fetchChangedSince(uid, since)
+
         var applied = 0
+        var maxRemoteUpdatedAt: Long? = null
 
         for (remoteGame in remoteChanged) {
+            val rTs = remoteGame.updatedAt
+            if (rTs != null) {
+                maxRemoteUpdatedAt = maxOf(maxRemoteUpdatedAt ?: 0L, rTs)
+            }
+
             val localGame = local.getById(remoteGame.id)
 
-            // No existe local -> insert
+            // Si remoto viene como borrado -> borrar local (si no hay pendiente)
+            if (remoteGame.isDeleted) {
+                if (localGame?.syncStatus == SyncStatus.PENDING || localGame?.syncStatus == SyncStatus.DELETED) {
+                    // No tocamos para no perder cambios locales pendientes
+                    continue
+                }
+                local.hardDeleteById(remoteGame.id)
+                applied++
+                continue
+            }
+
+            // No existe local → insert
             if (localGame == null) {
                 local.upsert(remoteGame.copy(userId = uid, syncStatus = SyncStatus.CLEAN))
                 applied++
@@ -130,7 +148,7 @@ class UserGamesRepositoryImpl(
             }
         }
 
-        return applied
+        return applied to maxRemoteUpdatedAt
     }
 
     /**
@@ -158,7 +176,7 @@ class UserGamesRepositoryImpl(
                     }
 
                     SyncStatus.DELETED -> {
-                        remote.deleteUserGame(uid, game.id)
+                        remote.softDeleteUserGame(uid, game.id)
                         local.hardDeleteById(game.id)
                         syncedCount++
                     }

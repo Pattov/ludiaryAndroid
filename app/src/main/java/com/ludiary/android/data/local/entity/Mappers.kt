@@ -120,6 +120,8 @@ fun UserGameEntity.toModel(): UserGame =
         notes = notes,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        isDeleted = isDeleted,
+        deletedAt = deletedAt,
         baseGameVersionAtLastSync = baseGameVersionAtLastSync,
         hasBaseUpdate = hasBaseUpdate,
         syncStatus = syncStatus
@@ -149,6 +151,8 @@ fun UserGame.toEntity(): UserGameEntity =
 
         createdAt = createdAt,
         updatedAt = updatedAt,
+        isDeleted = isDeleted,
+        deletedAt = deletedAt,
 
         baseGameVersionAtLastSync = baseGameVersionAtLastSync,
         hasBaseUpdate = hasBaseUpdate,

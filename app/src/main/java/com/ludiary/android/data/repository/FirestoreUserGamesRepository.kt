@@ -2,6 +2,7 @@ package com.ludiary.android.data.repository
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import com.ludiary.android.data.model.PurchasePrice
 import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.data.model.UserGame
@@ -44,11 +45,22 @@ class FirestoreUserGamesRepository (
     suspend fun upsertUserGame(uid: String, userGame: UserGame) {
         require(userGame.id.isNotBlank()) { "UserGame.id no puede estar vacío para upsert en Firestore" }
 
-        val data = userGame.toFirestoreMapWithoutId()
-        userGamesCollection(uid)
-            .document(userGame.id)
-            .set(data)
-            .await()
+        val ref = userGamesCollection(uid).document(userGame.id)
+
+        val base = userGame.toFirestoreMapWithoutId()
+
+        ref.set(
+            base + mapOf(
+                "updatedAt" to FieldValue.serverTimestamp(),
+                "isDeleted" to false
+            ),
+            com.google.firebase.firestore.SetOptions.merge()
+        ).await()
+
+        if (userGame.createdAt == null) {
+            ref.set(mapOf("createdAt" to FieldValue.serverTimestamp()), com.google.firebase.firestore.SetOptions.merge())
+                .await()
+        }
     }
 
     /**
@@ -64,17 +76,42 @@ class FirestoreUserGamesRepository (
     /**
      * Se devuelve una lista de juegos del usuario.
      * @param uid Identificador único del usuario.
+     * @param sinceMillis Fecha desde la
      * @return Lista de juegos del usuario en Firebase.
-     * @throws Exception si ocurre un error al obtener los juegos.
      */
-    suspend fun fetchChangedSince(uid: String, since: Long): List<UserGame> {
+    suspend fun fetchChangedSince(uid: String, sinceMillis: Long): List<UserGame> {
+        val sinceTs = Timestamp(Date(sinceMillis))
+
         val snapshot = userGamesCollection(uid)
-            .whereGreaterThan("updatedAt", since)
+            .whereGreaterThan("updatedAt", sinceTs)
             .get()
             .await()
 
         return snapshot.documents.map { doc -> doc.toUserGame(uid) }
     }
+
+    /**
+     * Se devuelve una lista de juegos del usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos del usuario en Firebase.
+     */
+    suspend fun softDeleteUserGame(uid: String, gameId: String) {
+        if (gameId.isBlank()) return
+
+        userGamesCollection(uid)
+            .document(gameId)
+            .set(
+                mapOf(
+                    "isDeleted" to true,
+                    "deletedAt" to FieldValue.serverTimestamp(),
+                    "updatedAt" to FieldValue.serverTimestamp()
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+            .await()
+    }
+
+
 }
 
 /**
@@ -116,29 +153,48 @@ private fun UserGame.toFirestoreMapWithoutId(): Map<String, Any?> =
 private fun com.google.firebase.firestore.DocumentSnapshot.toUserGame(uid: String): UserGame {
     val data = this.data.orEmpty()
 
-    val amount = (data["purchasePrice"] as? Number)?.toDouble()
-    val currency = data["purchaseCurrency"] as? String
+    // purchasePrice está como MAP en tu toFirestoreMapWithoutId() (amount/currency)
+    val purchasePriceMap = data["purchasePrice"] as? Map<*, *>
+    val amount = (purchasePriceMap?.get("amount") as? Number)?.toDouble()
+    val currency = purchasePriceMap?.get("currency") as? String
     val purchasePrice =
-        if (amount != null && currency != null) PurchasePrice(amount = amount, currency = currency) else null
+        if (amount != null && !currency.isNullOrBlank()) PurchasePrice(amount = amount, currency = currency) else null
+
+    val purchaseDateMillis = (data["purchaseDate"] as? Timestamp)?.toDate()?.time
+    val createdAtMillis = (data["createdAt"] as? Timestamp)?.toDate()?.time
+    val updatedAtMillis = (data["updatedAt"] as? Timestamp)?.toDate()?.time
+    val deletedAtMillis = (data["deletedAt"] as? Timestamp)?.toDate()?.time
+    val isDeleted = (data["isDeleted"] as? Boolean) ?: false
+
+    val titleSnapshot = (data["titleSnapshot"] as? String)
+        ?: (data["title"] as? String)
+        ?: ""
 
     return UserGame(
         id = this.id,
         userId = (data["userId"] as? String) ?: uid,
         gameId = (data["gameId"] as? String) ?: "",
         isCustom = (data["isCustom"] as? Boolean) ?: false,
-        titleSnapshot = (data["titleSnapshot"] as? String) ?: "",
+
+        titleSnapshot = titleSnapshot,
         personalRating = (data["personalRating"] as? Number)?.toFloat(),
         language = data["language"] as? String,
         edition = data["edition"] as? String,
         condition = data["condition"] as? String,
         location = data["location"] as? String,
-        purchaseDate = (data["purchaseDate"] as? Number)?.toLong(),
+
+        purchaseDate = purchaseDateMillis,
         purchasePrice = purchasePrice,
         notes = data["notes"] as? String,
-        createdAt = (data["createdAt"] as? Number)?.toLong(),
-        updatedAt = (data["updatedAt"] as? Number)?.toLong(),
+
+        createdAt = createdAtMillis,
+        updatedAt = updatedAtMillis,
+        isDeleted = isDeleted,
+        deletedAt = deletedAtMillis,
+
         baseGameVersionAtLastSync = (data["baseGameVersionAtLastSync"] as? Number)?.toInt(),
         hasBaseUpdate = (data["hasBaseUpdate"] as? Boolean) ?: false,
+
         syncStatus = SyncStatus.CLEAN
     )
 }

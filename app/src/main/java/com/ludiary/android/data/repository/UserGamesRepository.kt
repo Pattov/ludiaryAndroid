@@ -59,7 +59,7 @@ interface UserGamesRepository {
      * Sincronización descendente incremental (Firestore → Room).
      * @return número de cambios aplicados en local
      */
-    suspend fun syncDownIncremental(uid: String, since: Long): Int
+    suspend fun syncDownIncremental(uid: String, since: Long): Pair<Int, Long?>
 
     /**
      * Sincroniza en remoto los cambios pendientes (PENDING/DELETED) y actualiza Room.

@@ -14,7 +14,7 @@ interface UserGameDao {
      * Obtiene todos los juegos del catálogo ordenado por título, excluyendo los marcados como borrados.
      * @return [Flow] que emite una lista de juegos.
      */
-    @Query("SELECT * FROM user_games WHERE userId = :userId AND syncStatus != 'DELETED' ORDER BY titleSnapshot")
+    @Query("SELECT * FROM user_games WHERE userId = :userId AND syncStatus != 'DELETED' AND isDeleted = 0 ORDER BY titleSnapshot")
     fun getUserGames(userId: String): Flow<List<UserGameEntity>>
 
     /**
