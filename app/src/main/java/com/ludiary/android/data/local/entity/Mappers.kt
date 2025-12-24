@@ -232,6 +232,9 @@ fun GameSuggestion.toEntity(): GameSuggestionEntity =
     )
 
 // Partidas (Session)
+/**
+ * Convierte una entidad Room [SessionEntity] en el modelo del dominio [Session].
+ */
 fun Session.toEntity(): SessionEntity =
     SessionEntity(
         id = id,
@@ -256,6 +259,9 @@ fun Session.toEntity(): SessionEntity =
         deletedAt = deletedAt
     )
 
+/**
+ * Convierte un modelo del dominio [Session] en una entidad Room [SessionEntity].
+ */
 fun Session.toPlayerEntities(): List<SessionPlayerEntity> =
     players.mapIndexed { idx, p ->
         SessionPlayerEntity(

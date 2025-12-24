@@ -42,9 +42,14 @@
       <w>animaciones</w>
       <w>anónima</w>
       <w>anónimo</w>
+      <w>aparición</w>
+      <w>aplica</w>
       <w>aplicación</w>
       <w>aplicados</w>
+      <w>aplicar</w>
       <w>apodo</w>
+      <w>aprobación</w>
+      <w>aprobada</w>
       <w>aprobado</w>
       <w>aprovechar</w>
       <w>aproved</w>
@@ -55,6 +60,7 @@
       <w>asocia</w>
       <w>asociada</w>
       <w>asociado</w>
+      <w>asociados</w>
       <w>atributo</w>
       <w>atributos</w>
       <w>atrás</w>
@@ -78,6 +84,7 @@
       <w>borrar</w>
       <w>botones</w>
       <w>botón</w>
+      <w>buen</w>
       <w>bueno</w>
       <w>buscador</w>
       <w>buscar</w>
@@ -236,6 +243,7 @@
       <w>elimina</w>
       <w>eliminación</w>
       <w>eliminada</w>
+      <w>eliminado</w>
       <w>eliminados</w>
       <w>eliminar</w>
       <w>emisión</w>
@@ -307,9 +315,11 @@
       <w>funcionalidad</w>
       <w>funciones</w>
       <w>ganador</w>
+      <w>ganadores</w>
       <w>genérico</w>
       <w>gestiona</w>
       <w>gestionar</w>
+      <w>grupal</w>
       <w>grupo</w>
       <w>guardado</w>
       <w>guardamos</w>
@@ -409,6 +419,7 @@
       <w>mensajes</w>
       <w>metida</w>
       <w>metodo</w>
+      <w>miembro</w>
       <w>mientras</w>
       <w>milisegundos</w>
       <w>minutos</w>
@@ -463,6 +474,7 @@
       <w>opción</w>
       <w>operaciones</w>
       <w>operación</w>
+      <w>orden</w>
       <w>ordenado</w>
       <w>ordenados</w>
       <w>otro</w>
@@ -523,6 +535,7 @@
       <w>puede</w>
       <w>pulsa</w>
       <w>puntuaciones</w>
+      <w>puntuación</w>
       <w>puntuales</w>
       <w>quieres</w>
       <w>quisieras</w>
@@ -536,7 +549,9 @@
       <w>realizó</w>
       <w>recalcula</w>
       <w>recalculamos</w>
+      <w>rechazada</w>
       <w>recibe</w>
+      <w>recibida</w>
       <w>recibir</w>
       <w>reciente</w>
       <w>recoger</w>
@@ -552,6 +567,7 @@
       <w>redondeadas</w>
       <w>redondeados</w>
       <w>reemplaza</w>
+      <w>reemplazando</w>
       <w>reemplazar</w>
       <w>referencia</w>
       <w>referencias</w>
@@ -599,6 +615,7 @@
       <w>sencillo</w>
       <w>separada</w>
       <w>separador</w>
+      <w>sesiones</w>
       <w>sesión</w>
       <w>sido</w>
       <w>siempre</w>
@@ -607,6 +624,7 @@
       <w>simulamos</w>
       <w>sincroniza</w>
       <w>sincronización</w>
+      <w>sincronizado</w>
       <w>sincronizados</w>
       <w>sincronizando</w>
       <w>sincronizar</w>

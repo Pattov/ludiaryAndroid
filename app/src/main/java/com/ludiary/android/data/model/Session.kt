@@ -56,11 +56,23 @@ data class Session(
     val deletedAt: Long? = null
 )
 
+/**
+ * Representa una referencia a un jugador.
+ * @property type Tipo de referencia.
+ * @property id Identificador único del jugador.
+ */
 data class PlayerRef(
     val type: PlayerRefType,
     val id: String
 )
 
+/**
+ * Representa un jugador de una partida.
+ * @property id Identificador único del jugador.
+ * @property displayName Nombre del jugador.
+ * @property ref Referencia al jugador.
+ * @property score Puntuación del jugador.
+ */
 data class SessionPlayer(
     val id: String,
     val displayName: String,
@@ -68,6 +80,11 @@ data class SessionPlayer(
     val score: Int? = null
 )
 
+/**
+ * Representa una referencia a un juego.
+ * @property type Tipo de referencia.
+ * @property id Identificador único del juego.
+ */
 data class GameRef(
     val type: GameRefType,
     val id: String
