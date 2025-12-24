@@ -102,40 +102,71 @@ class UserGamesRepositoryImpl(
      * @return Instancia de [UserGamesRepositoryImpl].
      * @throws Exception si ocurre un error durante la sincronización.
      */
-    override suspend fun syncDownIncremental(uid: String, since: Long):  Pair<Int, Long?> {
+    override suspend fun syncDownIncremental( uid: String, since: Long ): Pair<Int, Long?> {
+
         val remoteChanged = remote.fetchChangedSince(uid, since)
 
         var applied = 0
         var maxRemoteUpdatedAt: Long? = null
 
         for (remoteGame in remoteChanged) {
-            val rTs = remoteGame.updatedAt
-            if (rTs != null) {
+
+            remoteGame.updatedAt?.let { rTs ->
                 maxRemoteUpdatedAt = maxOf(maxRemoteUpdatedAt ?: 0L, rTs)
             }
 
             val localGame = local.getById(remoteGame.id)
 
-            // Si remoto viene como borrado -> borrar local (si no hay pendiente)
             if (remoteGame.isDeleted) {
-                if (localGame?.syncStatus == SyncStatus.PENDING || localGame?.syncStatus == SyncStatus.DELETED) {
-                    // No tocamos para no perder cambios locales pendientes
+
+                // Si hay cambios locales pendientes, no tocamos
+                if (
+                    localGame?.syncStatus == SyncStatus.PENDING ||
+                    localGame?.syncStatus == SyncStatus.DELETED ||
+                    localGame?.syncStatus == SyncStatus.CONFLICT
+                ) {
                     continue
                 }
+
                 local.hardDeleteById(remoteGame.id)
                 applied++
                 continue
             }
 
-            // No existe local → insert
+            // no existe en local → Insert
             if (localGame == null) {
-                local.upsert(remoteGame.copy(userId = uid, syncStatus = SyncStatus.CLEAN))
+                local.upsert(
+                    remoteGame.copy(
+                        userId = uid,
+                        syncStatus = SyncStatus.CLEAN
+                    )
+                )
                 applied++
                 continue
             }
 
-            // Si hay cambios locales pendientes, no pisamos
-            if (localGame.syncStatus == SyncStatus.PENDING || localGame.syncStatus == SyncStatus.DELETED) {
+            // Local pending → Posible conflicto
+            if (localGame.syncStatus == SyncStatus.PENDING) {
+
+                val localUpdatedAt = localGame.updatedAt ?: 0L
+                val remoteUpdatedAt = remoteGame.updatedAt ?: 0L
+
+                if (remoteUpdatedAt > localUpdatedAt) {
+                    local.upsert(
+                        localGame.copy(
+                            syncStatus = SyncStatus.CONFLICT
+                        )
+                    )
+                }
+
+                continue
+            }
+
+            if (localGame.syncStatus == SyncStatus.CONFLICT) {
+                continue
+            }
+
+            if (localGame.syncStatus == SyncStatus.DELETED) {
                 continue
             }
 
@@ -143,13 +174,16 @@ class UserGamesRepositoryImpl(
             val l = localGame.updatedAt ?: 0L
 
             if (r > l) {
-                local.upsert(remoteGame.copy(userId = uid, syncStatus = SyncStatus.CLEAN))
+                local.upsert(
+                    remoteGame.copy( userId = uid, syncStatus = SyncStatus.CLEAN)
+                )
                 applied++
             }
         }
 
         return applied to maxRemoteUpdatedAt
     }
+
 
     /**
      * Sincroniza los cambios pendientes (PENDING/DELETED) y actualiza Room.
