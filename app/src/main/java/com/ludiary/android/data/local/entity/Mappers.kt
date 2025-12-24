@@ -3,6 +3,7 @@ package com.ludiary.android.data.local.entity
 import com.ludiary.android.data.model.*
 import java.time.Instant
 import java.util.Locale
+import java.util.UUID
 
 // User
 /**
@@ -229,3 +230,41 @@ fun GameSuggestion.toEntity(): GameSuggestionEntity =
         reviewedBy = reviewedBy,
         createdFromUserGameId = createdFromUserGameId
     )
+
+// Partidas (Session)
+fun Session.toEntity(): SessionEntity =
+    SessionEntity(
+        id = id,
+        scope = scope,
+        ownerUserId = ownerUserId,
+        groupId = groupId,
+        gameRefType = gameRef.type,
+        gameRefId = gameRef.id,
+        gameTitle = gameTitle,
+        playedAt = playedAt,
+        location = location,
+        durationMinutes = durationMinutes,
+        overallRating = overallRating,
+        notes = notes,
+
+        winners = winners ?: emptyList(),
+
+        syncStatus = syncStatus,
+        isDeleted = isDeleted,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        deletedAt = deletedAt
+    )
+
+fun Session.toPlayerEntities(): List<SessionPlayerEntity> =
+    players.mapIndexed { idx, p ->
+        SessionPlayerEntity(
+            sessionId = id,
+            playerId = p.id.ifBlank { UUID.randomUUID().toString() },
+            displayName = p.displayName,
+            refType = p.ref?.type,
+            refId = p.ref?.id,
+            score = p.score,
+            sortOrder = idx
+        )
+    }

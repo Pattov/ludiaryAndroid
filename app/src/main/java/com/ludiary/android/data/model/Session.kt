@@ -8,23 +8,67 @@ package com.ludiary.android.data.model
  * Se almacena en la subcolección `/users/{uid}/sessions`.
  *
  * @property id Identificador único de la sesión.
- * @property gameId Identificador único del juego.
- * @property date Fecha de la sesión.
+ * @property scope Alcance de la sesión.
+ * @property ownerUserId Identificador único del usuario propietario de la sesión.
+ * @property groupId Identificador único del grupo al que pertenece la sesión.
+ * @property gameRef Referencia al juego de la sesión.
+ * @property gameTitle Título del juego de la sesión.
+ * @property playedAt Fecha y hora en la que se jugó la sesión.
+ * @property location Ubicación en la que se jugó la sesión.
+ * @property overallRating Calificación general de la sesión.
  * @property players Lista de jugadores de la sesión.
- * @property winner Jugador ganador de la sesión.
- * @property scores Puntuaciones de los jugadores.
- * @property liked Indica si la sesión ha sido metida en favoritos.
- * @property notes Notas de la sesión.
+ * @property notes Notas adicionales de la sesión.
+ * @property syncStatus Estado de sincronización entre copia y Firestore.
+ * @property isDeleted Indica si la sesión ha sido eliminada.
+ * @property createdAt Fecha de creación de la sesión.
+ * @property updatedAt Fecha de actualización de la sesión.
+ * @property deletedAt Fecha de eliminación de la sesión.
  * @property durationMinutes Duración de la sesión en minutos.
  */
 data class Session(
     val id: String = "",
-    val gameId: String = "",
-    val date: Long = System.currentTimeMillis(),
-    val players: List<String> = emptyList(),
-    val winner: String? = null,
-    val scores: Map<String, Int>? = null,
-    val liked: Boolean? = null,
+
+    // Scope / propiedad
+    val scope: SessionScope = SessionScope.PERSONAL,
+    val ownerUserId: String? = null,
+    val groupId: String? = null,
+
+    // Juego
+    val gameRef: GameRef,
+    val gameTitle: String,
+
+    // Partida
+    val playedAt: Long = System.currentTimeMillis(),
+    val location: String? = null,
+    val durationMinutes: Int? = null,
+
+    val players: List<SessionPlayer> = emptyList(),
+    val winners: List<String>? = null,
+
+    val overallRating: Int? = null,
     val notes: String? = null,
-    val durationMinutes: Int? = null
+
+    // Sync
+    val syncStatus: SyncStatus = SyncStatus.CLEAN,
+    val isDeleted: Boolean = false,
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null,
+    val deletedAt: Long? = null
+)
+
+data class PlayerRef(
+    val type: PlayerRefType,
+    val id: String
+)
+
+data class SessionPlayer(
+    val id: String,
+    val displayName: String,
+    val ref: PlayerRef? = null,
+    val score: Int? = null
+)
+
+data class GameRef(
+    val type: GameRefType,
+    val id: String
 )

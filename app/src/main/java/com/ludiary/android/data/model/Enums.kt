@@ -38,3 +38,7 @@ enum class SyncStatus {
     CONFLICT,
     DELETED
 }
+
+enum class SessionScope { PERSONAL, GROUP }
+enum class GameRefType { BASE, USER, SUGGESTION }
+enum class PlayerRefType { LUDIARY_USER, GROUP_MEMBER }
