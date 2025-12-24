@@ -39,9 +39,7 @@ class LocalUserDataSource(
         )
 
         userDao.upsert(guest.toEntity())
-
-        val model = null ?: User()
-        return model
+        return userDao.getLocalUser()?.toModel() ?: guest
     }
 
     /**

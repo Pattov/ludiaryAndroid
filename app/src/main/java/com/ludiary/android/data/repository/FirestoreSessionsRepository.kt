@@ -1,0 +1,236 @@
+package com.ludiary.android.data.repository
+
+
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.data.local.SessionWithPlayers
+import com.ludiary.android.data.local.entity.SessionEntity
+import com.ludiary.android.data.local.entity.SessionPlayerEntity
+import com.ludiary.android.data.model.GameRefType
+import com.ludiary.android.data.model.PlayerRefType
+import com.ludiary.android.data.model.SessionScope
+import com.ludiary.android.data.model.SyncStatus
+import java.util.Date
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
+
+class FirestoreSessionsRepository(
+    private val db: FirebaseFirestore
+) {
+
+    private val sessionsCol = db.collection("sessions")
+
+    suspend fun upsertSession(sw: SessionWithPlayers) {
+        val s = sw.session
+
+        val payload = FirestoreMapper.sessionWithPlayersToFirestore(sw)
+        payload["updatedAt"] = FieldValue.serverTimestamp()
+        if (s.createdAt == null) payload["createdAt"] = FieldValue.serverTimestamp()
+
+        sessionsCol.document(s.id).set(payload).await()
+    }
+
+    suspend fun softDeleteSession(sessionId: String) {
+        val updates = mapOf(
+            "isDeleted" to true,
+            "deletedAt" to FieldValue.serverTimestamp(),
+            "updatedAt" to FieldValue.serverTimestamp()
+        )
+        sessionsCol.document(sessionId).set(updates, com.google.firebase.firestore.SetOptions.merge()).await()
+    }
+
+    suspend fun fetchPersonalChangedSince(uid: String, sinceMillis: Long): List<RemoteAppliedSession> {
+        val sinceTs = Timestamp(Date(sinceMillis))
+        val snap = sessionsCol
+            .whereEqualTo("scope", "personal")
+            .whereEqualTo("ownerUserId", uid)
+            .whereGreaterThan("updatedAt", sinceTs)
+            .orderBy("updatedAt")
+            .get()
+            .await()
+
+        return snap.documents.mapNotNull { doc ->
+            FirestoreMapper.docToRemoteApplied(doc.id, doc.data ?: return@mapNotNull null)
+        }
+    }
+
+    suspend fun fetchGroupChangedSince(groupId: String, sinceMillis: Long): List<RemoteAppliedSession> {
+        val sinceTs = Timestamp(Date(sinceMillis))
+        val snap = sessionsCol
+            .whereEqualTo("scope", "group")
+            .whereEqualTo("groupId", groupId)
+            .whereGreaterThan("updatedAt", sinceTs)
+            .orderBy("updatedAt")
+            .get()
+            .await()
+
+        return snap.documents.mapNotNull { doc ->
+            FirestoreMapper.docToRemoteApplied(doc.id, doc.data ?: return@mapNotNull null)
+        }
+    }
+
+    data class RemoteAppliedSession(
+        val id: String,
+        val isDeleted: Boolean,
+        val updatedAtMillis: Long?,
+        val sessionEntity: SessionEntity,
+        val playerEntities: List<SessionPlayerEntity>
+    )
+
+    private object FirestoreMapper {
+
+        fun sessionWithPlayersToFirestore(sw: SessionWithPlayers): MutableMap<String, Any> {
+            val s = sw.session
+
+            val players = sw.players.sortedBy { it.sortOrder }.map { p ->
+                val m = mutableMapOf<String, Any>(
+                    "id" to p.playerId,
+                    "displayName" to p.displayName,
+                    "sortOrder" to p.sortOrder
+                )
+                if (p.score != null) m["score"] = p.score
+                if (p.refType != null && p.refId != null) {
+                    m["ref"] = mapOf(
+                        "type" to when (p.refType) {
+                            PlayerRefType.LUDIARY_USER -> "ludiaryUser"
+                            PlayerRefType.GROUP_MEMBER -> "groupMember"
+                        },
+                        "id" to p.refId
+                    )
+                }
+                m
+            }
+
+            val gameRef = mapOf(
+                "type" to when (s.gameRefType) {
+                    GameRefType.BASE -> "base"
+                    GameRefType.USER -> "user"
+                    GameRefType.SUGGESTION -> "suggestion"
+                },
+                "id" to s.gameRefId
+            )
+
+            return mutableMapOf(
+                "scope" to when (s.scope) {
+                    SessionScope.PERSONAL -> "personal"
+                    SessionScope.GROUP -> "group"
+                },
+                "ownerUserId" to (s.ownerUserId ?: ""),
+                "groupId" to (s.groupId ?: ""),
+                "gameRef" to gameRef,
+                "gameTitle" to s.gameTitle,
+                "playedAt" to Timestamp(Date(s.playedAt)),
+                "location" to (s.location ?: ""),
+                "durationMinutes" to (s.durationMinutes ?: -1),
+                "overallRating" to (s.overallRating ?: -1),
+                "notes" to (s.notes ?: ""),
+                "players" to players,
+                "winners" to s.winners,
+                "isDeleted" to s.isDeleted
+            )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun docToRemoteApplied(docId: String, data: Map<String, Any>): RemoteAppliedSession? {
+            val isDeleted = data["isDeleted"] as? Boolean ?: false
+
+            val updatedAtMillis = (data["updatedAt"] as? Timestamp)?.toDate()?.time
+
+            val scopeStr = data["scope"] as? String ?: "personal"
+            val scope = if (scopeStr == "group") SessionScope.GROUP else SessionScope.PERSONAL
+
+            val ownerUserId = data["ownerUserId"] as? String ?: ""
+            val groupId = (data["groupId"] as? String)?.takeIf { it.isNotBlank() }
+
+            val gameRef = data["gameRef"] as? Map<String, Any> ?: return null
+            val gameRefTypeStr = gameRef["type"] as? String ?: "base"
+            val gameRefType = when (gameRefTypeStr) {
+                "user" -> GameRefType.USER
+                "suggestion" -> GameRefType.SUGGESTION
+                else -> GameRefType.BASE
+            }
+            val gameRefId = gameRef["id"] as? String ?: return null
+
+            val gameTitle = data["gameTitle"] as? String ?: ""
+            val playedAtMillis = (data["playedAt"] as? Timestamp)?.toDate()?.time ?: return null
+
+            val location = (data["location"] as? String)?.takeIf { it.isNotBlank() }
+            val durationMinutes = (data["durationMinutes"] as? Number)?.toInt()?.takeIf { it >= 0 }
+            val overallRating = (data["overallRating"] as? Number)?.toInt()?.takeIf { it in 1..10 }
+            val notes = (data["notes"] as? String)?.takeIf { it.isNotBlank() }
+
+            val winners = (data["winners"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+
+            val createdAtMillis = (data["createdAt"] as? Timestamp)?.toDate()?.time
+            val deletedAtMillis = (data["deletedAt"] as? Timestamp)?.toDate()?.time
+
+            val sessionEntity = SessionEntity(
+                id = docId,
+                scope = scope,
+                ownerUserId = ownerUserId,
+                groupId = groupId,
+                gameRefType = gameRefType,
+                gameRefId = gameRefId,
+                gameTitle = gameTitle,
+                playedAt = playedAtMillis,
+                location = location,
+                durationMinutes = durationMinutes,
+                overallRating = overallRating,
+                notes = notes,
+                winners = winners,
+                syncStatus = SyncStatus.CLEAN,
+                isDeleted = false,
+                createdAt = createdAtMillis,
+                updatedAt = updatedAtMillis,
+                deletedAt = deletedAtMillis
+            )
+
+            val playersRaw = data["players"] as? List<Map<String, Any>> ?: emptyList()
+            val playerEntities = playersRaw
+                .sortedBy { (it["sortOrder"] as? Number)?.toInt() ?: 0 }
+                .mapIndexed { idx, p ->
+                    val pid = p["id"] as? String ?: return@mapIndexed null
+                    val dn = p["displayName"] as? String ?: ""
+                    val sortOrder = (p["sortOrder"] as? Number)?.toInt() ?: idx
+                    val score = (p["score"] as? Number)?.toInt()
+
+                    val ref = p["ref"] as? Map<String, Any>
+                    val refType = when (ref?.get("type") as? String) {
+                        "ludiaryUser" -> PlayerRefType.LUDIARY_USER
+                        "groupMember" -> PlayerRefType.GROUP_MEMBER
+                        else -> null
+                    }
+                    val refId = ref?.get("id") as? String
+
+                    SessionPlayerEntity(
+                        sessionId = docId,
+                        playerId = pid,
+                        displayName = dn,
+                        refType = refType,
+                        refId = refId,
+                        score = score,
+                        sortOrder = sortOrder
+                    )
+                }
+                .filterNotNull()
+
+            return RemoteAppliedSession(
+                id = docId,
+                isDeleted = isDeleted,
+                updatedAtMillis = updatedAtMillis,
+                sessionEntity = sessionEntity,
+                playerEntities = playerEntities
+            )
+        }
+    }
+}
+
+// -------- await() helper --------
+
+private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
+    suspendCancellableCoroutine { cont ->
+        addOnSuccessListener { cont.resume(it) }
+        addOnFailureListener { cont.resumeWithException(it) }
+    }

@@ -40,6 +40,12 @@ object SyncScheduler {
         runOneTimeSyncNow(context)
     }
 
+    fun enqueueSessionsSync(context: Context) {
+        val request = OneTimeWorkRequestBuilder<SessionsSyncWorker>().build()
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork("sync_sessions", ExistingWorkPolicy.KEEP, request)
+    }
+
     /**
      * Desprograma una tarea de sincronización automática de juegos del usuario.
      * @param context Contexto de la aplicación.

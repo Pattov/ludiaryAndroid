@@ -1,5 +1,6 @@
 package com.ludiary.android.data.local.dao
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Acceso a datos de la tabla 'sessions'
  */
+@Dao
 interface SessionDao {
 
     /**
@@ -80,10 +82,10 @@ interface SessionDao {
      * Actualiza el estado de sincronización de una partida.
      * @param sessionId Identificador único de la partida.
      * @param status Estado de sincronización.
-     * @param updatedAt Fecha de actualización.
+     * @param updateAtMillis Fecha de actualización.
      */
-    @Query("UPDATE sessions SET syncStatus = :status, updatedAt = :updatedAt WHERE id = :sessionId")
-    suspend fun updateSyncStatus(sessionId: String, status: SyncStatus, updatedAt: Long?)
+    @Query("UPDATE sessions SET syncStatus = :status, updatedAt = :updateAtMillis WHERE id = :sessionId")
+    suspend fun updateSyncStatus(sessionId: String, status: SyncStatus, updateAtMillis: Long?)
 
     /**
      * Marca una partida como eliminada.
@@ -104,6 +106,14 @@ interface SessionDao {
         pending: SyncStatus = SyncStatus.PENDING,
         deleted: SyncStatus = SyncStatus.DELETED
     ): List<SessionEntity>
+
+    @Query("UPDATE sessions SET ownerUserId = :uid, syncStatus = :pending WHERE ownerUserId IS NULL AND scope = :personal AND isDeleted = 0")
+    suspend fun adoptOfflinePersonalSessions(
+        uid: String,
+        pending: SyncStatus = SyncStatus.PENDING,
+        personal: SessionScope = SessionScope.PERSONAL
+    ): Int
+
 
     /**
      * Aplica una sesión remota (recibida desde Firestore) en la base de datos local reemplazando completamente sus jugadores.
