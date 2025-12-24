@@ -36,16 +36,36 @@ class SyncPrefs (context: Context) {
         prefs.edit { putLong("last_pull_usergames_$uid", value) }
     }
 
+    /**
+     * Obtiene el último pull de sesiones del usuario.
+     * @param uid Identificador único del usuario.
+     */
     fun getLastPullPersonalSessions(uid: String): Long =
         prefs.getLong(keyLastPullPersonalSessions(uid), 0L)
 
+    /**
+     * Guarda el último pull de sesiones del usuario.
+     * @param uid Identificador único del usuario.
+     * @param value Valor a guardar.
+     */
     fun setLastPullPersonalSessions(uid: String, value: Long) {
         prefs.edit { putLong(keyLastPullPersonalSessions(uid), value) }
     }
 
+    /**
+     * Obtiene el último pull de sesiones del grupo.
+     * @param uid Identificador único del usuario.
+     * @param groupId Identificador único del grupo.
+     */
     fun getLastPullGroupSessions(uid: String, groupId: String): Long =
         prefs.getLong(keyLastPullGroupSessions(uid, groupId), 0L)
 
+    /**
+     * Guarda el último pull de sesiones del grupo.
+     * @param uid Identificador único del usuario.
+     * @param groupId Identificador único del grupo.
+     * @param value Valor a guardar.
+     */
     fun setLastPullGroupSessions(uid: String, groupId: String, value: Long) {
         prefs.edit { putLong(keyLastPullGroupSessions(uid, groupId), value) }
     }

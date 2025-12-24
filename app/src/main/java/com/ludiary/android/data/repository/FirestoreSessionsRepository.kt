@@ -1,6 +1,5 @@
 package com.ludiary.android.data.repository
 
-
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,12 +15,24 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+/**
+ * Repositorio de sesiones de Firebase.
+ * @property db Instancia de Firestore.
+ */
 class FirestoreSessionsRepository(
     private val db: FirebaseFirestore
 ) {
 
+    /**
+     * Colección de sesiones en Firestore.
+     * @property sessionsCol Referencia a la colección de sesiones.
+     */
     private val sessionsCol = db.collection("sessions")
 
+    /**
+     * Actualiza una sesión en Firestore.
+     * @param sw Sesión a actualizar.
+     */
     suspend fun upsertSession(sw: SessionWithPlayers) {
         val s = sw.session
 
@@ -32,6 +43,10 @@ class FirestoreSessionsRepository(
         sessionsCol.document(s.id).set(payload).await()
     }
 
+    /**
+     * Elimina una sesión en Firestore.
+     * @param sessionId Identificador único de la sesión.
+     */
     suspend fun softDeleteSession(sessionId: String) {
         val updates = mapOf(
             "isDeleted" to true,
@@ -41,6 +56,12 @@ class FirestoreSessionsRepository(
         sessionsCol.document(sessionId).set(updates, com.google.firebase.firestore.SetOptions.merge()).await()
     }
 
+    /**
+     * Obtiene las sesiones modificadas desde una fecha específica.
+     * @param uid Identificador único del usuario.
+     * @param sinceMillis Fecha desde la cual se obtuvieron las sesiones.
+     * @return Lista de sesiones modificadas.
+     */
     suspend fun fetchPersonalChangedSince(uid: String, sinceMillis: Long): List<RemoteAppliedSession> {
         val sinceTs = Timestamp(Date(sinceMillis))
         val snap = sessionsCol
@@ -56,6 +77,12 @@ class FirestoreSessionsRepository(
         }
     }
 
+    /**
+     * Obtiene las sesiones modificadas desde una fecha específica.
+     * @param groupId Identificador único del grupo.
+     * @param sinceMillis Fecha desde la cual se obtuvieron las sesiones.
+     * @return Lista de sesiones modificadas.
+     */
     suspend fun fetchGroupChangedSince(groupId: String, sinceMillis: Long): List<RemoteAppliedSession> {
         val sinceTs = Timestamp(Date(sinceMillis))
         val snap = sessionsCol
@@ -71,6 +98,14 @@ class FirestoreSessionsRepository(
         }
     }
 
+    /**
+     * Clase que representa una sesión remota aplicada.
+     * @property id Identificador único de la sesión.
+     * @property isDeleted Indica si la sesión ha sido eliminada.
+     * @property updatedAtMillis Fecha de actualización en milisegundos.
+     * @property sessionEntity Entidad de la sesión.
+     * @property playerEntities Lista de jugadores asociados a la sesión.
+     */
     data class RemoteAppliedSession(
         val id: String,
         val isDeleted: Boolean,
@@ -79,8 +114,16 @@ class FirestoreSessionsRepository(
         val playerEntities: List<SessionPlayerEntity>
     )
 
+    /**
+     * Mapeo entre objetos de dominio y objetos de Firestore.
+     */
     private object FirestoreMapper {
 
+        /**
+         * Convierte una sesión con jugadores a un mapa de datos de Firestore.
+         * @param sw Sesión con jugadores.
+         * @return Mapa de datos de Firestore.
+         */
         fun sessionWithPlayersToFirestore(sw: SessionWithPlayers): MutableMap<String, Any> {
             val s = sw.session
 
@@ -132,6 +175,12 @@ class FirestoreSessionsRepository(
             )
         }
 
+        /**
+         * Convierte un documento de Firestore a una sesión remota aplicada.
+         * @param docId Identificador único del documento.
+         * @param data Datos del documento.
+         * @return Sesión remota aplicada
+         */
         @Suppress("UNCHECKED_CAST")
         fun docToRemoteApplied(docId: String, data: Map<String, Any>): RemoteAppliedSession? {
             val isDeleted = data["isDeleted"] as? Boolean ?: false
@@ -228,7 +277,10 @@ class FirestoreSessionsRepository(
 }
 
 // -------- await() helper --------
-
+/**
+ * Espera a que se complete una tarea de Firebase y devuelve el resultado.
+ * @return El resultado de la tarea.
+ */
 private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
     suspendCancellableCoroutine { cont ->
         addOnSuccessListener { cont.resume(it) }

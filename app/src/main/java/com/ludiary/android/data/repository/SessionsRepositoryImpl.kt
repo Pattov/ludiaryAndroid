@@ -4,6 +4,13 @@ import com.ludiary.android.data.local.LocalSessionsDataSource
 import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.sync.SyncPrefs
 
+/**
+ * Repositorio de partidas.
+ * @property local Fuente de datos local.
+ * @property remote Fuente de datos remota.
+ * @property syncPrefs Preferencias de sincronización.
+ * @property groupIdProvider Proveedor de identificadores de grupos.
+ */
 class SessionsRepositoryImpl(
     private val local: LocalSessionsDataSource,
     private val remote: FirestoreSessionsRepository,
@@ -11,6 +18,11 @@ class SessionsRepositoryImpl(
     private val groupIdProvider: GroupIdProvider
 ) : SessionsRepository {
 
+    /**
+     * Sincroniza las partidas.
+     * @param uid Identificador único del usuario.
+     * @return Resultado de la sincronización.
+     */
     override suspend fun sync(uid: String): SessionsSyncResult {
 
         val adopted = local.adoptOfflinePersonalSessionsForUser(uid)
@@ -27,6 +39,10 @@ class SessionsRepositoryImpl(
         )
     }
 
+    /**
+     * Envía las partidas pendientes a Firestore.
+     * @return Número de partidas enviadas.
+     */
     private suspend fun pushPending(): Int {
         val pending = local.getPendingForPush()
         var pushed = 0
@@ -48,7 +64,11 @@ class SessionsRepositoryImpl(
         return pushed
     }
 
-
+    /**
+     * Obtiene las partidas modificadas desde una fecha específica.
+     * @param uid Identificador único del usuario.
+     * @return Número de partidas modificadas.
+     */
     private suspend fun pullIncremental(uid: String): Pair<Int, Int> {
         var pulledPersonal = 0
         var pulledGroups = 0
@@ -98,6 +118,15 @@ class SessionsRepositoryImpl(
     }
 }
 
+/**
+ * Interfaz que define el repositorio de sesiones.
+ */
 interface GroupIdProvider {
+
+    /**
+     * Obtiene los identificadores de grupos para un usuario.
+     * @param uid Identificador único del usuario.
+     * @return Lista de identificadores de grupos.
+     */
     suspend fun getGroupIdsForUser(uid: String): List<String>
 }

@@ -107,6 +107,12 @@ interface SessionDao {
         deleted: SyncStatus = SyncStatus.DELETED
     ): List<SessionEntity>
 
+    /**
+     * Devuelve todas las sesiones con cambios pendientes de sincronizar.
+     * @param uid Identificador único del usuario.
+     * @param pending Estado de sincronización pendiente.
+     * @param personal Alcance de la sesión.
+     */
     @Query("UPDATE sessions SET ownerUserId = :uid, syncStatus = :pending WHERE ownerUserId IS NULL AND scope = :personal AND isDeleted = 0")
     suspend fun adoptOfflinePersonalSessions(
         uid: String,

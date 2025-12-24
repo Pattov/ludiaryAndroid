@@ -29,6 +29,7 @@
       <w>adelante</w>
       <w>adicionales</w>
       <w>administradores</w>
+      <w>adoptadas</w>
       <w>afectadas</w>
       <w>ahora</w>
       <w>ajustes</w>
@@ -45,6 +46,7 @@
       <w>aparición</w>
       <w>aplica</w>
       <w>aplicación</w>
+      <w>aplicada</w>
       <w>aplicados</w>
       <w>aplicar</w>
       <w>apodo</w>
@@ -177,6 +179,7 @@
       <w>crear</w>
       <w>credenciales</w>
       <w>creó</w>
+      <w>cual</w>
       <w>cualquier</w>
       <w>cuenta</w>
       <w>código</w>
@@ -199,6 +202,7 @@
       <w>desactivas</w>
       <w>desarrolladores</w>
       <w>descargable</w>
+      <w>descargadas</w>
       <w>descargado</w>
       <w>descargamos</w>
       <w>descargar</w>
@@ -259,6 +263,7 @@
       <w>entrar</w>
       <w>envia</w>
       <w>enviada</w>
+      <w>enviadas</w>
       <w>enviado</w>
       <w>enviar</w>
       <w>enviarlos</w>
@@ -270,7 +275,9 @@
       <w>escribiendo</w>
       <w>escucha</w>
       <w>español</w>
+      <w>específica</w>
       <w>específico</w>
+      <w>espera</w>
       <w>esquinas</w>
       <w>establece</w>
       <w>estamos</w>
@@ -332,6 +339,7 @@
       <w>hago</w>
       <w>hemos</w>
       <w>identificador</w>
+      <w>identificadores</w>
       <w>idioma</w>
       <w>ignorado</w>
       <w>implementa</w>
@@ -412,6 +420,8 @@
       <w>manera</w>
       <w>mantener</w>
       <w>manualmente</w>
+      <w>mapa</w>
+      <w>mapeo</w>
       <w>marcados</w>
       <w>marcar</w>
       <w>mediante</w>
@@ -426,6 +436,7 @@
       <w>minutos</w>
       <w>mismo</w>
       <w>modelo</w>
+      <w>modificadas</w>
       <w>modo</w>
       <w>momento</w>
       <w>moneda</w>
@@ -453,6 +464,7 @@
       <w>nunca</w>
       <w>númerico</w>
       <w>objeto</w>
+      <w>objetos</w>
       <w>obligatorio</w>
       <w>observa</w>
       <w>observación</w>
@@ -463,6 +475,7 @@
       <w>obtenida</w>
       <w>obtenido</w>
       <w>obtiene</w>
+      <w>obtuvieron</w>
       <w>oculta</w>
       <w>ocultar</w>
       <w>ocurra</w>
@@ -511,6 +524,7 @@
       <w>posee</w>
       <w>posible</w>
       <w>precio</w>
+      <w>preferencia</w>
       <w>preferencias</w>
       <w>preparado</w>
       <w>previa</w>
@@ -642,6 +656,7 @@
       <w>soportados</w>
       <w>subcolección</w>
       <w>sube</w>
+      <w>subidas</w>
       <w>subidos</w>
       <w>subtítulo</w>
       <w>sugerencia</w>

@@ -12,11 +12,20 @@ import com.ludiary.android.data.repository.GroupIdProvider
 import com.ludiary.android.data.repository.SessionsRepository
 import com.ludiary.android.data.repository.SessionsRepositoryImpl
 
+/**
+ * Worker para sincronizar sesiones.
+ * @property appContext Contexto de la aplicación.
+ * @property params Parámetros del worker.
+ */
 class SessionsSyncWorker(
     appContext: Context,
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
 
+    /**
+     * Realiza la sincronización de sesiones.
+     * @return Resultado de la operación.
+     */
     override suspend fun doWork(): Result {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: return Result.success() // sin login → no sync remoto
