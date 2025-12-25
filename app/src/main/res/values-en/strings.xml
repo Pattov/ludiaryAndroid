@@ -77,6 +77,12 @@
     <string name="session_title">Session</string>
     <string name="session_hint_search">Search session&#8230;</string>
     <string name="session_add_game">Add session</string>
+    <string name="session_item_date">%1$s</string>
+    <string name="session_item_duration">%1$d min</string>
+    <string name="session_item_rating">★ %1$d/10</string>
+    <string name="session_item_duration_rating">%1$d min · ★ %2$d/10</string>
+    <string name="session_item_empty_meta">—</string>
+
     <string name="dashboard_title">Dashboard</string>
 
     <string name="action_save">Save</string>
