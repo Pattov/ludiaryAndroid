@@ -10,11 +10,19 @@ import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.viewmodel.SessionsViewModel
 import com.ludiary.android.viewmodel.SessionsViewModelFactory
 
+/**
+ * Fragmento que muestra la lista de sesiones.
+ */
 class SessionFragment : Fragment(R.layout.fragment_sessions) {
 
     private lateinit var vm: SessionsViewModel
     private lateinit var adapter: SessionsAdapter
 
+    /**
+     * Configura la interfaz de usuario al crear el fragmento.
+     * @param view La vista del fragmento.
+     * @param savedInstanceState El estado guardado del fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

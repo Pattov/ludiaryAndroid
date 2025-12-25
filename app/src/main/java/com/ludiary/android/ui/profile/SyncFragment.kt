@@ -71,6 +71,11 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         UserGamesRepositoryImpl(localDS, remote)
     }
 
+    /**
+     * Repositorio de sesiones.
+     * Se inicializa al crear el fragmento.
+     * @return Instancia de [SessionsRepository].
+     */
     private val sessionsRepo: SessionsRepository by lazy {
         val context = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(context)

@@ -12,12 +12,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * Estado de la pantalla de sesiones.
+ * @property loading Indica si se está cargando.
+ * @property sessions Lista de sesiones.
+ * @property error Mensaje de error.
+ */
 data class SessionsUiState(
     val loading: Boolean = true,
     val sessions: List<SessionEntity> = emptyList(),
     val error: String? = null
 )
 
+/**
+ * ViewModel para la pantalla de sesiones.
+ * @property db Instancia de [LudiaryDatabase].
+ * @property auth Instancia de [FirebaseAuth].
+ * @return Instancia de [SessionsViewModel].
+ */
 class SessionsViewModel(
     private val db: LudiaryDatabase,
     private val auth: FirebaseAuth
@@ -53,6 +65,12 @@ class SessionsViewModel(
     }
 }
 
+/**
+ * Factory para crear una instancia de [SessionsViewModel].
+ * @property db Instancia de [LudiaryDatabase].
+ * @property auth Instancia de [FirebaseAuth].
+ * @return Instancia de [SessionsViewModelFactory].
+ */
 class SessionsViewModelFactory(
     private val db: LudiaryDatabase,
     private val auth: FirebaseAuth

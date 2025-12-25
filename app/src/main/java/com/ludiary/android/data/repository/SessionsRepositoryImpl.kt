@@ -1,6 +1,5 @@
 package com.ludiary.android.data.repository
 
-import android.util.Log
 import com.ludiary.android.data.local.LocalSessionsDataSource
 import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.sync.SyncPrefs
