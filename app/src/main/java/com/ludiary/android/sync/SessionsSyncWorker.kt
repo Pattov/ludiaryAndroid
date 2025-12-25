@@ -1,6 +1,7 @@
 package com.ludiary.android.sync
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.auth.FirebaseAuth
@@ -50,7 +51,8 @@ class SessionsSyncWorker(
 
             repo.sync(uid)
             Result.success()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("LUDIARY_SessionsSync", "Worker error: ${e.message}", e)
             Result.retry()
         }
     }

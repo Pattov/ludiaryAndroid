@@ -74,7 +74,9 @@
     <string name="auth_error_reset_no_user">No account found with that email.</string>
     <string name="auth_error_reset_generic">Could not send reset email. Try again later.</string>
 
-    <string name="session_title">Partida</string>
+    <string name="session_title">Session</string>
+    <string name="session_hint_search">Search session&#8230;</string>
+    <string name="session_add_game">Add session</string>
     <string name="dashboard_title">Dashboard</string>
 
     <string name="action_save">Save</string>

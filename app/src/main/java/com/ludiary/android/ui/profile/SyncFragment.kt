@@ -13,9 +13,14 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
+import com.ludiary.android.data.local.LocalSessionsDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalUserGamesDataSource
+import com.ludiary.android.data.repository.FirestoreSessionsRepository
 import com.ludiary.android.data.repository.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.GroupIdProvider
+import com.ludiary.android.data.repository.SessionsRepository
+import com.ludiary.android.data.repository.SessionsRepositoryImpl
 import com.ludiary.android.data.repository.UserGamesRepository
 import com.ludiary.android.data.repository.UserGamesRepositoryImpl
 import com.ludiary.android.sync.SyncScheduler
@@ -65,6 +70,27 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
         UserGamesRepositoryImpl(localDS, remote)
     }
+
+    private val sessionsRepo: SessionsRepository by lazy {
+        val context = requireContext().applicationContext
+        val db = LudiaryDatabase.getInstance(context)
+
+        val localDS = LocalSessionsDataSource(db.sessionDao())
+        val remote = FirestoreSessionsRepository(FirebaseFirestore.getInstance())
+        val prefs = SyncPrefs(context)
+
+        val groupProvider = object : GroupIdProvider {
+            override suspend fun getGroupIdsForUser(uid: String): List<String> = emptyList()
+        }
+
+        SessionsRepositoryImpl(
+            local = localDS,
+            remote = remote,
+            syncPrefs = prefs,
+            groupIdProvider = groupProvider
+        )
+    }
+
 
     /**
      * Configura la interfaz de usuario al crear el fragmento.
@@ -127,31 +153,27 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val syncedUp = userGamesRepo.syncPending(uid)
-
                     val since = syncPrefs.getLastUserGamesPull(uid)
                     val (appliedDown, maxTs) = userGamesRepo.syncDownIncremental(uid, since)
 
                     val now = System.currentTimeMillis()
-
-                    if (maxTs != null) {
-                        syncPrefs.setLastUserGamesPull(uid, maxTs)
-                    }
-
+                    if (maxTs != null) syncPrefs.setLastUserGamesPull(uid, maxTs)
                     if (syncedUp > 0 || appliedDown > 0) {
                         prefs.edit { putLong(KEY_LAST_LIBRARY_SYNC, now) }
                         tvLastLibrarySync.text = formatDateOrNever(now)
                     }
-
-
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al sincronizar: ${e.message ?: "desconocido"}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } finally {
-                    refreshPendingAndRender()
+                    Toast.makeText(requireContext(), "Error UserGames: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+
+                // ✅ sessions SIEMPRE se intenta, aunque falle lo anterior
+                try {
+                    sessionsRepo.sync(uid)
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Error Sessions: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+
+                refreshPendingAndRender()
             }
         }
     }
