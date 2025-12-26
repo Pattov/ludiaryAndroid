@@ -25,6 +25,11 @@ class LocalSessionsDataSource(
      */
     suspend fun getWithPlayers (sessionId: String): SessionWithPlayers? = sessionDao.getSessionWithPlayers(sessionId)
 
+    /**
+     * Elimina una partida por su identificador.
+     * @param sessionId Identificador único de la partida.
+     * @param now Fecha de eliminación.
+     */
     suspend fun softDelete(sessionId: String, now: Long = System.currentTimeMillis()) {
         sessionDao.markSessionDeleted(sessionId, now)
     }

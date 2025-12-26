@@ -37,7 +37,8 @@ class SessionFragment : Fragment(R.layout.fragment_sessions) {
                 // TODO: abrir editar
             },
             onDeleteClick = { session ->
-                vm.deleteSession(session.id)            }
+                vm.deleteSession(session.id)
+            }
         )
         recycler.adapter = adapter
 
