@@ -40,6 +40,15 @@ class SessionsRepositoryImpl(
     }
 
     /**
+     * Elimina una partida.
+     * @param sessionId Identificador único de la partida.
+     * @return Resultado de la operación.
+     */
+    override suspend fun deleteSession(sessionId: String) {
+        local.softDelete(sessionId)
+    }
+
+    /**
      * Envía las partidas pendientes a Firestore.
      * @return Número de partidas enviadas.
      */

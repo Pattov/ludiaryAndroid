@@ -24,4 +24,10 @@ interface SessionsRepository {
      * @param uid Identificador único del usuario.
      */
     suspend fun sync(uid: String): SessionsSyncResult
+
+    /**
+     * Obtiene una partida por su identificador.
+     * @param sessionId Identificador único de la partida.
+     */
+    suspend fun deleteSession(sessionId: String)
 }

@@ -90,10 +90,11 @@ interface SessionDao {
     /**
      * Marca una partida como eliminada.
      * @param sessionId Identificador único de la partida.
+     * @param now Fecha de eliminación.
      * @param deletedStatus Estado de eliminación.
      */
-    @Query("UPDATE sessions SET isDeleted = 1, syncStatus = :deletedStatus WHERE id = :sessionId")
-    suspend fun markDeleted(sessionId: String, deletedStatus: SyncStatus = SyncStatus.DELETED)
+    @Query("UPDATE sessions SET isDeleted = 1, syncStatus = :deletedStatus, deletedAt = :now, updatedAt = :now WHERE id = :sessionId")
+    suspend fun markSessionDeleted(sessionId: String, now: Long, deletedStatus: SyncStatus = SyncStatus.DELETED)
 
     // ---------- Sync ----------
     /**

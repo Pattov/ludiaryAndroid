@@ -25,6 +25,10 @@ class LocalSessionsDataSource(
      */
     suspend fun getWithPlayers (sessionId: String): SessionWithPlayers? = sessionDao.getSessionWithPlayers(sessionId)
 
+    suspend fun softDelete(sessionId: String, now: Long = System.currentTimeMillis()) {
+        sessionDao.markSessionDeleted(sessionId, now)
+    }
+
     /**
      * Actualiza el estado de sincronización de una partida.
      * @param sessionId Identificador único de la partida.

@@ -63,6 +63,17 @@ class SessionsViewModel(
                 }
         }
     }
+
+    fun deleteSession(sessionId: String) {
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            db.sessionDao().markSessionDeleted(
+                sessionId = sessionId,
+                now = now
+            )
+        }
+    }
+
 }
 
 /**
