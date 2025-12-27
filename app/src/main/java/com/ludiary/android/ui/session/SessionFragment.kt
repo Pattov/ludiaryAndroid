@@ -1,15 +1,18 @@
 package com.ludiary.android.ui.session
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.viewmodel.SessionsViewModel
 import com.ludiary.android.viewmodel.SessionsViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -23,7 +26,16 @@ class SessionFragment : Fragment(R.layout.fragment_sessions) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recycler: RecyclerView = view.findViewById(R.id.recyclerSession)
+        SyncScheduler.enqueueSessionsSync(requireContext().applicationContext)
+
+        val recycler = view.findViewById<RecyclerView?>(R.id.recyclerSession)
+        val fab = view.findViewById<FloatingActionButton?>(R.id.fabAddSession)
+
+        if (recycler == null) {
+            Log.e("LUDIARY_UI", "ERROR: recyclerSession no existe en fragment_sessions.xml")
+            return
+        }
+
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
@@ -43,7 +55,12 @@ class SessionFragment : Fragment(R.layout.fragment_sessions) {
                 vm.deleteSession(session.id)
             }
         )
+
         recycler.adapter = adapter
+
+        fab?.setOnClickListener {
+            findNavController().navigate(R.id.action_sessions_to_edit_session)
+        }
 
         vm.start()
 

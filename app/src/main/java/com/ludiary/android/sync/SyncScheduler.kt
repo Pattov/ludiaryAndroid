@@ -41,7 +41,14 @@ object SyncScheduler {
     }
 
     fun enqueueSessionsSync(context: Context) {
-        val request = OneTimeWorkRequestBuilder<SessionsSyncWorker>().build()
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequestBuilder<SessionsSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+
         WorkManager.getInstance(context)
             .enqueueUniqueWork("sync_sessions", ExistingWorkPolicy.KEEP, request)
     }

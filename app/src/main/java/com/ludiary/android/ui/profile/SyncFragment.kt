@@ -171,7 +171,6 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
                     Toast.makeText(requireContext(), "Error UserGames: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
 
-                // ✅ sessions SIEMPRE se intenta, aunque falle lo anterior
                 try {
                     sessionsRepo.sync(uid)
                 } catch (e: Exception) {
