@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -31,10 +32,12 @@ class SessionFragment : Fragment(R.layout.fragment_sessions) {
 
         adapter = SessionsAdapter(
             onItemClick = { session ->
-                // TODO: abrir editar
+                val args = Bundle().apply { putString("sessionId", session.id) }
+                findNavController().navigate(R.id.action_sessions_to_edit_session, args)
             },
             onEditClick = { session ->
-                // TODO: abrir editar
+                val args = Bundle().apply { putString("sessionId", session.id) }
+                findNavController().navigate(R.id.action_sessions_to_edit_session, args)
             },
             onDeleteClick = { session ->
                 vm.deleteSession(session.id)

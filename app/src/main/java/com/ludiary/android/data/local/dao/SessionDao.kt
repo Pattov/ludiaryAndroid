@@ -143,4 +143,8 @@ interface SessionDao {
     suspend fun hardDeleteSessionCascade(sessionId: String) {
         hardDeleteSession(sessionId)
     }
+
+    @Transaction
+    @Query("SELECT * FROM sessions WHERE ownerUserId = :uid AND scope = :scope AND isDeleted = 0 ORDER BY playedAt DESC")
+    fun observePersonalSessionsWithPlayers(uid: String, scope: SessionScope): Flow<List<SessionWithPlayers>>
 }

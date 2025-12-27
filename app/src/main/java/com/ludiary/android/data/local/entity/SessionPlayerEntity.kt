@@ -16,6 +16,7 @@ import com.ludiary.android.data.model.PlayerRefType
  * @property refId Identificador de referencia del jugador.
  * @property score Puntuación del jugador.
  * @property sortOrder Orden de aparición del jugador en la lista.
+ * @property isWinner Indica si el jugador ha ganado la partida.
  */
 @Entity(
     tableName = "session_players",
@@ -43,5 +44,6 @@ data class SessionPlayerEntity(
     val refId: String?,
 
     val score: Int?,
-    val sortOrder: Int
+    val sortOrder: Int,
+    val isWinner: Boolean
 )

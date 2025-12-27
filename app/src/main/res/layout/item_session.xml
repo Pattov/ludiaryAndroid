@@ -60,10 +60,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/btnDelete"
                     android:text="@string/action_delete"/>
-
             </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    </LinearLayout>
-
 </androidx.cardview.widget.CardView>

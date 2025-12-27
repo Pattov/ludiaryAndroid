@@ -1,6 +1,5 @@
 package com.ludiary.android.data.repository
 
-import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -132,7 +131,8 @@ class FirestoreSessionsRepository(
                 val m = mutableMapOf<String, Any>(
                     "id" to p.playerId,
                     "displayName" to p.displayName,
-                    "sortOrder" to p.sortOrder
+                    "sortOrder" to p.sortOrder,
+                    "isWinner" to p.isWinner
                 )
                 if (p.score != null) m["score"] = p.score
                 if (p.refType != null && p.refId != null) {
@@ -171,7 +171,6 @@ class FirestoreSessionsRepository(
                 "overallRating" to (s.overallRating ?: -1),
                 "notes" to (s.notes ?: ""),
                 "players" to players,
-                "winners" to s.winners,
                 "isDeleted" to s.isDeleted
             )
         }
@@ -211,8 +210,6 @@ class FirestoreSessionsRepository(
             val overallRating = (data["overallRating"] as? Number)?.toInt()?.takeIf { it in 1..10 }
             val notes = (data["notes"] as? String)?.takeIf { it.isNotBlank() }
 
-            val winners = (data["winners"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-
             val createdAtMillis = (data["createdAt"] as? Timestamp)?.toDate()?.time
             val deletedAtMillis = (data["deletedAt"] as? Timestamp)?.toDate()?.time
 
@@ -229,7 +226,6 @@ class FirestoreSessionsRepository(
                 durationMinutes = durationMinutes,
                 overallRating = overallRating,
                 notes = notes,
-                winners = winners,
                 syncStatus = SyncStatus.CLEAN,
                 isDeleted = false,
                 createdAt = createdAtMillis,
@@ -238,6 +234,7 @@ class FirestoreSessionsRepository(
             )
 
             val playersRaw = data["players"] as? List<Map<String, Any>> ?: emptyList()
+
             val playerEntities = playersRaw
                 .sortedBy { (it["sortOrder"] as? Number)?.toInt() ?: 0 }
                 .mapIndexed { idx, p ->
@@ -254,6 +251,11 @@ class FirestoreSessionsRepository(
                     }
                     val refId = ref?.get("id") as? String
 
+                    val winnersLegacy = (data["winners"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+
+                    val isWinnerFromPlayer = p["isWinner"] as? Boolean
+                    val isWinner = isWinnerFromPlayer ?: ((pid in winnersLegacy) || (dn in winnersLegacy))
+
                     SessionPlayerEntity(
                         sessionId = docId,
                         playerId = pid,
@@ -261,8 +263,10 @@ class FirestoreSessionsRepository(
                         refType = refType,
                         refId = refId,
                         score = score,
-                        sortOrder = sortOrder
+                        sortOrder = sortOrder,
+                        isWinner = isWinner
                     )
+
                 }
                 .filterNotNull()
 

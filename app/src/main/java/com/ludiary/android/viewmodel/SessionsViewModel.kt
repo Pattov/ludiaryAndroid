@@ -53,8 +53,8 @@ class SessionsViewModel(
             _uiState.value = _uiState.value.copy(loading = true, error = null)
 
             db.sessionDao()
-                .observePersonalSessions(uid = uid, scope = SessionScope.PERSONAL)
-                .collectLatest { list ->
+                .observePersonalSessions(uid, SessionScope.PERSONAL)
+                .collectLatest { list: List<SessionEntity> ->
                     _uiState.value = SessionsUiState(
                         loading = false,
                         sessions = list,

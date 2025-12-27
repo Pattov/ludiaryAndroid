@@ -42,9 +42,10 @@ data class Session(
     val location: String? = null,
     val durationMinutes: Int? = null,
 
+    // Jugadores
     val players: List<SessionPlayer> = emptyList(),
-    val winners: List<String>? = null,
 
+    // Valoración
     val overallRating: Int? = null,
     val notes: String? = null,
 
@@ -72,12 +73,14 @@ data class PlayerRef(
  * @property displayName Nombre del jugador.
  * @property ref Referencia al jugador.
  * @property score Puntuación del jugador.
+ * @property isWinner Indica si el jugador ha ganado la partida.
  */
 data class SessionPlayer(
     val id: String,
     val displayName: String,
     val ref: PlayerRef? = null,
-    val score: Int? = null
+    val score: Int? = null,
+    val isWinner: Boolean = false
 )
 
 /**

@@ -14,9 +14,11 @@ import com.ludiary.android.data.local.entity.UserGameEntity
  */
 data class SessionWithPlayers(
     @Embedded val session: SessionEntity,
+
     @Relation(
         parentColumn = "id",
-        entityColumn = "sessionId"
+        entityColumn = "sessionId",
+        entity = SessionPlayerEntity::class
     )
     val players: List<SessionPlayerEntity>
 )

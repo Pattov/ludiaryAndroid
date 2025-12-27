@@ -23,7 +23,6 @@ import com.ludiary.android.data.model.SyncStatus
  * @property durationMinutes Duración de la sesión en minutos.
  * @property overallRating Calificación general de la sesión.
  * @property notes Notas adicionales de la sesión.
- * @property winners Lista de ganadores de la sesión.
  * @property syncStatus Estado de sincronización entre copia y Firestore.
  * @property isDeleted Indica si la sesión ha sido eliminada.
  * @property createdAt Fecha de creación de la sesión.
@@ -55,8 +54,6 @@ data class SessionEntity(
 
     val overallRating: Int?,
     val notes: String?,
-
-    val winners: List<String>,
 
     val syncStatus: SyncStatus,
     val isDeleted: Boolean,

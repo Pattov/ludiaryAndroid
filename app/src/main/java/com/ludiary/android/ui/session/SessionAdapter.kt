@@ -1,5 +1,6 @@
 package com.ludiary.android.ui.session
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,9 +77,15 @@ class SessionsAdapter(
                     ctx.getString(R.string.session_item_empty_meta)
             }
 
-            itemView.setOnClickListener { onItemClick(item) }
-            btnEdit.setOnClickListener { onEditClick(item) }
-            btnDelete.setOnClickListener { onDeleteClick(item) }
+            itemView.setOnClickListener {
+                Log.d("LUDIARY_SESSIONS_UI", "onItemClick -> ${item.id}")
+                onItemClick(item) }
+            btnEdit.setOnClickListener {
+                Log.d("LUDIARY_SESSIONS_UI", "onEditClick -> ${item.id}")
+                onEditClick(item) }
+            btnDelete.setOnClickListener {
+                Log.d("LUDIARY_SESSIONS_UI", "onDeleteClick -> ${item.id}")
+                onDeleteClick(item) }
         }
     }
 }

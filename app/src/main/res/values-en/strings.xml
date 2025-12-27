@@ -82,6 +82,25 @@
     <string name="session_item_rating">★ %1$d/10</string>
     <string name="session_item_duration_rating">%1$d min · ★ %2$d/10</string>
     <string name="session_item_empty_meta">—</string>
+    <string name="session_meta_date_rating">%1$s · %2$d/10</string>
+    <string name="session_meta_date_only">%1$s</string>
+    <string name="session_meta_date_rating_duration">%1$s · %2$d/10 · %3$d min</string>
+    <string name="session_meta_date_duration">%1$s · %2$d min</string>
+    <string name="session_players_line">%1$s</string>
+    <string name="session_players_line_with_winners">%1$s · 🏆 %2$s</string>
+    <string name="edit_session_nav_label">Game Session</string>
+    <string name="edit_session_title_create">Record New Session</string>
+    <string name="edit_session_title_edit">Edit Session</string>
+    <string name="edit_session_game_hint_required">Game *</string>
+    <string name="edit_session_date_hint_required">Date *</string>
+    <string name="edit_session_rating_hint">Overall rating (1–10)</string>
+    <string name="edit_session_players_section">Players and scores</string>
+    <string name="edit_session_add_player">Add player</string>
+    <string name="edit_session_notes_hint_optional">Notes (optional)</string>
+    <string name="edit_session_player_name_hint">Name</string>
+    <string name="edit_session_player_score_hint">Score</string>
+    <string name="edit_session_player_winner_cd">Mark as winner</string>
+    <string name="edit_session_player_remove_cd">Remove player</string>
 
     <string name="dashboard_title">Dashboard</string>
 

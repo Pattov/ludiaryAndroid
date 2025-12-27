@@ -249,9 +249,6 @@ fun Session.toEntity(): SessionEntity =
         durationMinutes = durationMinutes,
         overallRating = overallRating,
         notes = notes,
-
-        winners = winners ?: emptyList(),
-
         syncStatus = syncStatus,
         isDeleted = isDeleted,
         createdAt = createdAt,
@@ -271,6 +268,8 @@ fun Session.toPlayerEntities(): List<SessionPlayerEntity> =
             refType = p.ref?.type,
             refId = p.ref?.id,
             score = p.score,
-            sortOrder = idx
+            sortOrder = idx,
+            isWinner = p.isWinner
         )
     }
+

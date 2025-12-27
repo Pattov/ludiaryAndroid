@@ -15,7 +15,12 @@
     <fragment
         android:id="@+id/nav_sessions"
         android:name="com.ludiary.android.ui.session.SessionFragment"
-        android:label="Sessions"/>
+        android:label="Sessions">
+
+        <action
+            android:id="@+id/action_sessions_to_edit_session"
+            app:destination="@id/nav_edit_session" />
+    </fragment>
 
     <!-- Sección de juegos del usuario -->
     <fragment
@@ -75,5 +80,17 @@
         android:name="com.ludiary.android.ui.profile.SyncFragment"
         android:label="@string/profile_sync"
         tools:layout="@layout/form_sync_profile" />
+
+    <!-- Sección de partida-->
+    <fragment
+        android:id="@+id/nav_edit_session"
+        android:name="com.ludiary.android.ui.session.EditSessionFragment"
+        android:label="@string/edit_session_nav_label">
+
+        <argument
+            android:name="sessionId"
+            app:argType="string"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>

@@ -15,7 +15,6 @@ class LocalSessionsDataSource(
 
     /**
      * Obtiene todas las partidas de un usuario local.
-     * @param uid Identificador único del usuario.
      */
     suspend fun getPendingForPush(): List<SessionEntity> = sessionDao.getSessionsPendingPush()
 
