@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dayRoot"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <!-- “Chip” redondeado -->
+    <LinearLayout
+        android:id="@+id/dayChip"
+        android:layout_width="44dp"
+        android:layout_height="56dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="6dp"
+        android:background="@drawable/bg_dashboard_day_unselected">
+
+        <TextView
+            android:id="@+id/tvDow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_L"
+            android:textSize="12sp"
+            android:alpha="0.8" />
+
+        <TextView
+            android:id="@+id/tvDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_ten"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Punto de “hay partidas” -->
+    <View
+        android:id="@+id/dot"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_dashboard_dot"
+        android:visibility="gone" />
+</LinearLayout>

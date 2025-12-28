@@ -104,6 +104,18 @@
 
     <string name="dashboard_title">Dashboard</string>
 
+    <string name="dashboard_kpi_games">Games in collection</string>
+    <string name="dashboard_kpi_sessions">Sessions played</string>
+    <string name="dashboard_kpi_avg_rating">Average rating</string>
+    <string name="dashboard_kpi_hours">Hours played</string>
+    <string name="dashboard_recent_activity">Recent activity</string>
+    <string name="dashboard_week">This week</string>
+    <string name="dashboard_week_selected_default">Select a day to see how many sessions you played.</string>
+    <string name="dashboard_stats">Statistics</string>
+    <string name="dashboard_L">L</string>
+    <string name="dashboard_ten">10</string>
+    <string name="dashboard_hours_format">%1$d h</string>
+
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>

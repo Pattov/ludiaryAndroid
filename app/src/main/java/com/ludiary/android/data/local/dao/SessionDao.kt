@@ -147,4 +147,23 @@ interface SessionDao {
     @Transaction
     @Query("SELECT * FROM sessions WHERE ownerUserId = :uid AND scope = :scope AND isDeleted = 0 ORDER BY playedAt DESC")
     fun observePersonalSessionsWithPlayers(uid: String, scope: SessionScope): Flow<List<SessionWithPlayers>>
+
+    @Query("SELECT * FROM sessions WHERE isDeleted = 0 ORDER BY playedAt DESC")
+    fun observeAllActiveSessions(): Flow<List<SessionEntity>>
+
+    @Query("SELECT COUNT(*) FROM sessions WHERE isDeleted = 0")
+    fun observeSessionsCount(): Flow<Int>
+
+    @Query("SELECT AVG(overallRating) FROM sessions WHERE isDeleted = 0 AND overallRating IS NOT NULL")
+    fun observeAvgRating(): Flow<Double?>
+
+    @Query("SELECT SUM(durationMinutes) FROM sessions WHERE isDeleted = 0 AND durationMinutes IS NOT NULL")
+    fun observeTotalMinutes(): Flow<Int?>
+
+    @Query("SELECT * FROM sessions WHERE isDeleted = 0 ORDER BY playedAt DESC LIMIT :limit")
+    fun observeRecentSessions(limit: Int = 3): Flow<List<SessionEntity>>
+
+    @Query("SELECT playedAt FROM sessions WHERE isDeleted = 0 AND playedAt BETWEEN :fromMillis AND :toMillis")
+    suspend fun getPlayedAtBetween(fromMillis: Long, toMillis: Long): List<Long>
+
 }
