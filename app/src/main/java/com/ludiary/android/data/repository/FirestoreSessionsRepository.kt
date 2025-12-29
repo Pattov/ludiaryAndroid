@@ -3,6 +3,7 @@ package com.ludiary.android.data.repository
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.data.local.entity.SessionPlayerEntity
@@ -36,7 +37,7 @@ class FirestoreSessionsRepository(
     suspend fun upsertSession(sw: SessionWithPlayers) {
         val s = sw.session
 
-        val payload = FirestoreMapper.sessionWithPlayersToFirestore(sw)
+        val payload = FirestoreMapper.sessionWithPlayersToFirestore(sw).toMutableMap()
         payload["updatedAt"] = FieldValue.serverTimestamp()
         if (s.createdAt == null) payload["createdAt"] = FieldValue.serverTimestamp()
 
@@ -53,7 +54,9 @@ class FirestoreSessionsRepository(
             "deletedAt" to FieldValue.serverTimestamp(),
             "updatedAt" to FieldValue.serverTimestamp()
         )
-        sessionsCol.document(sessionId).set(updates, com.google.firebase.firestore.SetOptions.merge()).await()
+        sessionsCol.document(sessionId)
+            .set(updates, SetOptions.merge())
+            .await()
     }
 
     /**
@@ -124,28 +127,36 @@ class FirestoreSessionsRepository(
          * @param sw Sesión con jugadores.
          * @return Mapa de datos de Firestore.
          */
-        fun sessionWithPlayersToFirestore(sw: SessionWithPlayers): MutableMap<String, Any> {
+        fun sessionWithPlayersToFirestore(sw: SessionWithPlayers): Map<String, Any> {
             val s = sw.session
 
-            val players = sw.players.sortedBy { it.sortOrder }.map { p ->
-                val m = mutableMapOf<String, Any>(
-                    "id" to p.playerId,
-                    "displayName" to p.displayName,
-                    "sortOrder" to p.sortOrder,
-                    "isWinner" to p.isWinner
-                )
-                if (p.score != null) m["score"] = p.score
-                if (p.refType != null && p.refId != null) {
-                    m["ref"] = mapOf(
-                        "type" to when (p.refType) {
-                            PlayerRefType.LUDIARY_USER -> "ludiaryUser"
-                            PlayerRefType.GROUP_MEMBER -> "groupMember"
-                        },
-                        "id" to p.refId
+            val players = sw.players
+                .sortedBy { it.sortOrder }
+                .map { p ->
+                    val m = mutableMapOf<String, Any>(
+                        "id" to p.playerId,
+                        "displayName" to p.displayName,
+                        "sortOrder" to p.sortOrder,
+                        "isWinner" to p.isWinner
                     )
+
+                    p.score?.let { m["score"] = it }
+
+                    if (p.refId != null) {
+                        m["ref"] = mapOf(
+                            "type" to when (p.refType) {
+                                PlayerRefType.LUDIARY_USER -> "ludiaryUser"
+                                PlayerRefType.GROUP_MEMBER -> "groupMember"
+                                PlayerRefType.NAME -> "name"
+                            },
+                            "id" to p.refId
+                        )
+                    } else {
+                        m["ref"] = mapOf(
+                            "type" to "name"
+                        )
+                    }
                 }
-                m
-            }
 
             val gameRef = mapOf(
                 "type" to when (s.gameRefType) {
@@ -156,23 +167,27 @@ class FirestoreSessionsRepository(
                 "id" to s.gameRefId
             )
 
-            return mutableMapOf(
+            val payload = mutableMapOf(
                 "scope" to when (s.scope) {
                     SessionScope.PERSONAL -> "personal"
                     SessionScope.GROUP -> "group"
                 },
-                "ownerUserId" to (s.ownerUserId ?: ""),
-                "groupId" to (s.groupId ?: ""),
                 "gameRef" to gameRef,
                 "gameTitle" to s.gameTitle,
                 "playedAt" to Timestamp(Date(s.playedAt)),
-                "location" to (s.location ?: ""),
-                "durationMinutes" to (s.durationMinutes ?: -1),
-                "overallRating" to (s.overallRating ?: -1),
-                "notes" to (s.notes ?: ""),
                 "players" to players,
                 "isDeleted" to s.isDeleted
             )
+
+            //solo se guardan si tienen valor real
+            s.ownerUserId?.takeIf { it.isNotBlank() }?.let { payload["ownerUserId"] = it }
+            s.groupId?.takeIf { it.isNotBlank() }?.let { payload["groupId"] = it }
+            s.location?.takeIf { it.isNotBlank() }?.let { payload["location"] = it }
+            s.durationMinutes?.let { payload["durationMinutes"] = it }
+            s.overallRating?.let { payload["overallRating"] = it }
+            s.notes?.takeIf { it.isNotBlank() }?.let { payload["notes"] = it }
+
+            return payload
         }
 
         /**
@@ -190,7 +205,7 @@ class FirestoreSessionsRepository(
             val scopeStr = data["scope"] as? String ?: "personal"
             val scope = if (scopeStr == "group") SessionScope.GROUP else SessionScope.PERSONAL
 
-            val ownerUserId = data["ownerUserId"] as? String ?: ""
+            val ownerUserId = (data["ownerUserId"] as? String)?.takeIf { it.isNotBlank() }
             val groupId = (data["groupId"] as? String)?.takeIf { it.isNotBlank() }
 
             val gameRef = data["gameRef"] as? Map<String, Any> ?: return null
@@ -206,7 +221,7 @@ class FirestoreSessionsRepository(
             val playedAtMillis = (data["playedAt"] as? Timestamp)?.toDate()?.time ?: return null
 
             val location = (data["location"] as? String)?.takeIf { it.isNotBlank() }
-            val durationMinutes = (data["durationMinutes"] as? Number)?.toInt()?.takeIf { it >= 0 }
+            val durationMinutes = (data["durationMinutes"] as? Number)?.toInt()
             val overallRating = (data["overallRating"] as? Number)?.toInt()?.takeIf { it in 1..10 }
             val notes = (data["notes"] as? String)?.takeIf { it.isNotBlank() }
 
@@ -227,7 +242,7 @@ class FirestoreSessionsRepository(
                 overallRating = overallRating,
                 notes = notes,
                 syncStatus = SyncStatus.CLEAN,
-                isDeleted = false,
+                isDeleted = isDeleted,
                 createdAt = createdAtMillis,
                 updatedAt = updatedAtMillis,
                 deletedAt = deletedAtMillis
@@ -244,10 +259,11 @@ class FirestoreSessionsRepository(
                     val score = (p["score"] as? Number)?.toInt()
 
                     val ref = p["ref"] as? Map<String, Any>
-                    val refType = when (ref?.get("type") as? String) {
+                    val refType: PlayerRefType = when (ref?.get("type") as? String) {
                         "ludiaryUser" -> PlayerRefType.LUDIARY_USER
                         "groupMember" -> PlayerRefType.GROUP_MEMBER
-                        else -> null
+                        "name" -> PlayerRefType.NAME
+                        else -> PlayerRefType.NAME
                     }
                     val refId = ref?.get("id") as? String
 
@@ -266,7 +282,6 @@ class FirestoreSessionsRepository(
                         sortOrder = sortOrder,
                         isWinner = isWinner
                     )
-
                 }
                 .filterNotNull()
 

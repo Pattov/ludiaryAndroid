@@ -88,6 +88,7 @@
     <string name="session_meta_date_duration">%1$s · %2$d min</string>
     <string name="session_players_line">%1$s</string>
     <string name="session_players_line_with_winners">%1$s · 🏆 %2$s</string>
+    <string name="sessions_error_login_required">You need to sign in to see your sessions.</string>
     <string name="edit_session_nav_label">Game Session</string>
     <string name="edit_session_title_create">Record New Session</string>
     <string name="edit_session_title_edit">Edit Session</string>
@@ -101,6 +102,7 @@
     <string name="edit_session_player_score_hint">Score</string>
     <string name="edit_session_player_winner_cd">Mark as winner</string>
     <string name="edit_session_player_remove_cd">Remove player</string>
+    <string name="edit_session_date_required">The date is required.</string>
 
     <string name="dashboard_title">Dashboard</string>
 

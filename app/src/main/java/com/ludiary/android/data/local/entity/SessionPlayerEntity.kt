@@ -6,17 +6,16 @@ import androidx.room.Index
 import com.ludiary.android.data.model.PlayerRefType
 
 /**
- * Representa una partida registrada por el usuario en Ludiary.
- * Cada sesión se asocia a un juego concreto de la ludoteca.
+ * Jugador asociado a una partida.
  *
- * @property sessionId Identificador único de la sesión.
- * @property playerId Identificador único del jugador.
- * @property displayName Nombre del jugador.
- * @property refType Tipo de referencia del jugador.
- * @property refId Identificador de referencia del jugador.
+ * @property sessionId Id de la partida a la que pertenece.
+ * @property playerId Id del jugador dentro de esa partida.
+ * @property displayName Nombre visible del jugador.
+ * @property refType Tipo de referencia.
+ * @property refId Id de referencia si aplica.
  * @property score Puntuación del jugador.
- * @property sortOrder Orden de aparición del jugador en la lista.
- * @property isWinner Indica si el jugador ha ganado la partida.
+ * @property sortOrder Orden del jugador en el formulario/lista.
+ * @property isWinner Indica si el jugador marcó “ganador”.
  */
 @Entity(
     tableName = "session_players",
@@ -40,7 +39,7 @@ data class SessionPlayerEntity(
 
     val displayName: String,
 
-    val refType: PlayerRefType?,
+    val refType: PlayerRefType,
     val refId: String?,
 
     val score: Int?,

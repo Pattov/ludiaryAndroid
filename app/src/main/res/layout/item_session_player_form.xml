@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:paddingTop="6dp"
     android:paddingBottom="6dp">
 
@@ -16,7 +17,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputPlayerName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -34,19 +36,23 @@
 
     <ImageButton
         android:id="@+id/btnWinner"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/edit_session_player_winner_cd"
+        android:padding="12dp"
         android:src="@android:drawable/btn_star_big_off" />
 
     <ImageButton
         android:id="@+id/btnRemovePlayer"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/edit_session_player_remove_cd"
-        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="?attr/colorOnSurface" />
+
 </LinearLayout>

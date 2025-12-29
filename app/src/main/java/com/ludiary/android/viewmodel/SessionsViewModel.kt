@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.data.model.SessionScope
@@ -13,22 +14,21 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Estado de la pantalla de sesiones.
- * @property loading Indica si se está cargando.
- * @property sessions Lista de sesiones.
- * @property error Mensaje de error.
+ * Estado de la pantalla de partidas.
+ * @property loading Indica si se están cargando los datos.
+ * @property sessions Lista de partidas del usuario.
+ * @property errorRes Mensaje de error.
  */
 data class SessionsUiState(
     val loading: Boolean = true,
     val sessions: List<SessionEntity> = emptyList(),
-    val error: String? = null
+    val errorRes: Int? = null
 )
 
 /**
  * ViewModel para la pantalla de sesiones.
  * @property db Instancia de [LudiaryDatabase].
  * @property auth Instancia de [FirebaseAuth].
- * @return Instancia de [SessionsViewModel].
  */
 class SessionsViewModel(
     private val db: LudiaryDatabase,
@@ -40,47 +40,52 @@ class SessionsViewModel(
 
     fun start() {
         val uid = auth.currentUser?.uid
+
         if (uid.isNullOrBlank()) {
             _uiState.value = SessionsUiState(
                 loading = false,
                 sessions = emptyList(),
-                error = "Necesitas iniciar sesión para ver tus partidas."
+                errorRes = R.string.sessions_error_login_required
             )
             return
         }
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(loading = true, error = null)
+            _uiState.value = _uiState.value.copy(
+                loading = true,
+                errorRes = null
+            )
 
             db.sessionDao()
                 .observePersonalSessions(uid, SessionScope.PERSONAL)
-                .collectLatest { list: List<SessionEntity> ->
+                .collectLatest { sessions ->
                     _uiState.value = SessionsUiState(
                         loading = false,
-                        sessions = list,
-                        error = null
+                        sessions = sessions,
+                        errorRes = null
                     )
                 }
         }
     }
 
+    /**
+     * Elimina una partida.
+     * @param sessionId Identificador único de la sesión.
+     */
     fun deleteSession(sessionId: String) {
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
             db.sessionDao().markSessionDeleted(
                 sessionId = sessionId,
-                now = now
+                now = System.currentTimeMillis()
             )
         }
     }
-
 }
 
 /**
  * Factory para crear una instancia de [SessionsViewModel].
  * @property db Instancia de [LudiaryDatabase].
  * @property auth Instancia de [FirebaseAuth].
- * @return Instancia de [SessionsViewModelFactory].
  */
 class SessionsViewModelFactory(
     private val db: LudiaryDatabase,

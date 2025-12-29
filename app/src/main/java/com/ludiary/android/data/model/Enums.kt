@@ -31,12 +31,12 @@ enum class GameCondition {
 /**
  * Estado de la sugerencia enviada por un usuario.
  * @property PENDING Sugerencia pendiente de aprobación.
- * @property APROVED Sugerencia aprobada.
+ * @property APPROVED Sugerencia aprobada.
  * @property REJECTED Sugerencia rechazada.
  */
 enum class SuggestionStatus {
     PENDING,
-    APROVED,
+    APPROVED,
     REJECTED
 }
 
@@ -74,4 +74,4 @@ enum class GameRefType { BASE, USER, SUGGESTION }
  * @property LUDIARY_USER Jugador de Ludiary.
  * @property GROUP_MEMBER Jugador miembro de un grupo.
  */
-enum class PlayerRefType { LUDIARY_USER, GROUP_MEMBER }
+enum class PlayerRefType { NAME, LUDIARY_USER, GROUP_MEMBER }
