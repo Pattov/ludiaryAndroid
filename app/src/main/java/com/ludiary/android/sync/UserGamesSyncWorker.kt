@@ -1,7 +1,6 @@
 package com.ludiary.android.sync
 
 import android.content.Context
-import androidx.core.content.edit
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.auth.FirebaseAuth
@@ -10,7 +9,6 @@ import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.repository.FirestoreUserGamesRepository
 import com.ludiary.android.data.repository.UserGamesRepositoryImpl
-import com.ludiary.android.ui.profile.SyncFragment
 
 /**
  * Worker para sincronizar juegos del usuario con Firestore.
@@ -49,8 +47,8 @@ class UserGamesSyncWorker(
             val now = System.currentTimeMillis()
             syncPrefs.setLastUserGamesPull(uid, now)
 
-            val prefs = applicationContext.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
-            prefs.edit { putLong(SyncFragment.KEY_LAST_LIBRARY_SYNC, now) }
+            val syncPrefs = SyncPrefs(applicationContext)
+            syncPrefs.setLastLibrarySyncMillis(System.currentTimeMillis())
 
             Result.success()
         } catch (_: Exception) {

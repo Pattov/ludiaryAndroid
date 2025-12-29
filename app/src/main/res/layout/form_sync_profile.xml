@@ -136,13 +136,13 @@
             android:layout_marginTop="16dp" />
 
         <!-- BOTÓN MANUAL -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSyncNow"
+            style="?attr/materialButtonTonalStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/profile_sync_now"
-            android:textAllCaps="false"
             android:layout_marginTop="16dp"
+            android:text="@string/profile_sync_now"
             android:enabled="false" />
 
     </LinearLayout>

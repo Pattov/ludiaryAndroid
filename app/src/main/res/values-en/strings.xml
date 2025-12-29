@@ -49,6 +49,8 @@
     <string name="profile_sync_manual_warning">You have unsynced changes. Check your connection and press &quot;Sync now&quot;.</string>
     <string name="profile_sync_now">Sync now</string>
     <string name="profile_sync_syncing">Synchronizing…</string>
+    <string name="profile_sync_login_required">You need to sign in to sync.</string>
+    <string name="profile_sync_started">Sync started.</string>
 
     <string name="library_title">Library</string>
     <string name="library_hint_search">Search game…</string>
@@ -88,6 +90,9 @@
     <string name="session_meta_date_duration">%1$s · %2$d min</string>
     <string name="session_players_line">%1$s</string>
     <string name="session_players_line_with_winners">%1$s · 🏆 %2$s</string>
+    <string name="session_empty">You haven\'t registered any sessions yet.</string>
+    <string name="session_error_generic">Couldn\'t load sessions.</string>
+    <string name="session_delete_confirm">Are you sure you want to delete the session of %1$s?</string>
     <string name="sessions_error_login_required">You need to sign in to see your sessions.</string>
     <string name="edit_session_nav_label">Game Session</string>
     <string name="edit_session_title_create">Record New Session</string>

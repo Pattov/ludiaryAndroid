@@ -21,14 +21,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Leemos el idioma guardado (por defecto "es")
         val prefs = newBase.getSharedPreferences("sync_prefs", MODE_PRIVATE)
         val savedLang = prefs.getString("app_language", null)
 
-        // Si no hay idioma guardado → usamos el del sistema
         val langToUse = savedLang ?: Locale.getDefault().language
 
-        // Aplicamos el idioma al contexto
         val localizedContext = LocaleManager.applyLanguage(newBase, langToUse)
         super.attachBaseContext(localizedContext)
     }
@@ -37,8 +34,10 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("sync_prefs", MODE_PRIVATE)
         val autoSyncEnabled = prefs.getBoolean(SyncFragment.KEY_AUTO_SYNC, true)
 
+        // 2026 sincro
         if (autoSyncEnabled) {
-            SyncScheduler.enableAutoSync(applicationContext)
+            SyncScheduler.enableAutoSyncUserGames(applicationContext)
+            SyncScheduler.enableAutoSyncSessions(applicationContext)
         }
 
         val theme = prefs.getString("app_theme", "system")
@@ -47,14 +46,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Obtiene el NavHostFragment declarado en el layout principal
         val navHost = supportFragmentManager.findFragmentById(R.id.navHostMain) as NavHostFragment
 
-        // Recupera el NavController para manejar la navegación
         val navController = navHost.navController
 
-        // Asocia el BottomNavigationView con el NavController.
-        // Esto sincroniza los ítems del menú.
         findViewById<BottomNavigationView>(R.id.bnvMain).setupWithNavController(navController)
     }
 }

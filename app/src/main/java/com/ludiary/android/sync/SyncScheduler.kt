@@ -11,17 +11,15 @@ import java.util.concurrent.TimeUnit
  */
 object SyncScheduler {
 
-    /**
-     * Nombre del trabajo de sincronización automática.
-     */
-    private const val WORK_NAME = "ludiary_usergames_auto_sync"
+    private const val WORK_NAME_USER_GAMES_PERIODIC = "ludiary_usergames_auto_sync"
+    private const val WORK_NAME_SESSIONS_PERIODIC = "ludiary_sessions_auto_sync"
+    private const val WORK_NAME_SESSIONS_ONE_TIME = "ludiary_sessions_one_time_sync"
 
     /**
-     * Programa una tarea de sincronización automática de juegos del usuario.
+     * Programa una sync automática de juegos del usuario.
      * @param context Contexto de la aplicación.
-     * @return [WorkRequest] para la ejecución programada.
      */
-    fun enableAutoSync(context: Context) {
+    fun enableAutoSyncUserGames(context: Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -32,42 +30,63 @@ object SyncScheduler {
             .build()
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            WORK_NAME,
+            WORK_NAME_USER_GAMES_PERIODIC,
             ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
 
-        runOneTimeSyncNow(context)
+        enqueueOneTimeUserGamesSync(context)
     }
 
-    fun enqueueSessionsSync(context: Context) {
+    /**
+     * Programa una sync automática de partidas.
+     * @param context Contexto de la aplicación.
+     */
+    fun enableAutoSyncSessions(context: Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val request = OneTimeWorkRequestBuilder<SessionsSyncWorker>()
+        val request = PeriodicWorkRequestBuilder<SessionsSyncWorker>(6, TimeUnit.HOURS)
             .setConstraints(constraints)
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                10,
+                TimeUnit.MINUTES
+            )
             .build()
 
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            WORK_NAME_SESSIONS_PERIODIC,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+
+        enqueueOneTimeSessionsSync(context)
+    }
+
+    /**
+     * Desprograma una sync automática de juegos del usuario.
+     * @param context Contexto de la aplicación.
+     */
+    fun disableAutoSyncUserGames(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME_USER_GAMES_PERIODIC)
+    }
+
+    /**
+     * Desprograma una sync automática de partidas.
+     * @param context Contexto de la aplicación.
+     */
+    fun disableAutoSyncSessions(context: Context) {
         WorkManager.getInstance(context)
-            .enqueueUniqueWork("sync_sessions", ExistingWorkPolicy.KEEP, request)
+            .cancelUniqueWork(WORK_NAME_SESSIONS_PERIODIC)
     }
 
     /**
-     * Desprograma una tarea de sincronización automática de juegos del usuario.
+     * Lanza una sync puntual de juegos del usuario (one-shot).
      * @param context Contexto de la aplicación.
-     * @return [WorkRequest] para la ejecución programada.
      */
-    fun disableAutoSync(context: Context){
-        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
-    }
-
-    /**
-     * Verifica si una tarea de sincronización automática de juegos del usuario está programada.
-     * @param context Contexto de la aplicación.
-     * @return [Boolean] indicando si la tarea está programada.
-     */
-    fun runOneTimeSyncNow(context: Context) {
+    fun enqueueOneTimeUserGamesSync(context: Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -77,5 +96,22 @@ object SyncScheduler {
             .build()
 
         WorkManager.getInstance(context).enqueue(request)
+    }
+
+    /**
+     * Lanza una sync puntual de partidas (one-shot).
+     * @param context Contexto de la aplicación.
+     */
+    fun enqueueOneTimeSessionsSync(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequestBuilder<SessionsSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(WORK_NAME_SESSIONS_ONE_TIME, ExistingWorkPolicy.KEEP, request)
     }
 }

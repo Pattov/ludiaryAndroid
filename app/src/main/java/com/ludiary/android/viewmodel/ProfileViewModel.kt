@@ -85,7 +85,9 @@ class ProfileViewModel(
         }
 
         // Cancela auto-sync para que no se ejecute sin usuario
-        SyncScheduler.disableAutoSync(context.applicationContext)
+        SyncScheduler.disableAutoSyncUserGames(context.applicationContext)
+        SyncScheduler.disableAutoSyncSessions(context.applicationContext)
+        // 2026 Añadir aquí las nuevas sincro
 
         if (!user.isAnonymous) {
             runCatching {

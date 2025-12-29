@@ -50,6 +50,10 @@ class SessionsSyncWorker(
             )
 
             repo.sync(uid)
+
+            val syncPrefs = SyncPrefs(applicationContext)
+            syncPrefs.setLastCatalogSyncMillis(System.currentTimeMillis())
+
             Result.success()
         } catch (e: Exception) {
             Log.e("LUDIARY_SessionsSync", "Worker error: ${e.message}", e)
