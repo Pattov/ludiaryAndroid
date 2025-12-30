@@ -41,6 +41,7 @@
             android:padding="8dp">
 
             <TextView
+                android:id="@+id/tvSyncModeLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -72,9 +73,9 @@
             android:textStyle="bold"
             android:paddingBottom="8dp" />
 
-        <!-- Última sync catálogo -->
+        <!-- Última sync (general) -->
         <LinearLayout
-            android:id="@+id/rowLastCatalogSync"
+            android:id="@+id/rowLastSync"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -82,38 +83,14 @@
             android:padding="8dp">
 
             <TextView
+                android:id="@+id/tvLastSyncLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/profile_sync_last_catalog_label"
+                android:text="@string/profile_sync_last_label"
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/tvLastCatalogSync"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:text="@string/profile_sync_never"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <!-- Última sync ludoteca -->
-        <LinearLayout
-            android:id="@+id/rowLastLibrarySync"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_sync_last_library_label"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvLastLibrarySync"
+                android:id="@+id/tvLastSync"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -141,8 +118,9 @@
             style="?attr/materialButtonTonalStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="@string/profile_sync_now"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"
             android:enabled="false" />
 
     </LinearLayout>

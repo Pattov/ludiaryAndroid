@@ -28,35 +28,32 @@ class SessionsSyncWorker(
      * @return Resultado de la operación.
      */
     override suspend fun doWork(): Result {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-            ?: return Result.success() // sin login → no sync remoto
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return Result.success()
+
+        val db = LudiaryDatabase.getInstance(applicationContext)
+        val local = LocalSessionsDataSource(db.sessionDao())
+        val remote = FirestoreSessionsRepository(FirebaseFirestore.getInstance())
+        val syncPrefs = SyncPrefs(applicationContext)
+        val statusPrefs = SyncStatusPrefs(applicationContext)
+
+        // 2025 De momento, sin grupos reales:
+        val groupProvider = object : GroupIdProvider {
+            override suspend fun getGroupIdsForUser(uid: String): List<String> = emptyList()
+        }
+
+        val repo: SessionsRepository = SessionsRepositoryImpl(
+            local = local,
+            remote = remote,
+            syncPrefs = syncPrefs,
+            groupIdProvider = groupProvider
+        )
 
         return try {
-            val db = LudiaryDatabase.getInstance(applicationContext)
-            val local = LocalSessionsDataSource(db.sessionDao())
-            val remote = FirestoreSessionsRepository(FirebaseFirestore.getInstance())
-            val prefs = SyncPrefs(applicationContext)
-
-            // 2025 De momento, sin grupos reales:
-            val groupProvider = object : GroupIdProvider {
-                override suspend fun getGroupIdsForUser(uid: String): List<String> = emptyList()
-            }
-
-            val repo: SessionsRepository = SessionsRepositoryImpl(
-                local = local,
-                remote = remote,
-                syncPrefs = prefs,
-                groupIdProvider = groupProvider
-            )
-
             repo.sync(uid)
-
-            val syncPrefs = SyncPrefs(applicationContext)
-            syncPrefs.setLastCatalogSyncMillis(System.currentTimeMillis())
-
+            statusPrefs.setLastSyncMillis(System.currentTimeMillis())
             Result.success()
         } catch (e: Exception) {
-            Log.e("LUDIARY_SessionsSync", "Worker error: ${e.message}", e)
+            Log.e("LUDIARY_SYNC_SESSIONS", "Error syncing sessions", e)
             Result.retry()
         }
     }

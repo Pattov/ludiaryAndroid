@@ -51,6 +51,7 @@
     <string name="profile_sync_syncing">Synchronizing…</string>
     <string name="profile_sync_login_required">You need to sign in to sync.</string>
     <string name="profile_sync_started">Sync started.</string>
+    <string name="profile_sync_last_label">Last sync:</string>
 
     <string name="library_title">Library</string>
     <string name="library_hint_search">Search game…</string>

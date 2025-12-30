@@ -1,6 +1,7 @@
 package com.ludiary.android.sync
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.auth.FirebaseAuth
@@ -32,26 +33,24 @@ class UserGamesSyncWorker(
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return Result.success()
 
         val db = LudiaryDatabase.getInstance(applicationContext)
-        val localDS = LocalUserGamesDataSource(db.userGameDao())
+        val local = LocalUserGamesDataSource(db.userGameDao())
         val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
-        val repo = UserGamesRepositoryImpl(localDS, remote)
+        val repo = UserGamesRepositoryImpl(local, remote)
 
         val syncPrefs = SyncPrefs(applicationContext)
+        val statusPrefs = SyncStatusPrefs(applicationContext)
 
         return try {
             repo.syncPending(uid)
 
             val lastPull = syncPrefs.getLastUserGamesPull(uid)
-            repo.syncDownIncremental(uid, lastPull)
+            val (_, maxTs) = repo.syncDownIncremental(uid, lastPull)
+            if (maxTs != null) syncPrefs.setLastUserGamesPull(uid, maxTs)
 
-            val now = System.currentTimeMillis()
-            syncPrefs.setLastUserGamesPull(uid, now)
-
-            val syncPrefs = SyncPrefs(applicationContext)
-            syncPrefs.setLastLibrarySyncMillis(System.currentTimeMillis())
-
+            statusPrefs.setLastSyncMillis(System.currentTimeMillis())
             Result.success()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("LUDIARY_SYNC_USER_GAMES", "Error syncing user games", e)
             Result.retry()
         }
     }
