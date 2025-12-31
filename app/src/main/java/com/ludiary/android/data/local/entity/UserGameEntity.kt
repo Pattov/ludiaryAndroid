@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.ludiary.android.data.model.SyncStatus
 
 /**
- * Representa a un usuario almacenado en local de la app.
+ * Representa una copia personal de un juego de la ludoteca del usuario.
  *
  * @property id Clave primaria fija
  * @property userId Identificador único del usuario

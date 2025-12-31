@@ -15,6 +15,9 @@ import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import com.ludiary.android.data.local.entity.toEntity
+import com.ludiary.android.data.local.entity.toPlayerEntities
+import com.ludiary.android.data.model.Session
 
 /**
  * Repositorio de sesiones de Firebase.
@@ -30,6 +33,17 @@ class FirestoreSessionsRepository(
      */
     private val sessionsCol = db.collection("sessions")
 
+    /**
+     * Upsert desde dominio (Session).
+     * @param session Sesión a actualizar.
+     */
+    suspend fun upsertSession(session: Session) {
+        val sw = SessionWithPlayers(
+            session = session.toEntity(),
+            players = session.toPlayerEntities()
+        )
+        upsertSession(sw)
+    }
     /**
      * Actualiza una sesión en Firestore.
      * @param sw Sesión a actualizar.
@@ -152,10 +166,9 @@ class FirestoreSessionsRepository(
                             "id" to p.refId
                         )
                     } else {
-                        m["ref"] = mapOf(
-                            "type" to "name"
-                        )
+                        m["ref"] = mapOf("type" to "name")
                     }
+                    m
                 }
 
             val gameRef = mapOf(
@@ -221,7 +234,7 @@ class FirestoreSessionsRepository(
             val playedAtMillis = (data["playedAt"] as? Timestamp)?.toDate()?.time ?: return null
 
             val location = (data["location"] as? String)?.takeIf { it.isNotBlank() }
-            val durationMinutes = (data["durationMinutes"] as? Number)?.toInt()
+            val durationMinutes = (data["durationMinutes"] as? Number)?.toInt()?.takeIf { it > 0 }
             val overallRating = (data["overallRating"] as? Number)?.toInt()?.takeIf { it in 1..10 }
             val notes = (data["notes"] as? String)?.takeIf { it.isNotBlank() }
 

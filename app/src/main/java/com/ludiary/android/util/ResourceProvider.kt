@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 
 /**
  * Metodo para obtener cadenas de texto almacenadas en 'strings.xml'
- *
  * @property context contexto necesario para acceder a los recursos del sistema.
  */
 class ResourceProvider ( private val context: Context ) {

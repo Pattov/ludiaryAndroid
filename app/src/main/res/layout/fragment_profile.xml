@@ -154,8 +154,9 @@
         <!--      BOTÓN LOGOUT       -->
         <!-- ======================= -->
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="40dp"

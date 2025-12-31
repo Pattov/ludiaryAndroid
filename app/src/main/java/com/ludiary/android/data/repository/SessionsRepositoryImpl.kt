@@ -64,14 +64,18 @@ class SessionsRepositoryImpl(
                 local.hardDeleteCascade(s.id)
                 pushed++
             } else {
-                val withPlayers = local.getWithPlayers(s.id) ?: continue
-                remote.upsertSession(withPlayers)
+                val session = local.getWithPlayers(s.id) ?: continue
+
+                remote.upsertSession(session)
+
                 local.markClean(s.id, System.currentTimeMillis())
                 pushed++
             }
         }
+
         return pushed
     }
+
 
     /**
      * Obtiene las partidas modificadas desde una fecha específica.

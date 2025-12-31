@@ -1,9 +1,9 @@
 package com.ludiary.android.data.local.entity
 
+import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.model.*
 import java.time.Instant
 import java.util.Locale
-import java.util.UUID
 
 // User
 /**
@@ -233,7 +233,50 @@ fun GameSuggestion.toEntity(): GameSuggestionEntity =
 
 // Partidas (Session)
 /**
- * Convierte una entidad Room [SessionEntity] en el modelo del dominio [Session].
+ * Convierte una relación Room [SessionWithPlayers] en el modelo de dominio [Session].
+ */
+fun SessionWithPlayers.toModel(): Session =
+    Session(
+        id = session.id,
+        scope = session.scope,
+        ownerUserId = session.ownerUserId,
+        groupId = session.groupId,
+        gameRef = GameRef(
+            type = session.gameRefType,
+            id = session.gameRefId
+        ),
+        gameTitle = session.gameTitle,
+        playedAt = session.playedAt,
+        location = session.location,
+        durationMinutes = session.durationMinutes,
+        players = players
+            .sortedBy { it.sortOrder }
+            .map { it.toModel() },
+        overallRating = session.overallRating,
+        notes = session.notes,
+        syncStatus = session.syncStatus,
+        isDeleted = session.isDeleted,
+        createdAt = session.createdAt,
+        updatedAt = session.updatedAt,
+        deletedAt = session.deletedAt
+    )
+
+/**
+ * Convierte una entidad Room [SessionPlayerEntity] en el modelo de dominio [SessionPlayer].
+ */
+fun SessionPlayerEntity.toModel(): SessionPlayer =
+    SessionPlayer(
+        id = playerId,
+        displayName = displayName,
+        ref = refId
+            ?.takeIf { it.isNotBlank() }
+            ?.let { PlayerRef(type = refType, id = it) },
+        score = score,
+        isWinner = isWinner
+    )
+
+/**
+ * Convierte un modelo del dominio [Session] en una entidad Room [SessionEntity].
  */
 fun Session.toEntity(): SessionEntity =
     SessionEntity(
@@ -257,13 +300,13 @@ fun Session.toEntity(): SessionEntity =
     )
 
 /**
- * Convierte un modelo del dominio [Session] en una entidad Room [SessionEntity].
+ * Convierte un modelo del dominio [Session] en entidades Room [SessionPlayerEntity].
  */
 fun Session.toPlayerEntities(): List<SessionPlayerEntity> =
     players.mapIndexed { idx, p ->
         SessionPlayerEntity(
             sessionId = id,
-            playerId = p.id.ifBlank { UUID.randomUUID().toString() },
+            playerId = p.id.ifBlank { java.util.UUID.randomUUID().toString() },
             displayName = p.displayName,
             refType = p.ref?.type ?: PlayerRefType.NAME,
             refId = p.ref?.id,

@@ -3,6 +3,8 @@ package com.ludiary.android.data.local
 import com.ludiary.android.data.local.dao.SessionDao
 import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.data.local.entity.SessionPlayerEntity
+import com.ludiary.android.data.local.entity.toModel
+import com.ludiary.android.data.model.Session
 import com.ludiary.android.data.model.SyncStatus
 
 /**
@@ -22,7 +24,7 @@ class LocalSessionsDataSource(
      * Obtiene una partida por su identificador.
      * @param sessionId Identificador único de la partida.
      */
-    suspend fun getWithPlayers (sessionId: String): SessionWithPlayers? = sessionDao.getSessionWithPlayers(sessionId)
+    suspend fun getWithPlayers(sessionId: String): Session? = sessionDao.getSessionWithPlayers(sessionId)?.toModel()
 
     /**
      * Elimina una partida por su identificador.
