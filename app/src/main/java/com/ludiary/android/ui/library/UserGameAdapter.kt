@@ -26,11 +26,10 @@ class UserGameAdapter(
      * ViewHolder para cada elemento de la lista.
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view){
-        val title: TextView = view.findViewById(R.id.textTitle)
-        val players: TextView = view.findViewById(R.id.textPlayers)
-        val duration : TextView = view.findViewById(R.id.textDuration)
-        val btnEdit: Button = view.findViewById(R.id.btnEdit)
-        val btnDelete: Button = view.findViewById(R.id.btnDelete)
+        val titleText: TextView = view.findViewById(R.id.textGameTitle)
+        val metaText: TextView = view.findViewById(R.id.textGameMeta)
+        val btnEdit: Button = view.findViewById(R.id.btnEditGame)
+        val btnDelete: Button = view.findViewById(R.id.btnDeleteGame)
     }
 
     /**
@@ -39,14 +38,21 @@ class UserGameAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val game = getItem(position)
 
-        // Datos visibles en la tarjeta
-        holder.title.text = game.titleSnapshot
-        holder.players.text = game.language ?: ""
-        holder.duration.text = game.condition ?: ""
+        holder.titleText.text = game.titleSnapshot
 
-        // Acciones (editar / eliminar)
-        holder.btnEdit.setOnClickListener { onEdit(game.id) }
-        holder.btnDelete.setOnClickListener { onDelete(game.id) }
+        val language = game.language ?: "—"
+        val condition = game.condition ?: "—"
+
+        holder.metaText.text = holder.itemView.context.getString(
+            R.string.game_meta_format,
+            language,
+            condition
+        )
+
+        if (game.id.isNotBlank()) {
+            holder.btnEdit.setOnClickListener { onEdit(game.id) }
+            holder.btnDelete.setOnClickListener { onDelete(game.id) }
+        }
     }
 
     /**
