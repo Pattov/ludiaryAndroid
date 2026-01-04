@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#70D2CF</color>
-    <color name="colorSecondary">#677CD5</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorOnSecondary">#0B0F14</color>
-    <color name="colorSurface">#121318</color>
-    <color name="colorOnSurface">#EAEAF0</color>
-    <color name="colorOutline">#3A3D4A</color>
-    <color name="colorHint">#A6A8B3</color>
-    <color name="colorSurfaceVariant">#1B1D25</color>
-    <color name="profile_option_icon">@color/colorPrimary</color>
 
-    <color name="profile_bg">#121318</color>
-    <color name="profile_block_bg">#1B1D25</color>
-    <color name="profile_divider">#2B2E3A</color>
-    <color name="profile_section">#A6A8B3</color>
+    <color name="colorPrimary">#6FE3C6</color>
+    <color name="colorOnPrimary">#0B3B2F</color>
+
+    <color name="colorPrimaryContainer">#1E6B57</color>
+    <color name="colorOnPrimaryContainer">#CFF5EA</color>
+
+    <!-- Secondary -->
+    <color name="colorSecondary">#B6C4FF</color>
+    <color name="colorOnSecondary">#152A6A</color>
+    <color name="colorSecondaryContainer">#2C3F8F</color>
+    <color name="colorOnSecondaryContainer">#DDE3FF</color>
+    <!-- Surfaces -->
+    <color name="colorSurface">#101415</color>
+    <color name="colorOnSurface">#E0E3E3</color>
+    <color name="colorSurfaceVariant">#3F4948</color>
+    <color name="colorOnSurfaceVariant">#BFC9C8</color>
+
+    <!-- Outline -->
+    <color name="colorOutline">#899392</color>
+    <color name="colorOutlineVariant">#4B5554</color>
+    <color name="colorHint">#AAB4B3</color>
 
 </resources>

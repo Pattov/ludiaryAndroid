@@ -1,181 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout del fragmento de inicio de sesión (fragment_login.xml) -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:paddingHorizontal="32dp"
-    android:paddingTop="80dp"
-    android:paddingBottom="24dp">
+    android:paddingHorizontal="@dimen/login_padding_horizontal"
+    android:paddingTop="@dimen/login_padding_top"
+    android:paddingBottom="@dimen/login_padding_bottom">
 
-    <!-- Contenedor vertical para todos los elementos del login -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
-
-        <!-- CABECERA: logo + texto -->
-        <LinearLayout
-            android:layout_width="209dp"
-            android:layout_height="83dp"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <!-- Logo de la app -->
-            <ImageView
-                android:id="@+id/imgLogo"
-                android:layout_width="85dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="4dp"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_ludiary_logo"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <!-- Nombre "Ludiary" -->
-            <TextView
-                android:id="@+id/tvAppName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/brand_name"
-                android:textColor="?attr/colorOnBackground"
-                android:textSize="36sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:id="@+id/tilEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="emailAddress"
-                android:fontFamily="@font/roboto"
-                android:hint="@string/login_email_hint"
-                app:hintTextColor="@android:color/holo_orange_dark"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Contraseña -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:id="@+id/tilPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:endIconMode="password_toggle">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/login_password_hint"
-                android:inputType="textPassword"
-                android:autofillHints="password" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Error general de login -->
-        <TextView
-            android:id="@+id/tvLoginError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="13sp"
-            android:paddingStart="4dp"
-            android:paddingTop="4dp"
-            android:visibility="gone" />
-
-        <!-- Botón de inicio sesión -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLogin"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/btn_primary_gradient"
-            app:backgroundTint="@null"
-            android:text="@string/login_sign_in"
-            app:cornerRadius="28dp"/>
-
-        <!-- Enlaces -->
-
-        <!-- Separador-->
-        <TextView
-            android:id="@+id/tvGoRegister"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/login_go_register"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorPrimary" />
-
-        <TextView
-            android:id="@+id/tvForgot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0.8"
-            android:paddingTop="6dp"
-            android:text="@string/login_forgot_password"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="@color/colorOnSurface"/>
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="?attr/colorOutline" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/login_or_continue"
-                android:textColor="@color/colorOnSurface"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:alpha="0.8" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="?attr/colorOutline" />
-
-        </LinearLayout>
-
-
-        <!-- Botón usuario anónimo -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAnonymous"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/login_anonymous"
-            app:cornerRadius="28dp"
-            app:backgroundTint="@color/colorSurfaceVariant"
-            app:strokeColor="@color/colorOutline"
-            />
-
-        <Space
+            android:id="@+id/loginContent"
             android:layout_width="0dp"
-            android:layout_height="24dp"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="480dp">
+
+            <!-- CABECERA: logo + texto -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/headerBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s">
+
+                <ImageView
+                    android:id="@+id/imgLogo"
+                    android:layout_width="@dimen/login_logo_size"
+                    android:layout_height="@dimen/login_logo_size"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/ic_ludiary_logo"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvAppName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/login_logo_text_spacing"
+                    android:includeFontPadding="false"
+                    android:text="@string/brand_name"
+                    android:textAppearance="?attr/textAppearanceHeadlineLarge"
+                    android:textColor="?attr/colorOnBackground"
+                    android:textStyle="bold"
+                    android:translationX="@dimen/login_logo_text_shift_x"
+                    android:translationY="@dimen/login_logo_text_shift_y"
+                    app:layout_constraintStart_toEndOf="@id/imgLogo"
+                    app:layout_constraintBaseline_toBaselineOf="@id/imgLogo" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Email -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilEmail"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_fields_top_margin"
+                android:hint="@string/login_email_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="emailAddress"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionNext"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Password -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPassword"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_field_spacing"
+                android:hint="@string/login_password_hint"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="password"
+                    android:inputType="textPassword"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Error general -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvLoginError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:paddingHorizontal="@dimen/space_xs"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <!-- Botón login -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_button_top_margin"
+                android:layout_gravity="center_horizontal"
+                android:minWidth="@dimen/login_button_min_width"
+                android:maxWidth="@dimen/login_button_max_width"
+                android:text="@string/login_sign_in" />
+
+            <!-- Ir a registro -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvGoRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/login_go_register"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorPrimary" />
+
+            <!-- Olvidé contraseña -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvForgot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:alpha="0.85"
+                android:text="@string/login_forgot_password"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurface" />
+
+            <!-- Separador -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_separator_margin_top"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:alpha="0.8" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/space_m"
+                    android:text="@string/login_or_continue"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:alpha="0.8" />
+            </LinearLayout>
+
+            <!-- Botón anónimo -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnonymous"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:layout_gravity="center_horizontal"
+                android:minWidth="@dimen/login_button_min_width"
+                android:maxWidth="@dimen/login_button_max_width"
+                android:text="@string/login_anonymous" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="@dimen/space_l" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
