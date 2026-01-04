@@ -189,8 +189,8 @@ class DashboardFragment : Fragment (R.layout.fragment_dashboard) {
         }
 
         val end = (start.clone() as Calendar).apply {
-            add(Calendar.DAY_OF_MONTH, 7) // exclusivo
-            add(Calendar.MILLISECOND, -1) // inclusivo hasta el final del domingo
+            add(Calendar.DAY_OF_MONTH, 7)
+            add(Calendar.MILLISECOND, -1)
         }
 
         return start.timeInMillis to end.timeInMillis
@@ -227,7 +227,6 @@ class DashboardFragment : Fragment (R.layout.fragment_dashboard) {
             add(Calendar.DAY_OF_MONTH, -diff)
         }
 
-        // Prepara 7 buckets (0..6)
         val counts = IntArray(7) { 0 }
 
         for (millis in playedAtList) {
