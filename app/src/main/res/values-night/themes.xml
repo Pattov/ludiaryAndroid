@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LudiaryButtonPrimary" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/radius_button_pill</item>
+        <item name="android:background">@drawable/btn_primary_gradient</item>
+        <item name="backgroundTint">@null</item>
+        <!-- En dark, blanco funciona perfecto -->
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+</resources>

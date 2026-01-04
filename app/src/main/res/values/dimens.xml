@@ -27,4 +27,7 @@
 
     <dimen name="login_logo_text_shift_y">-8dp</dimen>
     <dimen name="login_logo_text_shift_x">-12dp</dimen>
+
+    <dimen name="radius_button_pill">28dp</dimen>
+
 </resources>

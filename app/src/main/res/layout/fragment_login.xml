@@ -112,7 +112,7 @@
             <!-- Botón login -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
-                style="@style/Widget.Material3.Button"
+                style="@style/LudiaryButtonPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_button_top_margin"

@@ -38,5 +38,12 @@
         <item name="android:color">@color/colorPrimaryContainer</item>
     </style>
 
+    <style name="LudiaryButtonPrimary" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/radius_button_pill</item>
+        <item name="android:background">@drawable/btn_primary_gradient</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+    </style>
+
 
 </resources>

@@ -9,7 +9,7 @@
     <string name="login_go_register">Don\'t have an account? Register</string>
     <string name="login_forgot_password">Forgot your password?</string>
     <string name="login_or_continue">or continue as</string>
-    <string name="login_anonymous">Guest User</string>
+    <string name="login_anonymous">Enter without registering</string>
     <string name="auth_guest_name">Guest</string>
 
     <string name="register_create_account">Create Account</string>

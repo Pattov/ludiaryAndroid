@@ -8,11 +8,11 @@
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/radius_button_pill" />
 
-                    <!-- Degradado MÁS SUAVE en Light -->
+                    <!-- Degradado MÁS VIVO en Dark -->
                     <gradient
                         android:angle="0"
-                        android:startColor="?attr/colorPrimaryContainer"
-                        android:endColor="?attr/colorSecondaryContainer" />
+                        android:startColor="?attr/colorPrimary"
+                        android:endColor="?attr/colorSecondary" />
                 </shape>
             </item>
         </ripple>
@@ -27,3 +27,4 @@
     </item>
 
 </selector>
+
