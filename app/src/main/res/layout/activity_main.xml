@@ -11,8 +11,9 @@
         android:id="@+id/bnvMain"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/colorSurfaceVariant"
         app:menu="@menu/menu_main_nav"
-        app:layout_constraintStart_toStartOf="parent"
+        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
