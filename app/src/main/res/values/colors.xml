@@ -9,9 +9,9 @@
     <color name="colorOnPrimaryContainer">#003735</color>
 
     <!-- SECONDARY -->
-    <color name="colorSecondary">#3D5CCB</color>
+    <color name="colorSecondary">#DDE3FF</color>
     <color name="colorOnSecondary">#FFFFFF</color>
-    <color name="colorSecondaryContainer">#DDE3FF</color>
+    <color name="colorSecondaryContainer">#BFEDEC</color>
     <color name="colorOnSecondaryContainer">#0B1B4D</color>
 
     <!-- SURFACES -->

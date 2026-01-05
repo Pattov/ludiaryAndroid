@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Grid -->
+    <dimen name="space_none">0dp</dimen>
     <dimen name="space_xs">4dp</dimen>
     <dimen name="space_s">8dp</dimen>
     <dimen name="space_m">16dp</dimen>
@@ -8,26 +9,38 @@
     <dimen name="space_xl">32dp</dimen>
     <dimen name="space_xxl">40dp</dimen>
 
+    <!-- Global -->
+    <dimen name="radius_button_pill">@dimen/space_l</dimen>
+    <dimen name="touch_target_min_height">56dp</dimen>
+    <dimen name="icon_container_size">40dp</dimen>
+    <dimen name="icon_padding">@dimen/space_s</dimen>
+    <dimen name="chevron_size">20dp</dimen>
+
     <!-- Login specific -->
-    <dimen name="login_padding_horizontal">24dp</dimen>
+    <dimen name="login_padding_horizontal">@dimen/space_l</dimen>
     <dimen name="login_padding_top">64dp</dimen>
-    <dimen name="login_padding_bottom">24dp</dimen>
+    <dimen name="login_padding_bottom">@dimen/space_l</dimen>
 
     <dimen name="login_logo_size">80dp</dimen>
-    <dimen name="login_logo_text_spacing">16dp</dimen>
+    <dimen name="login_logo_text_spacing">@dimen/space_m</dimen>
 
-    <dimen name="login_fields_top_margin">24dp</dimen>
-    <dimen name="login_field_spacing">12dp</dimen>
+    <dimen name="login_fields_top_margin">@dimen/space_l</dimen>
+    <dimen name="login_field_spacing">@dimen/space_m</dimen>
 
-    <dimen name="login_button_top_margin">24dp</dimen>
+    <dimen name="login_button_top_margin">@dimen/space_l</dimen>
     <dimen name="login_button_min_width">320dp</dimen>
     <dimen name="login_button_max_width">420dp</dimen>
 
-    <dimen name="login_separator_margin_top">24dp</dimen>
+    <dimen name="login_separator_margin_top">@dimen/space_l</dimen>
 
     <dimen name="login_logo_text_shift_y">-8dp</dimen>
-    <dimen name="login_logo_text_shift_x">-12dp</dimen>
+    <dimen name="login_logo_text_shift_x">-16dp</dimen>
+    <dimen name="login_contains">480dp</dimen>
 
-    <dimen name="radius_button_pill">28dp</dimen>
+    <!-- Profile specific -->
+    <dimen name="profile_padding_horizontal">@dimen/space_l</dimen>
+    <dimen name="profile_padding_top">@dimen/space_l</dimen>
+    <dimen name="profile_padding_bottom">96dp</dimen>
+    <dimen name="profile_button_height">48dp</dimen>
 
 </resources>
