@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth
@@ -32,7 +33,7 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
     private lateinit var tvLastSync: TextView
     private lateinit var tvManualWarning: TextView
     private lateinit var btnSyncNow: MaterialButton
-
+    private lateinit var topAppBar: MaterialToolbar
     private lateinit var vm: SyncViewModel
 
     /**
@@ -60,6 +61,7 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
         tvLastSync = view.findViewById(R.id.tvLastSync)
         tvManualWarning = view.findViewById(R.id.tvManualWarning)
         btnSyncNow = view.findViewById(R.id.btnSyncNow)
+        topAppBar = view.findViewById(R.id.topAppBar)
     }
 
     /**
@@ -90,6 +92,10 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
      * Configura los listeners de la UI.
      */
     private fun bindListeners() {
+        topAppBar.setNavigationOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
         switchAutoSync.setOnCheckedChangeListener { _, isChecked ->
             vm.onToggleAutoSync(isChecked)
         }

@@ -16,6 +16,7 @@ import com.ludiary.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.google.android.material.appbar.MaterialToolbar
 import com.ludiary.android.viewmodel.ProfileViewModelFactory
 
 class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
@@ -30,7 +31,7 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
     private lateinit var languageValues: Array<String>
     private lateinit var themeValues: Array<String>
     private lateinit var btnSave: Button
-    private lateinit var btnCancel: Button
+    private lateinit var topAppBar: MaterialToolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,7 +39,7 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
         spinnerLanguage = view.findViewById(R.id.spinnerLanguage)
         spinnerTheme = view.findViewById(R.id.spinnerTheme)
         btnSave = view.findViewById(R.id.btnSavePreferences)
-        btnCancel = view.findViewById(R.id.btnCancelPreferences)
+        topAppBar = view.findViewById(R.id.topAppBar)
 
         setupSpinners()
         observeState()
@@ -118,7 +119,7 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
             }
         }
 
-        btnCancel.setOnClickListener {
+        topAppBar.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }

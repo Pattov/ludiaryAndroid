@@ -42,7 +42,7 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             android:paddingBottom="@dimen/space_xl" />
 
-        <!-- BLOQUE OPCIONES -->
+        <!-- OPCIONES -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -194,10 +194,11 @@
             android:textColor="@color/colorOnPrimaryContainer"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/profile_button_height"
+            android:minWidth="@dimen/login_button_min_width"
+            android:maxWidth="@dimen/login_button_max_width"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/space_xxl"
             android:text="@string/profile_logout"
-            android:textStyle="bold"
             android:textAllCaps="false" />
 
     </LinearLayout>

@@ -1,128 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:paddingTop="24dp"
-    android:paddingBottom="96dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:fitsSystemWindows="true">
 
-        <!-- TÍTULO -->
-        <TextView
-            android:id="@+id/tvSyncTitle"
+        <!-- TOP APP BAR (título + flecha atrás) -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/profile_sync"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:paddingBottom="24dp" />
+            app:title="@string/profile_sync"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="?attr/colorOnSurface"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:contentInsetStartWithNavigation="0dp"
+            android:paddingTop="@dimen/space_m"/>
 
-        <!-- MODO DE SINCRONIZACIÓN -->
-        <TextView
-            android:id="@+id/tvSyncModeTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sync_mode_title"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- CONTENIDO -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:paddingStart="@dimen/profile_padding_horizontal"
+        android:paddingEnd="@dimen/profile_padding_horizontal"
+        android:paddingTop="@dimen/profile_padding_top"
+        android:paddingBottom="@dimen/profile_padding_bottom"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:id="@+id/rowSyncMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp">
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="@dimen/form_max_width">
+
+            <!-- MODO DE SINCRONIZACIÓN -->
+            <TextView
+                android:id="@+id/tvSyncModeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_sync_mode_title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textStyle="bold"
+                android:paddingBottom="@dimen/space_s" />
+
+            <LinearLayout
+                android:id="@+id/rowSyncMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/touch_target_min_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/space_m"
+                android:paddingVertical="@dimen/space_s">
+
+                <TextView
+                    android:id="@+id/tvSyncModeLabel"
+                    android:layout_width="@dimen/space_none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/profile_sync_mode_auto_label"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchAutoSync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tvSyncModeLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/profile_sync_mode_auto_label"
-                android:textSize="16sp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchAutoSync"
+                android:id="@+id/tvSyncModeHelp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
-        </LinearLayout>
+                android:layout_gravity="center_horizontal"
+                android:maxWidth="@dimen/profile_text_readable_max_width"
+                android:text="@string/profile_sync_mode_help"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:paddingBottom="@dimen/space_l" />
 
-        <TextView
-            android:id="@+id/tvSyncModeHelp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sync_mode_help"
-            android:textSize="13sp"
-            android:textColor="#666666"
-            android:paddingBottom="24dp" />
-
-        <!-- ESTADO DE SINCRONIZACIÓN -->
-        <TextView
-            android:id="@+id/tvSyncStatusTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sync_status_title"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
-
-        <!-- Última sync (general) -->
-        <LinearLayout
-            android:id="@+id/rowLastSync"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp">
-
+            <!-- ESTADO DE SINCRONIZACIÓN -->
             <TextView
-                android:id="@+id/tvLastSyncLabel"
+                android:id="@+id/tvSyncStatusTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_sync_status_title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textStyle="bold"
+                android:paddingBottom="@dimen/space_s" />
+
+            <LinearLayout
+                android:id="@+id/rowLastSync"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/touch_target_min_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/space_m"
+                android:paddingVertical="@dimen/space_s">
+
+                <TextView
+                    android:id="@+id/tvLastSyncLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_sync_last_label"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvLastSync"
+                    android:layout_width="@dimen/space_none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@string/profile_sync_never"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            </LinearLayout>
+
+            <!-- WARNING MANUAL -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvManualWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:padding="@dimen/space_m"
+                android:text="@string/profile_sync_manual_warning"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorOnErrorContainer"
+                android:backgroundTint="?attr/colorErrorContainer"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small" />
+
+            <!-- BOTÓN MANUAL -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSyncNow"
+                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_sync_last_label"
-                android:textSize="14sp" />
+                android:minWidth="@dimen/login_button_min_width"
+                android:maxWidth="@dimen/login_button_max_width"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="@dimen/profile_button_height"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/profile_sync_now"
+                android:textAllCaps="false"
+                android:enabled="false" />
 
-            <TextView
-                android:id="@+id/tvLastSync"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:text="@string/profile_sync_never"
-                android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- WARNING MANUAL -->
-        <TextView
-            android:id="@+id/tvManualWarning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sync_manual_warning"
-            android:textSize="14sp"
-            android:textColor="#B00020"
-            android:background="#1AFF0000"
-            android:padding="8dp"
-            android:visibility="gone"
-            android:layout_marginTop="16dp" />
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- BOTÓN MANUAL -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSyncNow"
-            style="?attr/materialButtonTonalStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sync_now"
-            android:textAllCaps="false"
-            android:layout_marginTop="16dp"
-            android:enabled="false" />
-
-    </LinearLayout>
-
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

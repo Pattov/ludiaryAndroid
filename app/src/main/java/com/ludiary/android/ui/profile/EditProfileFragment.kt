@@ -7,17 +7,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.ludiary.android.R
 import com.ludiary.android.data.model.User
 import com.ludiary.android.viewmodel.ProfileUiState
 import com.ludiary.android.viewmodel.ProfileViewModel
+import com.ludiary.android.viewmodel.ProfileViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
-import com.google.android.material.textfield.TextInputLayout
-import com.ludiary.android.viewmodel.ProfileViewModelFactory
 
 /**
  * Fragmento para editar el perfil del usuario.
@@ -47,7 +48,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
         val inputUid = view.findViewById<TextInputEditText>(R.id.inputUid)
         val inputLayoutUid = view.findViewById<TextInputLayout>(R.id.inputLayoutUid)
 
-        val btnCancel = view.findViewById<Button>(R.id.btnCancelEdit)
+        val topAppBar = view.findViewById<MaterialToolbar>(R.id.topAppBar)
         val btnSave = view.findViewById<Button>(R.id.btnSaveEdit)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -69,9 +70,7 @@ class EditProfileFragment : Fragment(R.layout.form_edit_profile) {
             }
         }
 
-        btnCancel.setOnClickListener {
-            findNavController().navigateUp()
-        }
+        topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         btnSave.setOnClickListener {
             val newAlias = inputAlias.text?.toString()?.trim()

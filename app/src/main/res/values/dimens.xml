@@ -15,7 +15,7 @@
     <dimen name="icon_container_size">40dp</dimen>
     <dimen name="icon_padding">@dimen/space_s</dimen>
     <dimen name="chevron_size">20dp</dimen>
-
+    <dimen name="form_max_width">488dp</dimen>
     <!-- Login specific -->
     <dimen name="login_padding_horizontal">@dimen/space_l</dimen>
     <dimen name="login_padding_top">64dp</dimen>
@@ -42,5 +42,7 @@
     <dimen name="profile_padding_top">@dimen/space_l</dimen>
     <dimen name="profile_padding_bottom">96dp</dimen>
     <dimen name="profile_button_height">48dp</dimen>
+    <dimen name="profile_text_readable_max_width">360dp</dimen>
+
 
 </resources>
