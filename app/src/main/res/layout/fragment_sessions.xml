@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:paddingStart="@dimen/session_padding_horizontal"
     android:paddingEnd="@dimen/session_padding_horizontal"
-    android:paddingTop="@dimen/session_padding_top">
+    android:paddingTop="@dimen/session_padding_top"
+    android:paddingBottom="@dimen/session_padding_bottom">
 
     <!-- Título -->
     <TextView

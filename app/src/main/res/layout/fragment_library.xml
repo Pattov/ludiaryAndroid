@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:paddingTop="24dp"
-    android:paddingBottom="96dp">
+    android:paddingStart="@dimen/library_padding_horizontal"
+    android:paddingEnd="@dimen/library_padding_horizontal"
+    android:paddingTop="@dimen/library_padding_top"
+    android:paddingBottom="@dimen/library_padding_bottom">
 
     <!-- Título -->
     <TextView
@@ -15,20 +15,24 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/library_title"
-        android:textSize="26sp"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintWidth_max="@dimen/form_max_width"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Buscador -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputSearch"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
         android:hint="@string/library_hint_search"
-        android:layout_marginTop="10dp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintWidth_max="@dimen/form_max_width"
         app:layout_constraintTop_toBottomOf="@id/titleLibrary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -36,7 +40,9 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textSearch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Lista -->
@@ -45,22 +51,25 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingTop="12dp"
-        android:paddingBottom="96dp"
+        android:paddingTop="@dimen/space_m"
+        android:paddingBottom="@dimen/library_list_bottom_padding"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintWidth_max="@dimen/form_max_width"
+        app:layout_constraintTop_toBottomOf="@id/inputSearch"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/inputSearch" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Botón flotante añadir -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddGame"
+        android:id="@+id/fabAddSession"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="48dp"
-        android:contentDescription="@string/library_add_game"
+        android:contentDescription="@string/session_add_game"
+        app:srcCompat="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add" />
+        android:layout_marginEnd="@dimen/space_m"
+        android:layout_marginBottom="@dimen/space_m" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

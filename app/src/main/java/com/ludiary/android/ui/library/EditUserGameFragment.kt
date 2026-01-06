@@ -2,12 +2,12 @@ package com.ludiary.android.ui.library
 
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 import androidx.fragment.app.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
@@ -47,6 +47,8 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
 
     /**
      * Llamada al crear la vista del fragmento.
+     * @param view La vista del fragmento.
+     * @param savedInstanceState El estado guardado de la instancia.
      */
     override fun onViewCreated(
         view: View,
@@ -54,18 +56,12 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        //Saber si estamos editando o creando un juego nuevo.
+        // Saber si estamos editando o creando un juego nuevo.
         val gameId = arguments?.getString("gameId")
-        val isEditing = gameId != null
+        val isEditing = !gameId.isNullOrBlank()
 
-        // Título dinámico de la pantalla
-        val titleScreen = view.findViewById<TextView>(R.id.titleEditGame)
-
-        titleScreen.text = if (isEditing) {
-            getString(R.string.edit_game_edit_title_form)
-        } else {
-            getString(R.string.edit_game_add_title_form)
-        }
+        // Views
+        val topAppBar = view.findViewById<MaterialToolbar>(R.id.topAppBar)
 
         val inputTitle = view.findViewById<TextInputEditText>(R.id.inputTitle)
         val inputRating = view.findViewById<TextInputEditText>(R.id.inputRating)
@@ -73,20 +69,22 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
         val inputEdition = view.findViewById<TextInputEditText>(R.id.inputEdition)
         val inputNotes = view.findViewById<TextInputEditText>(R.id.inputNotes)
 
-        val btnCancel = view.findViewById<MaterialButton>(R.id.btnCancel)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
-        // Si estamos editando, rellenar el formulario con los datos del juego
-        if (gameId != null){
+        topAppBar.title = if (isEditing) {
+            getString(R.string.edit_game_edit_title_form)
+        } else {
+            getString(R.string.edit_game_title_default)
+        }
+
+        topAppBar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        if (isEditing) {
             viewModel.loadGame(gameId)
         }
 
-        // Botón cancelar → volver atrás sin guardar
-        btnCancel.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        // Botón guardar → recoger datos de la UI y enviarlos al ViewModel
         btnSave.setOnClickListener {
             val title = inputTitle.text?.toString()?.trim().orEmpty()
             val rating = inputRating.text?.toString()?.toFloatOrNull()
@@ -94,10 +92,8 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
             val edition = inputEdition.text?.toString()?.trim().orEmpty()
             val notes = inputNotes.text?.toString()?.trim().orEmpty()
 
-            val gameId = arguments?.getString("gameId")
-
             viewModel.onSaveClicked(
-                gameId = gameId,
+                gameId = gameId, // null si es crear
                 title = title,
                 rating = rating,
                 language = language,
@@ -106,12 +102,10 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
             )
         }
 
-        // Observar los eventos del ViewModel y actualizar la UI
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.events.collect { event ->
                 when (event) {
 
-                    /** Mostrar un error */
                     is EditUserGameEvent.ShowError -> {
                         Snackbar.make(
                             requireView(),
@@ -120,7 +114,6 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
                         ).show()
                     }
 
-                    /** Cerrar pantalla tras añadir o editar correctamente */
                     is EditUserGameEvent.CloseScreen -> {
                         Snackbar.make(
                             requireView(),
@@ -130,7 +123,6 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
                         findNavController().navigateUp()
                     }
 
-                    /** Rellenar el formulario con los datos del juego (modo edición) */
                     is EditUserGameEvent.FillForm -> {
                         inputTitle.setText(event.game.titleSnapshot)
                         inputRating.setText(event.game.personalRating?.toString().orEmpty())
@@ -142,4 +134,5 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
             }
         }
     }
+
 }
