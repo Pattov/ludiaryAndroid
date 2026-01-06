@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dayRoot"
-    android:layout_width="0dp"
+    android:layout_width="@dimen/space_none"
     android:layout_height="wrap_content"
     android:layout_weight="1"
+    app:layout_columnWeight="1"
+    app:layout_rowWeight="1"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="8dp">
+    android:padding="@dimen/space_s">
 
     <!-- “Chip” redondeado -->
     <LinearLayout
@@ -15,32 +18,30 @@
         android:layout_height="56dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="6dp"
+        android:padding="@dimen/space_s"
         android:background="@drawable/bg_dashboard_day_unselected">
 
         <TextView
             android:id="@+id/tvDow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dashboard_L"
-            android:textSize="12sp"
-            android:alpha="0.8" />
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/tvDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dashboard_ten"
-            android:textStyle="bold"
-            android:textSize="16sp" />
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Punto de “hay partidas” -->
     <View
         android:id="@+id/dot"
-        android:layout_width="6dp"
-        android:layout_height="6dp"
-        android:layout_marginTop="6dp"
+        android:layout_width="@dimen/space_s"
+        android:layout_height="@dimen/space_s"
+        android:layout_marginTop="@dimen/space_xs"
         android:background="@drawable/bg_dashboard_dot"
         android:visibility="gone" />
 </LinearLayout>

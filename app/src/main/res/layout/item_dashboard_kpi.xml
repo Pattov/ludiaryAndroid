@@ -2,21 +2,21 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="0dp"
+    android:layout_width="@dimen/space_none"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="@android:color/darker_gray">
+    android:layout_margin="@dimen/space_s"
+    app:cardCornerRadius="@dimen/card_radius_m"
+    app:cardElevation="@dimen/card_elevation_s"
+    app:strokeWidth="@dimen/space_none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="@dimen/space_m"
         android:gravity="center_vertical">
 
+        <!-- Texto -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,19 +25,22 @@
 
             <TextView
                 android:id="@+id/tvKpiLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/dashboard_kpi_games"
-                android:textSize="13sp"
-                android:alpha="0.8"/>
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvKpiValue"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
                 android:textStyle="bold"
-                android:textSize="24sp"
-                android:layout_marginTop="6dp"/>
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
         <!-- Icono circular -->
@@ -46,18 +49,18 @@
             android:layout_width="44dp"
             android:layout_height="44dp"
             app:cardCornerRadius="22dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="@color/colorPrimary">
+            app:cardElevation="@dimen/space_none"
+            app:strokeWidth="@dimen/space_none"
+            app:cardBackgroundColor="?attr/colorPrimary">
 
             <ImageView
                 android:id="@+id/ivKpiIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="10dp"
-                app:tint="@color/colorSurface"
                 android:src="@drawable/ic_dashboard_filled"
-                android:contentDescription="@string/dashboard_title"/>
+                android:contentDescription="@null"
+                app:tint="?attr/colorOnPrimary" />
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

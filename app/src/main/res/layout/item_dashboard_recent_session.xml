@@ -4,36 +4,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="0dp"
+    android:layout_marginBottom="@dimen/space_s"
+    app:cardCornerRadius="@dimen/card_radius_m"
+    app:cardElevation="@dimen/space_none"
     app:strokeWidth="1dp"
-    app:strokeColor="@android:color/darker_gray"
+    app:strokeColor="?attr/colorOutlineVariant"
     android:clickable="false"
     android:focusable="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
+        android:padding="@dimen/space_m"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:text="Juego"/>
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/tvSubtitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="13sp"
-            android:alpha="0.8"
-            android:text="26/12 · 3 jugadores · ⭐ 7" />
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

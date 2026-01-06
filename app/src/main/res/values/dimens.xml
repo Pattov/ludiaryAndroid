@@ -41,12 +41,12 @@
     <dimen name="login_logo_text_shift_x">-16dp</dimen>
     <dimen name="login_contains">480dp</dimen>
 
-    <!-- Profile specific -->
-    <dimen name="profile_padding_horizontal">@dimen/space_l</dimen>
-    <dimen name="profile_padding_top">@dimen/space_l</dimen>
-    <dimen name="profile_padding_bottom">@dimen/space_xs</dimen>
-    <dimen name="profile_button_height">48dp</dimen>
-    <dimen name="profile_text_readable_max_width">360dp</dimen>
+    <!-- Dashboard specific -->
+    <dimen name="dashboard_padding_horizontal">@dimen/space_l</dimen>
+    <dimen name="dashboard_padding_top">@dimen/space_l</dimen>
+    <dimen name="dashboard_padding_bottom">@dimen/space_xs</dimen>
+    <dimen name="dashboard_list_bottom_padding">@dimen/space_xxl</dimen>
+    <dimen name="dashboard_button_height">48dp</dimen>
 
     <!-- Session specific -->
     <dimen name="session_padding_horizontal">@dimen/space_l</dimen>
@@ -62,4 +62,11 @@
     <dimen name="library_padding_bottom">@dimen/space_xs</dimen>
     <dimen name="library_list_bottom_padding">@dimen/space_xxl</dimen>
     <dimen name="library_button_height">48dp</dimen>
+
+    <!-- Profile specific -->
+    <dimen name="profile_padding_horizontal">@dimen/space_l</dimen>
+    <dimen name="profile_padding_top">@dimen/space_l</dimen>
+    <dimen name="profile_padding_bottom">@dimen/space_xs</dimen>
+    <dimen name="profile_button_height">48dp</dimen>
+    <dimen name="profile_text_readable_max_width">360dp</dimen>
 </resources>
