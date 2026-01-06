@@ -23,4 +23,6 @@
     <color name="colorOutlineVariant">#4B5554</color>
     <color name="colorHint">#AAB4B3</color>
 
+    <color name="colorWinner">#FFD54F</color>
+
 </resources>

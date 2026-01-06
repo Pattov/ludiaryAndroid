@@ -4,9 +4,7 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -92,21 +90,28 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
      * @param view Vista del fragmento.
      */
     private fun setupStaticUi(view: View) {
-        val titleView: TextView = view.findViewById(R.id.title)
-        titleView.text = if (sessionId.isNullOrBlank()) {
+        val topAppBar: com.google.android.material.appbar.MaterialToolbar = view.findViewById(R.id.topAppBar)
+
+        val title = if (sessionId.isNullOrBlank()) {
             getString(R.string.edit_session_title_create)
         } else {
             getString(R.string.edit_session_title_edit)
         }
+
+        topAppBar.title = title
     }
+
 
     /**
      * Configura los listeners de la UI.
      * @param view Vista del fragmento.
      */
     private fun setupListeners(view: View) {
-        view.findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener {
-            findNavController().popBackStack()
+        val topAppBar: com.google.android.material.appbar.MaterialToolbar =
+            view.findViewById(R.id.topAppBar)
+
+        topAppBar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
 
         inputDate.setOnClickListener { openDatePicker() }
@@ -119,6 +124,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
             onSaveClicked()
         }
     }
+
 
     /**
      * Recoge los datos del formulario, valida lo mínimo y delega el guardado al ViewModel.
@@ -238,8 +244,11 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
         val inputPlayerName: TextInputEditText = row.findViewById(R.id.inputPlayerName)
         val inputPlayerScore: TextInputEditText = row.findViewById(R.id.inputPlayerScore)
-        val btnWinner: ImageButton = row.findViewById(R.id.btnWinner)
-        val btnRemove: ImageButton = row.findViewById(R.id.btnRemovePlayer)
+
+        val btnWinner: MaterialButton =
+            row.findViewById(R.id.btnWinner)
+
+        val btnRemove: View = row.findViewById(R.id.btnRemovePlayer)
 
         inputPlayerName.setText(name)
         inputPlayerScore.setText(score?.toString().orEmpty())
@@ -261,12 +270,29 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
      * @param btn Botón de ganador.
      * @param isWinner Indica si el jugador es ganador.
      */
-    private fun setWinner(btn: ImageButton, isWinner: Boolean) {
+    private fun setWinner(btn: MaterialButton, isWinner: Boolean) {
         btn.tag = isWinner
-        btn.setImageResource(
-            if (isWinner) android.R.drawable.btn_star_big_on
-            else android.R.drawable.btn_star_big_off
-        )
+
+        val winnerColor = requireContext().getColor(R.color.colorWinner)
+
+        if (isWinner) {
+            btn.iconTint = android.content.res.ColorStateList.valueOf(winnerColor)
+            btn.setTextColor(winnerColor)
+        } else {
+            val normal = resolveThemeColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+            btn.iconTint = android.content.res.ColorStateList.valueOf(normal)
+            btn.setTextColor(normal)
+        }
+    }
+
+    /**
+     * Resuelve el color de un atributo.
+     * @return Color del atributo.
+     */
+    private fun resolveThemeColor(attrRes: Int): Int {
+        val tv = android.util.TypedValue()
+        requireContext().theme.resolveAttribute(attrRes, tv, true)
+        return tv.data
     }
 
     /**
@@ -286,8 +312,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
                 .text?.toString()?.trim()
             val score = scoreText?.toIntOrNull()
 
-            val isWinner =
-                (row.findViewById<ImageButton>(R.id.btnWinner).tag as? Boolean) ?: false
+            val isWinner = (row.findViewById<MaterialButton>(R.id.btnWinner).tag as? Boolean) ?: false
 
             out += PlayerDraft(name = name, score = score, isWinner = isWinner)
         }

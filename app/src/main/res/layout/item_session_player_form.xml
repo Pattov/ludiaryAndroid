@@ -5,10 +5,12 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingTop="@dimen/space_s"
+    android:paddingBottom="@dimen/space_s">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutPlayerName"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -18,41 +20,47 @@
             android:id="@+id/inputPlayerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:imeOptions="actionNext"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="90dp"
+        android:id="@+id/inputLayoutPlayerScore"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="@dimen/session_score_field_width"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/space_s"
         android:hint="@string/edit_session_player_score_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputPlayerScore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number" />
+            android:inputType="number"
+            android:imeOptions="actionDone"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageButton
+    <!-- Ganador -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnWinner"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="@dimen/icon_button_size"
+        android:layout_height="@dimen/icon_button_size"
         android:contentDescription="@string/edit_session_player_winner_cd"
-        android:padding="12dp"
-        android:src="@android:drawable/btn_star_big_off" />
+        app:icon="@drawable/ic_trophy"
+        app:iconTint="?attr/colorOnSurfaceVariant" />
 
-    <ImageButton
+    <!-- Eliminar -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemovePlayer"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="4dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="@dimen/icon_button_size"
+        android:layout_height="@dimen/icon_button_size"
+        android:layout_marginStart="@dimen/space_xs"
         android:contentDescription="@string/edit_session_player_remove_cd"
-        android:padding="12dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:tint="?attr/colorOnSurface" />
+        app:icon="@drawable/ic_close"
+        app:iconTint="?attr/colorOnSurfaceVariant" />
 
 </LinearLayout>
