@@ -279,7 +279,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
             btn.iconTint = android.content.res.ColorStateList.valueOf(winnerColor)
             btn.setTextColor(winnerColor)
         } else {
-            val normal = resolveThemeColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+            val normal = resolveThemeColor(R.color.colorOnSurfaceVariant)
             btn.iconTint = android.content.res.ColorStateList.valueOf(normal)
             btn.setTextColor(normal)
         }
