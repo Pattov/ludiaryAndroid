@@ -227,7 +227,7 @@ class DashboardFragment : Fragment (R.layout.fragment_dashboard) {
             add(Calendar.DAY_OF_MONTH, -diff)
         }
 
-        val counts = IntArray(7) { 0 }
+        val counts = IntArray(7)
 
         for (millis in playedAtList) {
             val d = Calendar.getInstance(locale).apply {
