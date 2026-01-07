@@ -84,7 +84,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_edit_user_game -> R.id.nav_library
                 R.id.nav_editProfileFragment,
                 R.id.nav_preferencesFragment,
-                R.id.nav_syncFragment -> R.id.nav_profile
+                R.id.nav_syncFragment,
+                R.id.nav_friendsFragment -> R.id.nav_profile
                 else -> null
             }
 

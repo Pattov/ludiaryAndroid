@@ -84,7 +84,7 @@
                         android:layout_weight="1"
                         android:paddingStart="@dimen/space_m"
                         android:paddingEnd="@dimen/space_none"
-                        android:text="@string/action_edit_profile"
+                        android:text="@string/profile_edit_title"
                         android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
                     <ImageView
@@ -98,7 +98,55 @@
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:dividerInsetStart="@dimen/space_none"
+                    app:dividerInsetEnd="@dimen/space_none" />
+
+                <!-- Amigos -->
+                <LinearLayout
+                    android:id="@+id/rowFriends"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/touch_target_min_height"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/space_m"
+                    android:paddingVertical="@dimen/space_s"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_container_size"
+                        android:layout_height="@dimen/icon_container_size"
+                        android:background="@drawable/bg_icon_round"
+                        android:padding="@dimen/icon_padding"
+                        android:src="@drawable/ic_friend"
+                        app:tint="?attr/colorOnPrimaryContainer"
+                        android:importantForAccessibility="no" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/space_m"
+                        android:paddingEnd="@dimen/space_none"
+                        android:text="@string/profile_friends"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+                    <ImageView
+                        android:layout_width="@dimen/chevron_size"
+                        android:layout_height="@dimen/chevron_size"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="?attr/colorOnSurfaceVariant"
+                        android:importantForAccessibility="no"
+                        android:contentDescription="@null" />
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dividerInsetStart="@dimen/space_none"
+                    app:dividerInsetEnd="@dimen/space_none" />
 
                 <!-- Preferencias -->
                 <LinearLayout
@@ -142,7 +190,9 @@
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:dividerInsetStart="@dimen/space_none"
+                    app:dividerInsetEnd="@dimen/space_none" />
 
                 <!-- Sincronización -->
                 <LinearLayout
@@ -185,6 +235,7 @@
                 </LinearLayout>
 
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Botón Logout -->

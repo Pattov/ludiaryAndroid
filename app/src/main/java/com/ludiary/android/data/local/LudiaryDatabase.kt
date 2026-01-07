@@ -19,6 +19,7 @@ import com.ludiary.android.data.local.entity.*
         GameSuggestionEntity::class,
         SessionEntity::class,
         SessionPlayerEntity::class,
+        FriendEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -55,6 +56,12 @@ abstract class LudiaryDatabase: RoomDatabase() {
      * @return [SessionDao]
      */
     abstract fun sessionDao(): SessionDao
+
+    /**
+     * DAO asociado a la tabla 'friendDao'
+     * @return [FriendDao]
+     */
+    abstract fun friendDao(): FriendDao
 
     /**
      * Instancia singleton de la base de datos

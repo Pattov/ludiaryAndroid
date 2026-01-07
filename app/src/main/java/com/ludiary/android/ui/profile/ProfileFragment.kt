@@ -44,6 +44,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val rowEditProfile = view.findViewById<LinearLayout>(R.id.rowEditProfile)
         val rowPreferences = view.findViewById<LinearLayout>(R.id.rowPreferences)
         val rowSync = view.findViewById<LinearLayout>(R.id.rowSync)
+        val rowFriends = view.findViewById<LinearLayout>(R.id.rowFriends)
         val btnLogout = view.findViewById<Button>(R.id.btnLogout)
 
         // --------------------- Observación del estado -------------------------
@@ -123,6 +124,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         rowEditProfile.setOnClickListener {
             findNavController().navigate(R.id.action_nav_profile_to_editProfileFragment)
+        }
+
+        rowFriends.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_friendsFragment)
         }
 
         rowPreferences.setOnClickListener {

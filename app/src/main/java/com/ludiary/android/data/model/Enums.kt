@@ -71,7 +71,30 @@ enum class GameRefType { BASE, USER, SUGGESTION }
 
 /**
  * Tipo de referencia a un jugador.
+ * @property NAME String de un jugador.
  * @property LUDIARY_USER Jugador de Ludiary.
  * @property GROUP_MEMBER Jugador miembro de un grupo.
  */
 enum class PlayerRefType { NAME, LUDIARY_USER, GROUP_MEMBER }
+
+/**
+ * Tipo de referencia de las amistades
+ * @property PENDING_OUTGOING Amistad pendiente de aceptar por parte del otro usuario.
+ * @property PENDING_INCOMING Amistad pendiente de aceptar por parte del usuario
+ * @property ACCEPTED Amistad aceptada.
+ * @property BLOCKED Bloqueado.
+ */
+enum class FriendStatus {
+    PENDING_OUTGOING,
+    PENDING_INCOMING,
+    ACCEPTED,
+    BLOCKED
+}
+
+/**
+ * Tab de amigos.
+ * @property FRIENDS Amigos.
+ * @property GROUPS Grupos.
+ * @property REQUESTS Solicitudes de amistad.
+ */
+enum class FriendsTab { FRIENDS, GROUPS, REQUESTS }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/friendsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- APP BAR -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarFriends"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="@string/profile_friends"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:contentInsetStartWithNavigation="0dp"
+            tools:title="Amigos" />
+
+        <!-- Buscador -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputSearchFriends"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/profile_padding_horizontal"
+            android:layout_marginEnd="@dimen/profile_padding_horizontal"
+            android:layout_marginTop="@dimen/space_s"
+            android:layout_marginBottom="@dimen/space_s"
+            android:hint="@string/friends_search_hint"
+            app:startIconDrawable="@drawable/ic_search">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textSearchFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabFriends"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabIndicatorFullWidth="false"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- CONTENIDO -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pagerFriends"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- FAB abajo (OJO: ANCLADO AL pagerFriends, NO al CoordinatorLayout) -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabFriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/space_l"
+        android:text="@string/profile_friends_add_friend"
+        app:icon="@drawable/ic_add"
+        app:layout_anchor="@id/pagerFriends"
+        app:layout_anchorGravity="bottom|end"
+        tools:visibility="visible" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

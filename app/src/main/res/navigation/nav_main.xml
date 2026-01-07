@@ -49,7 +49,17 @@
         <action
             android:id="@+id/action_nav_profile_to_syncFragment"
             app:destination="@id/nav_syncFragment" />
+
+        <action
+            android:id="@+id/action_nav_profile_to_friendsFragment"
+            app:destination="@id/nav_friendsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_friendsFragment"
+        android:name="com.ludiary.android.ui.profile.friends.FriendsFragment"
+        android:label="@string/profile_friends"
+        tools:layout="@layout/form_friends_profile" />
 
     <fragment
         android:id="@+id/nav_edit_user_game"

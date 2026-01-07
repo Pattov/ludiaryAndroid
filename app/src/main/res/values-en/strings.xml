@@ -30,6 +30,9 @@
     <string name="profile_preferences">Preferences</string>
     <string name="profile_sync">Synchronization</string>
     <string name="profile_edit_title">Edit Profile</string>
+    <string name="profile_friends">Friends</string>
+    <string name="friends_add">Add friend</string>
+    <string name="friends_search_hint">Search friend&#8230;</string>
     <string name="profile_alias_label">Alias</string>
     <string name="profile_email_label">Email</string>
     <string name="profile_created_at_label">Registered</string>
@@ -52,9 +55,20 @@
     <string name="profile_sync_login_required">You need to sign in to sync.</string>
     <string name="profile_sync_started">Sync started.</string>
     <string name="profile_sync_last_label">Last sync:</string>
+    <string name="profile_friends_tab_friends">Friends</string>
+    <string name="profile_friends_tab_groups">Groups</string>
+    <string name="profile_friends_tab_requests">Requests</string>
+
+    <string name="profile_friends_add_friend">Add friend</string>
+    <string name="profile_friends_add_group">Add group</string>
+
+    <string name="profile_friends_empty_friends">Start adding friends</string>
+    <string name="profile_friends_empty_groups">Crea tu primer grupo</string>
+    <string name="profile_friends_empty_requests">No pending requests</string>
+
 
     <string name="library_title">Library</string>
-    <string name="library_hint_search">Search game…</string>
+    <string name="library_hint_search">Search game&#8230;</string>
     <string name="library_add_game">Add game</string>
 
     <string name="edit_game_title_default">Add game to your library</string>
