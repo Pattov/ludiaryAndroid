@@ -1,5 +1,7 @@
 package com.ludiary.android.data.repository
 
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.GameBase
 import kotlinx.coroutines.tasks.await
@@ -26,18 +28,18 @@ interface FirestoreGameBaseRepository {
 
 /**
  * Implementación del repositorio de juegos base.
- * @param firestore Instancia de Firebase Firestore.
+ * @param db Instancia de Firebase Firestore.
  * @return [FirestoreGameBaseRepository]
  */
 class FirestoreGameBaseRepositoryImpl(
-    private val firestore: FirebaseFirestore
+    private val db: FirebaseFirestore
 ) : FirestoreGameBaseRepository {
 
     /**
      * Referencia a la colección de juegos base.
      * @return Referencia a la colección de juegos base.
      */
-    private val collection = firestore.collection("games_base")
+    private val collection = db.collection("games_base")
 
     /**
      * Obtiene la lista completa de juegos base.
@@ -61,7 +63,7 @@ class FirestoreGameBaseRepositoryImpl(
         // Si no hay fecha de última actualización, hacemos sync completa
         if (lastUpdatedAt == null) return getAllGamesBase()
 
-        val lastTimestamp = com.google.firebase.Timestamp(lastUpdatedAt.epochSecond, lastUpdatedAt.nano)
+        val lastTimestamp = Timestamp(lastUpdatedAt.epochSecond, lastUpdatedAt.nano)
 
         val snapshot = collection
             .whereGreaterThan("updatedAt", lastTimestamp)
@@ -78,7 +80,7 @@ class FirestoreGameBaseRepositoryImpl(
      * @return Objeto [GameBase] o null si la conversión falla.
      * @throws Exception Si ocurre un error al convertir el documento.
      */
-    private fun com.google.firebase.firestore.DocumentSnapshot.toGameBaseOrNull(): GameBase? {
+    private fun DocumentSnapshot.toGameBaseOrNull(): GameBase? {
         val id = id // doc.id
         val title = getString("title") ?: return null
 
@@ -120,11 +122,11 @@ class FirestoreGameBaseRepositoryImpl(
      * @param field Nombre del campo en Firestore.
      * @return Instancia de [Instant] o null si el valor es nulo.
      */
-    private fun com.google.firebase.firestore.DocumentSnapshot.getInstant(field: String): Instant? {
+    private fun DocumentSnapshot.getInstant(field: String): Instant? {
         val value = get(field) ?: return null
 
         return when (value) {
-            is com.google.firebase.Timestamp -> value.toDate().toInstant()
+            is Timestamp -> value.toDate().toInstant()
             is java.util.Date -> value.toInstant()
             is Number -> Instant.ofEpochMilli(value.toLong())
             is String -> {

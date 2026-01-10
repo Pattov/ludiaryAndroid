@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.model.User
@@ -19,6 +20,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.security.SecureRandom
 import java.util.Locale
 
 /**
@@ -88,6 +90,7 @@ class FirestoreAuthRepository(
 
             // Nos aseguramos de que exista el documento en Firestore
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
+            ensureFriendCode(u.uid)
 
             // Descargamos el perfil desde Firestore (si es posible) y lo guardamos en local
             val profile = fetchUserFromFirestoreOrFallback(u)
@@ -110,7 +113,6 @@ class FirestoreAuthRepository(
                     resources.getString(R.string.auth_error_generic)                }
             }
 
-            // Log para ti, pero el usuario solo ve el mensaje bonito
             Log.e("LUDIARY_AUTH_REPO", "Error al iniciar sesión", e)
             AuthResult.Error(msg)
         }
@@ -132,6 +134,7 @@ class FirestoreAuthRepository(
 
             // Creamos el documento de usuario en Firestore
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
+            ensureFriendCode(u.uid)
 
             // Leemos el perfil desde Firestore y lo guardamos en local
             val profile = fetchUserFromFirestoreOrFallback(u)
@@ -181,7 +184,8 @@ class FirestoreAuthRepository(
                     language = Locale.getDefault().language,
                     theme = "system"
                 ),
-                isAdmin = false
+                isAdmin = false,
+                friendCode = null
             )
 
             localUser.saveLocalUser(guest)
@@ -210,7 +214,7 @@ class FirestoreAuthRepository(
         return try {
             val cleanEmail = email.trim()
 
-            // 1) Comprobar manualmente en Firestore si existe un usuario con ese correo
+            // Comprobar manualmente en Firestore si existe un usuario con ese correo
             val snap = db.collection("users")
                 .whereEqualTo("email", cleanEmail)
                 .limit(1)
@@ -222,10 +226,10 @@ class FirestoreAuthRepository(
                 return AuthResult.Error(resources.getString(R.string.auth_error_reset_no_user))
             }
 
-            // 2) Si existe, ahora sí pedimos a Firebase que envíe el correo
+            // Si existe, ahora sí pedimos a Firebase que envíe el correo
             auth.sendPasswordResetEmail(cleanEmail).await()
             AuthResult.Success(User())
-        }catch (e: Exception){
+        } catch (e: Exception) {
             val msg = when (e) {
                 is FirebaseNetworkException -> {
                     resources.getString(R.string.auth_error_network)
@@ -267,7 +271,6 @@ class FirestoreAuthRepository(
         if(!snap.exists()){
             val now: Timestamp = Timestamp.now()
             val payload = mapOf(
-                "uid" to uid,
                 "email" to email,
                 "displayName" to displayName,
                 "isAnonymous" to isAnonymous,
@@ -281,6 +284,71 @@ class FirestoreAuthRepository(
             )
             ref.set(payload).await()
         }
+    }
+
+    /**
+     * Genera un código de amistad aleatorio.
+     * @param length Longitud del código.
+     */
+    private fun generateFriendCode(length: Int = 12): String {
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        val rnd = SecureRandom()
+        return buildString(length) {
+            repeat(length) { append(chars[rnd.nextInt(chars.length)]) }
+        }
+    }
+
+    /**
+     * Garantiza que el usuario tiene friendCode y que es único.
+     * Si falta, lo asigna usando transacción (evita duplicados).
+     */
+    private suspend fun ensureFriendCode(uid: String): String {
+        val userRef = db.collection("users").document(uid)
+        val snap = userRef.get().await()
+        val existing = snap.getString("friendCode")
+        if (!existing.isNullOrBlank()) return existing
+
+        return allocateUniqueFriendCode(uid, length = 12)
+    }
+
+    /**
+     * Asigna un código de amistad único a un usuario.
+     * @param uid Identificador único del usuario.
+     * @param length Longitud del código.
+     */
+    private suspend fun allocateUniqueFriendCode(uid: String, length: Int = 12): String {
+        val maxAttempts = 10
+
+        repeat(maxAttempts) {
+            val code = generateFriendCode(length)
+            val userRef = db.collection("users").document(uid)
+            val idxRef = db.collection("friend_code_index").document(code)
+
+            try {
+                val result = db.runTransaction { tx ->
+                    val idxSnap = tx.get(idxRef)
+                    if (idxSnap.exists()) throw IllegalStateException("CODE_TAKEN")
+
+                    tx.set(idxRef, mapOf("uid" to uid))
+                    tx.set(
+                        userRef,
+                        mapOf(
+                            "friendCode" to code,
+                            "updatedAt" to Timestamp.now()
+                        ),
+                        SetOptions.merge()
+                    )
+                    code
+                }.await()
+
+                return result
+            } catch (e: Exception) {
+                val msg = e.message.orEmpty()
+                if (!msg.contains("CODE_TAKEN")) throw e
+            }
+        }
+
+        throw IllegalStateException("No se pudo generar un friendCode único tras varios intentos")
     }
 
     /**
@@ -339,6 +407,7 @@ class FirestoreAuthRepository(
         return User(
             uid = getString("uid") ?: defaultUid,
             email = getString("email") ?: firebaseUser.email,
+            friendCode = getString("friendCode"),
             displayName = getString("displayName") ?: firebaseUser.displayName ?: "",
             isAnonymous = getBoolean("isAnonymous") ?: firebaseUser.isAnonymous,
             createdAt = createdTs?.toDate()?.time,

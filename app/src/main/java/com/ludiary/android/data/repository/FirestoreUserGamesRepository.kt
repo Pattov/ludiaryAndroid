@@ -1,8 +1,10 @@
 package com.ludiary.android.data.repository
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import com.ludiary.android.data.model.PurchasePrice
 import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.data.model.UserGame
@@ -13,7 +15,7 @@ import java.util.Date
  * Implementación de [UserGamesRepository] que opera directamente sobre Firebase
  */
 class FirestoreUserGamesRepository (
-    private val firestore: FirebaseFirestore
+    private val db: FirebaseFirestore
 ) {
 
     /**
@@ -21,21 +23,9 @@ class FirestoreUserGamesRepository (
      * @param uid Identificador único del usuario.
      */
     private fun userGamesCollection(uid: String) =
-        firestore.collection("users")
+        db.collection("users")
             .document(uid)
             .collection("userGames")
-
-    /**
-     * Elimina un juego del usuario.
-     * @param uid Identificador único del usuario.
-     */
-    suspend fun deleteUserGame(uid: String, gameId: String) {
-        if (gameId.isBlank()) return
-        userGamesCollection(uid)
-            .document(gameId)
-            .delete()
-            .await()
-    }
 
     /**
      * Crea o actualiza un userGame
@@ -54,11 +44,11 @@ class FirestoreUserGamesRepository (
                 "updatedAt" to FieldValue.serverTimestamp(),
                 "isDeleted" to false
             ),
-            com.google.firebase.firestore.SetOptions.merge()
+            SetOptions.merge()
         ).await()
 
         if (userGame.createdAt == null) {
-            ref.set(mapOf("createdAt" to FieldValue.serverTimestamp()), com.google.firebase.firestore.SetOptions.merge())
+            ref.set(mapOf("createdAt" to FieldValue.serverTimestamp()), SetOptions.merge())
                 .await()
         }
     }
@@ -106,7 +96,7 @@ class FirestoreUserGamesRepository (
                     "deletedAt" to FieldValue.serverTimestamp(),
                     "updatedAt" to FieldValue.serverTimestamp()
                 ),
-                com.google.firebase.firestore.SetOptions.merge()
+                SetOptions.merge()
             )
             .await()
     }
@@ -146,11 +136,11 @@ private fun UserGame.toFirestoreMapWithoutId(): Map<String, Any?> =
     )
 
 /**
- * Convierte un [com.google.firebase.firestore.DocumentSnapshot] de Firestore a un [UserGame].
+ * Convierte un [DocumentSnapshot] de Firestore a un [UserGame].
  * @param uid Identificador único del usuario.
  * @return Instancia de [UserGame].
  */
-private fun com.google.firebase.firestore.DocumentSnapshot.toUserGame(uid: String): UserGame {
+private fun DocumentSnapshot.toUserGame(uid: String): UserGame {
     val data = this.data.orEmpty()
 
     // purchasePrice está como MAP en tu toFirestoreMapWithoutId() (amount/currency)

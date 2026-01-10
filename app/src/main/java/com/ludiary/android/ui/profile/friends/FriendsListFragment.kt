@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
 
     private val tab: FriendsTab by lazy {
-        FriendsTab.valueOf(requireArguments().getString(ARG_TAB)!!)
+        FriendsTab.valueOf(requireArguments().getString(ARG_TAB) ?: FriendsTab.FRIENDS.name)
     }
 
     private val vm: FriendsViewModel by lazy {
@@ -28,16 +28,11 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recycler = view.findViewById<RecyclerView>(R.id.recyclerFriends)
-        val empty = view.findViewById<TextView>(R.id.tvEmptyFriends)
-
-        empty.text = when (tab) {
-            FriendsTab.FRIENDS -> getString(R.string.profile_friends_empty_friends)
-            FriendsTab.GROUPS -> getString(R.string.profile_friends_empty_groups)
-            FriendsTab.REQUESTS -> getString(R.string.profile_friends_empty_requests)
-        }
+        val recycler: RecyclerView = view.findViewById(R.id.recyclerFriends)
+        val empty: TextView = view.findViewById(R.id.tvEmptyFriends)
 
         val adapter = FriendsAdapter(onClick = { vm.onFriendClicked(it) })
+
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
 

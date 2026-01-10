@@ -1,5 +1,6 @@
 package com.ludiary.android.data.local
 
+import FriendDao
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room

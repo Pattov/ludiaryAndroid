@@ -12,7 +12,8 @@ import java.util.Locale
 fun UserEntity.toModel(): User =
     User(
         uid = uid,
-        email = null,
+        email = email,
+        friendCode = friendCode,
         displayName = displayName,
         isAnonymous = isAnonymous,
         createdAt = createdAt,
@@ -29,6 +30,7 @@ fun User.toEntity(): UserEntity =
         id = 0,
         uid = uid,
         email = email,
+        friendCode = friendCode,
         displayName = displayName ?: "Invitado",
         language = preferences?.language ?: Locale.getDefault().language,
         theme = preferences?.theme ?: "system",

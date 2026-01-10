@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,9 +9,12 @@
 
     <!-- APP BAR -->
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarFriends"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:id="@+id/appBar"
+        android:layout_width="@dimen/space_none"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -57,20 +60,28 @@
     <!-- CONTENIDO -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pagerFriends"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_width="@dimen/space_none"
+        android:layout_height="@dimen/space_none"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
+        app:layout_constraintBottom_toTopOf="@id/btnPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- FAB abajo (OJO: ANCLADO AL pagerFriends, NO al CoordinatorLayout) -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabFriends"
-        android:layout_width="wrap_content"
+    <!-- BOTÓN ABAJO (cambia según tab) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPrimary"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="@dimen/space_none"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/space_l"
+        android:layout_marginStart="@dimen/profile_padding_horizontal"
+        android:layout_marginEnd="@dimen/profile_padding_horizontal"
+        android:layout_marginBottom="@dimen/space_m"
         android:text="@string/profile_friends_add_friend"
+        android:textAllCaps="false"
         app:icon="@drawable/ic_add"
-        app:layout_anchor="@id/pagerFriends"
-        app:layout_anchorGravity="bottom|end"
-        tools:visibility="visible" />
+        app:iconGravity="textStart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

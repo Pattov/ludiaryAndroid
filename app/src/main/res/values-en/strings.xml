@@ -55,6 +55,10 @@
     <string name="profile_sync_login_required">You need to sign in to sync.</string>
     <string name="profile_sync_started">Sync started.</string>
     <string name="profile_sync_last_label">Last sync:</string>
+
+    <string name="profile_friends_search_hint">Search</string>
+    <string name="profile_friends_empty">No elements</string>
+
     <string name="profile_friends_tab_friends">Friends</string>
     <string name="profile_friends_tab_groups">Groups</string>
     <string name="profile_friends_tab_requests">Requests</string>

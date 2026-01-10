@@ -1,53 +1,39 @@
-package com.ludiary.android.data.local.dao
-
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendStatus
+import com.ludiary.android.data.model.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FriendDao {
 
-    @Query("SELECT * FROM friends WHERE status = :status ORDER BY CASE WHEN nickname IS NOT NULL AND TRIM(nickname) != '' THEN 0 ELSE 1 END, COALESCE(NULLIF(TRIM(nickname), ''), NULLIF(TRIM(displayName), ''), email) COLLATE NOCASE")
-    fun observeByStatus(status: FriendStatus): Flow<List<FriendEntity>>
+    @Query(" SELECT * FROM friends WHERE status = :status AND ( IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query OR IFNULL(friendCode, '') LIKE :query ) ORDER BY CASE WHEN nickname IS NOT NULL AND nickname != '' THEN 0 ELSE 1 END, nickname COLLATE NOCASE, displayName COLLATE NOCASE")
+    fun observeSearch(status: FriendStatus, query: String): Flow<List<FriendEntity>>
 
-    fun observeFriends(): Flow<List<FriendEntity>> =
-        observeByStatus(FriendStatus.ACCEPTED)
+    @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
+    fun observeBySyncStatus(syncStatus: SyncStatus): Flow<List<FriendEntity>>
 
-    fun observeIncomingRequests(): Flow<List<FriendEntity>> =
-        observeByStatus(FriendStatus.PENDING_INCOMING)
+    @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
+    suspend fun getBySyncStatus(syncStatus: SyncStatus): List<FriendEntity>
 
-    fun observeOutgoingRequests(): Flow<List<FriendEntity>> =
-        observeByStatus(FriendStatus.PENDING_OUTGOING)
-
-    @Query("SELECT * FROM friends WHERE status = :status AND (email LIKE '%' || :q || '%' OR displayName LIKE '%' || :q || '%' OR nickname LIKE '%' || :q || '%' ) ORDER BY CASE WHEN nickname IS NOT NULL AND TRIM(nickname) != '' THEN 0 ELSE 1 END, COALESCE(NULLIF(TRIM(nickname), ''), NULLIF(TRIM(displayName), ''), email) COLLATE NOCASE")
-    fun observeSearch(status: FriendStatus, q: String): Flow<List<FriendEntity>>
+    @Query("SELECT * FROM friends WHERE friendCode = :code LIMIT 1")
+    suspend fun getByFriendCode(code: String): FriendEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(friend: FriendEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertAll(items: List<FriendEntity>)
+    @Query("UPDATE friends SET syncStatus = :status, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateSyncStatus(id: Long, status: SyncStatus, updatedAt: Long)
 
-    @Update
-    suspend fun update(friend: FriendEntity)
+    @Query("UPDATE friends SET status = :status, updatedAt = :updatedAt, syncStatus = :syncStatus WHERE id = :id")
+    suspend fun updateStatus(id: Long, status: FriendStatus, updatedAt: Long, syncStatus: SyncStatus)
 
-    @Query("SELECT * FROM friends WHERE id = :id LIMIT 1")
-    suspend fun getById(id: Long): FriendEntity?
-
-    @Query("SELECT * FROM friends WHERE email = :email LIMIT 1")
-    suspend fun getByEmail(email: String): FriendEntity?
+    @Query("UPDATE friends SET status = :status, friendUid = :friendUid, updatedAt = :updatedAt, syncStatus = :syncStatus WHERE id = :id")
+    suspend fun updateStatusAndUid(id: Long, status: FriendStatus, friendUid: String?, updatedAt: Long, syncStatus: SyncStatus)
 
     @Query("DELETE FROM friends WHERE id = :id")
     suspend fun deleteById(id: Long)
-
-    @Query("UPDATE friends SET nickname = :nickname, updatedAt = :now WHERE id = :id")
-    suspend fun updateNickname(id: Long, nickname: String?, now: Long = System.currentTimeMillis())
-
-    @Query("UPDATE friends SET status = :status, updatedAt = :now WHERE id = :id")
-    suspend fun updateStatus(id: Long, status: FriendStatus, now: Long = System.currentTimeMillis())
 }

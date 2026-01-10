@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>abajo</w>
+      <w>abcdefghijklmnopqrstuvwxyz</w>
       <w>abrir</w>
       <w>abriremos</w>
       <w>acceso</w>
@@ -42,6 +43,7 @@
       <w>ahora</w>
       <w>ajustes</w>
       <w>alcance</w>
+      <w>aleatorio</w>
       <w>almacena</w>
       <w>almacenada</w>
       <w>almacenadas</w>
@@ -71,6 +73,9 @@
       <w>arranca</w>
       <w>asegura</w>
       <w>aseguramos</w>
+      <w>asegurar</w>
+      <w>asigna</w>
+      <w>asignar</w>
       <w>asocia</w>
       <w>asociada</w>
       <w>asociado</w>
@@ -97,6 +102,7 @@
       <w>biblioteca</w>
       <w>bloque</w>
       <w>bloqueado</w>
+      <w>bloquear</w>
       <w>bordes</w>
       <w>borrada</w>
       <w>borradas</w>
@@ -231,6 +237,7 @@
       <w>desactivar</w>
       <w>desactivas</w>
       <w>desarrolladores</w>
+      <w>desbloquear</w>
       <w>descargable</w>
       <w>descargadas</w>
       <w>descargado</w>
@@ -260,6 +267,7 @@
       <w>documentación</w>
       <w>documento</w>
       <w>dominio</w>
+      <w>duplicados</w>
       <w>duración</w>
       <w>edad</w>
       <w>edición</w>
@@ -367,6 +375,9 @@
       <w>físicamente</w>
       <w>ganador</w>
       <w>ganadores</w>
+      <w>garantiza</w>
+      <w>generado</w>
+      <w>generar</w>
       <w>genérico</w>
       <w>gestiona</w>
       <w>gestionar</w>
@@ -428,6 +439,7 @@
       <w>intenta</w>
       <w>intentará</w>
       <w>intento</w>
+      <w>intentos</w>
       <w>interacción</w>
       <w>interactua</w>
       <w>interactuar</w>
@@ -440,6 +452,7 @@
       <w>introduciendo</w>
       <w>introducir</w>
       <w>inténtalo</w>
+      <w>invitación</w>
       <w>invitado</w>
       <w>inválido</w>
       <w>inválidos</w>
@@ -470,6 +483,7 @@
       <w>llamadas</w>
       <w>llamar</w>
       <w>localmente</w>
+      <w>longitud</w>
       <w>ludoteca</w>
       <w>lógica</w>
       <w>lúdica</w>
@@ -651,6 +665,7 @@
       <w>recalculamos</w>
       <w>recalcular</w>
       <w>rechazada</w>
+      <w>rechazar</w>
       <w>recibe</w>
       <w>recibida</w>
       <w>recibidas</w>
@@ -690,6 +705,7 @@
       <w>regresa</w>
       <w>regístrate</w>
       <w>reinicia</w>
+      <w>reintenta</w>
       <w>relacionadas</w>
       <w>relación</w>
       <w>rellena</w>
@@ -784,6 +800,7 @@
       <w>tocamos</w>
       <w>todas</w>
       <w>trabajo</w>
+      <w>transacción</w>
       <w>transportar</w>
       <w>tras</w>
       <w>título</w>
@@ -808,6 +825,7 @@
       <w>validar</w>
       <w>valoración</w>
       <w>valores</w>
+      <w>varios</w>
       <w>venimos</w>
       <w>verifica</w>
       <w>viceversa</w>
