@@ -1,10 +1,12 @@
 package com.ludiary.android.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FriendsRepository
+import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -32,6 +34,8 @@ class FriendsViewModel(
     val events: SharedFlow<FriendsUiEvent> = _events.asSharedFlow()
 
     fun start() {
+        (repo as? FriendsRepositoryImpl)?.startRemoteSync()
+
         viewModelScope.launch {
             repo.flushOfflineInvites()
         }
@@ -61,9 +65,7 @@ class FriendsViewModel(
         viewModelScope.launch {
             val r = repo.sendInviteByCode(code)
             if (r.isSuccess) {
-                // Mensaje neutro (privacidad)
                 _events.emit(FriendsUiEvent.ShowSnack("Si el usuario existe, recibirá tu solicitud."))
-                // Intento inmediato de sync (si hay red, se publicará ya)
                 repo.flushOfflineInvites()
             } else {
                 _events.emit(FriendsUiEvent.ShowSnack(r.exceptionOrNull()?.message ?: "Error"))
@@ -99,11 +101,23 @@ class FriendsViewModel(
             .map { it.query }
             .distinctUntilChanged()
             .flatMapLatest { q ->
+                Log.d("LUDIARY_FRIENDS_DEBUG", "VM.items() tab=$tab query='$q'")
+
                 when (tab) {
                     FriendsTab.FRIENDS -> repo.observeFriends(q)
                     FriendsTab.GROUPS -> repo.observeGroups(q)
-                    FriendsTab.REQUESTS -> repo.observeIncomingRequests(q)
+                    FriendsTab.REQUESTS -> combine(
+                        repo.observeIncomingRequests(q),
+                        repo.observeOutgoingRequests(q)
+                    ) { incoming, outgoing ->
+                        Log.d(
+                            "LUDIARY_FRIENDS_DEBUG",
+                            "REQUESTS incoming=${incoming.size} outgoing=${outgoing.size}"
+                        )
+                        incoming + outgoing
+                    }
                 }
             }
     }
+
 }

@@ -9,14 +9,14 @@ import com.ludiary.android.data.model.SyncStatus
 @Entity(
     tableName = "friends",
     indices = [
-        Index(value = ["friendUid"]),
-        Index(value = ["friendCode"]),
+        Index(value = ["friendUid"], unique = true),
+        Index(value = ["friendCode"], unique = true),
         Index(value = ["status"])
     ]
 )
 data class FriendEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    val id: Long = 0L,
 
     val friendCode: String? = null,
 

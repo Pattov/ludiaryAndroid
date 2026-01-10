@@ -1,6 +1,6 @@
 package com.ludiary.android.data.local
 
-import FriendDao
+import com.ludiary.android.data.local.dao.FriendDao
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.data.model.SyncStatus
@@ -10,39 +10,28 @@ class LocalFriendsDataSource(
     private val friendDao: FriendDao
 ) {
     fun observeFriends(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeSearchByStatuses(
-            statuses = listOf(
-                FriendStatus.ACCEPTED,
-                FriendStatus.PENDING_OUTGOING,
-                FriendStatus.PENDING_OUTGOING_LOCAL
-            ),
+        friendDao.observeByStatus(
+            status = FriendStatus.ACCEPTED,
             query = "%${query.trim()}%"
         )
 
     fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeSearch(
+        friendDao.observeByStatus(
             status = FriendStatus.PENDING_INCOMING,
             query = "%${query.trim()}%"
         )
 
     fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeSearch(
-            status = FriendStatus.PENDING_OUTGOING,
-            query = "%${query.trim()}%"
-        )
-
-    fun observePendingToSync(): Flow<List<FriendEntity>> =
-        friendDao.observeBySyncStatus(SyncStatus.PENDING)
-
-    fun observeFriendsAndOutgoing(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeSearchByStatuses(
+        friendDao.observeByStatuses(
             statuses = listOf(
-                FriendStatus.ACCEPTED,
                 FriendStatus.PENDING_OUTGOING,
                 FriendStatus.PENDING_OUTGOING_LOCAL
             ),
             query = "%${query.trim()}%"
         )
+
+    fun observePendingToSync(): Flow<List<FriendEntity>> =
+        friendDao.observeBySyncStatus(SyncStatus.PENDING)
 
     suspend fun getPendingToSync(): List<FriendEntity> =
         friendDao.getBySyncStatus(SyncStatus.PENDING)
@@ -53,6 +42,9 @@ class LocalFriendsDataSource(
     suspend fun getByFriendCode(code: String): FriendEntity? =
         friendDao.getByFriendCode(code)
 
+    suspend fun getByFriendUid(uid: String): FriendEntity? =
+        friendDao.getByFriendUid(uid)
+
     suspend fun upsert(entity: FriendEntity): Long =
         friendDao.upsert(entity)
 
@@ -61,24 +53,15 @@ class LocalFriendsDataSource(
             id = id,
             status = status,
             friendUid = friendUid,
-            updatedAt = System.currentTimeMillis(),
-            syncStatus = syncStatus
-        )
-    }
-
-    suspend fun updateStatus(id: Long, status: FriendStatus, syncStatus: SyncStatus) {
-        friendDao.updateStatus(
-            id = id,
-            status = status,
-            updatedAt = System.currentTimeMillis(),
-            syncStatus = syncStatus
+            syncStatus = syncStatus,
+            updatedAt = System.currentTimeMillis()
         )
     }
 
     suspend fun markClean(id: Long) {
         friendDao.updateSyncStatus(
             id = id,
-            status = SyncStatus.CLEAN,
+            syncStatus = SyncStatus.CLEAN,
             updatedAt = System.currentTimeMillis()
         )
     }

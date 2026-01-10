@@ -31,7 +31,11 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
         val recycler: RecyclerView = view.findViewById(R.id.recyclerFriends)
         val empty: TextView = view.findViewById(R.id.tvEmptyFriends)
 
-        val adapter = FriendsAdapter(onClick = { vm.onFriendClicked(it) })
+        val adapter = FriendsAdapter(
+            onClick = { vm.onFriendClicked(it) },
+            onAccept = { friendId -> vm.acceptRequest(friendId) },
+            onReject = { friendId -> vm.rejectRequest(friendId) }
+        )
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter

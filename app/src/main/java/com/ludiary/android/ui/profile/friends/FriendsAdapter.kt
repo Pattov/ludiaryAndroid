@@ -8,15 +8,14 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendStatus
 
 class FriendsAdapter(
     private val onClick: (FriendEntity) -> Unit,
-    private val onAccept: ((FriendEntity) -> Unit)? = null,
-    private val onReject: ((FriendEntity) -> Unit)? = null
+    private val onAccept: (Long) -> Unit,
+    private val onReject: (Long) -> Unit
 ) : ListAdapter<FriendEntity, FriendsAdapter.VH>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -29,47 +28,51 @@ class FriendsAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class VH(view: View) : RecyclerView.ViewHolder(view) {
 
-        private val tvTitle: TextView? = itemView.findViewById(R.id.tvFriendTitle)
-            ?: itemView.findViewById(R.id.tvTitle)
+        // IDs reales de tu item_friend_row.xml
+        private val tvTitle: TextView = view.findViewById(R.id.tvFriendTitle)
+        private val tvSubtitle: TextView = view.findViewById(R.id.tvFriendSubtitle)
 
-        private val tvSubtitle: TextView? = itemView.findViewById(R.id.tvFriendSubtitle)
-            ?: itemView.findViewById(R.id.tvSubtitle)
-
-        private val btnAccept: MaterialButton? = itemView.findViewById(R.id.btnAccept)
-        private val btnReject: MaterialButton? = itemView.findViewById(R.id.btnReject)
+        // Botones (existen en tu layout)
+        private val btnAccept: View = view.findViewById(R.id.btnAccept)
+        private val btnReject: View = view.findViewById(R.id.btnReject)
 
         fun bind(item: FriendEntity) {
             val title = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
+            // Subtítulo neutro (sin email)
             val subtitle = when (item.status) {
                 FriendStatus.PENDING_OUTGOING,
                 FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
                 FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
                 FriendStatus.BLOCKED -> "Bloqueado"
-                else -> ""
+                FriendStatus.ACCEPTED -> ""
             }
 
-            tvTitle?.text = title
-            tvSubtitle?.text = subtitle
-            tvSubtitle?.isVisible = subtitle.isNotBlank()
+            tvTitle.text = title
+            tvSubtitle.text = subtitle
+            tvSubtitle.isVisible = subtitle.isNotBlank()
 
+            // ✅ Botones SOLO para solicitudes entrantes
             val showActions = item.status == FriendStatus.PENDING_INCOMING
-            btnAccept?.isVisible = showActions
-            btnReject?.isVisible = showActions
+            btnAccept.isVisible = showActions
+            btnReject.isVisible = showActions
 
-            btnAccept?.setOnClickListener { onAccept?.invoke(item) }
-            btnReject?.setOnClickListener { onReject?.invoke(item) }
+            btnAccept.setOnClickListener { onAccept(item.id) }
+            btnReject.setOnClickListener { onReject(item.id) }
 
             itemView.setOnClickListener { onClick(item) }
         }
     }
 
     private object Diff : DiffUtil.ItemCallback<FriendEntity>() {
-        override fun areItemsTheSame(oldItem: FriendEntity, newItem: FriendEntity) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: FriendEntity, newItem: FriendEntity) = oldItem == newItem
+        override fun areItemsTheSame(oldItem: FriendEntity, newItem: FriendEntity) =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: FriendEntity, newItem: FriendEntity) =
+            oldItem == newItem
     }
 }

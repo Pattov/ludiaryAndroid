@@ -1,6 +1,5 @@
 package com.ludiary.android.data.local
 
-import FriendDao
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -22,7 +21,7 @@ import com.ludiary.android.data.local.entity.*
         SessionPlayerEntity::class,
         FriendEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(LudiaryConverters::class)

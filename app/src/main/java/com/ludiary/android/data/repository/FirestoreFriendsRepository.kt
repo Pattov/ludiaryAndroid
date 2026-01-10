@@ -1,5 +1,6 @@
 package com.ludiary.android.data.repository
 
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,11 +11,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.tasks.await
 
 class FirestoreFriendsRepository(
-    private val db: FirebaseFirestore
+    private val firestore: FirebaseFirestore
 ) {
+    /**
+     * Modelo remoto para /users/{uid}/friends/{friendUid}
+     */
     data class RemoteFriend(
         val friendUid: String = "",
         val email: String? = null,
@@ -27,12 +30,12 @@ class FirestoreFriendsRepository(
 
     data class RemoteUser(
         val uid: String,
-        val email: String?,
+        val email: String?, // lo dejamos nullable por compat
         val displayName: String?
     )
 
     private fun col(uid: String) =
-        db.collection("users").document(uid).collection("friends")
+        firestore.collection("users").document(uid).collection("friends")
 
     fun observeAll(uid: String): Flow<List<RemoteFriend>> = callbackFlow {
         val reg = col(uid).addSnapshotListener { snap, err ->
@@ -59,27 +62,36 @@ class FirestoreFriendsRepository(
     }
 
     /**
-     * Resuelve friend code via /friend_code_index/{code} -> { uid: ... }
-     * Solo se usa en sync (no en UI).
+     * ✅ NUEVO: Busca usuario por friendCode usando el índice friend_code_index/{code} -> { uid }
      */
-    suspend fun findUserByFriendCode(code: String): RemoteUser? {
-        val idxDoc = db.collection("friend_code_index")
+    suspend fun findUserByFriendCode(codeRaw: String): RemoteUser? {
+        val code = codeRaw.trim().uppercase()
+        Log.d("LUDIARY_FRIENDS_DEBUG", "findUserByFriendCode() code=$code")
+
+        val idx = firestore.collection("friend_code_index")
             .document(code)
             .get()
-            .await()
+            .awaitResult()
 
-        val uid = idxDoc.getString("uid") ?: return null
+        if (!idx.exists()) {
+            Log.d("LUDIARY_FRIENDS_DEBUG", "friend_code_index MISS code=$code")
+            return null
+        }
 
-        val userDoc = db.collection("users")
+        val uid = idx.getString("uid") ?: return null
+
+        val userDoc = firestore.collection("users")
             .document(uid)
             .get()
-            .await()
+            .awaitResult()
 
         if (!userDoc.exists()) return null
 
+        Log.d("LUDIARY_FRIENDS_DEBUG", "friend_code_index HIT code=$code uid=$uid")
+
         return RemoteUser(
-            uid = userDoc.id,
-            email = userDoc.getString("email"),
+            uid = uid,
+            email = null, // no usamos email
             displayName = userDoc.getString("displayName")
         )
     }

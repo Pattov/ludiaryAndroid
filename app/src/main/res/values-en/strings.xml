@@ -58,17 +58,15 @@
 
     <string name="profile_friends_search_hint">Search</string>
     <string name="profile_friends_empty">No elements</string>
-
     <string name="profile_friends_tab_friends">Friends</string>
     <string name="profile_friends_tab_groups">Groups</string>
     <string name="profile_friends_tab_requests">Requests</string>
-
     <string name="profile_friends_add_friend">Add friend</string>
     <string name="profile_friends_add_group">Add group</string>
-
     <string name="profile_friends_empty_friends">Start adding friends</string>
     <string name="profile_friends_empty_groups">Crea tu primer grupo</string>
     <string name="profile_friends_empty_requests">No pending requests</string>
+    <string name="profile_friend_message">If the user exists, you will receive your request.</string>
 
 
     <string name="library_title">Library</string>
