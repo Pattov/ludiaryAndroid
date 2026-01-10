@@ -10,10 +10,7 @@ interface FriendsRepository {
     fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>>
     fun observeGroups(query: String): Flow<List<FriendEntity>>
 
-    suspend fun sendInviteByCode(codeRaw: String): Result<Unit>
-
-    suspend fun upsert(friend: FriendEntity)
-    suspend fun setSyncStatus(id: Long, status: SyncStatus)
+    suspend fun sendInviteByCode(code: String): Result<Unit>
 
     suspend fun acceptRequest(friendId: Long): Result<Unit>
     suspend fun rejectRequest(friendId: Long): Result<Unit>

@@ -4,14 +4,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
+import com.ludiary.android.data.model.FriendStatus
 
 class FriendsAdapter(
-    private val onClick: (FriendEntity) -> Unit
+    private val onClick: (FriendEntity) -> Unit,
+    private val onAccept: ((FriendEntity) -> Unit)? = null,
+    private val onReject: ((FriendEntity) -> Unit)? = null
 ) : ListAdapter<FriendEntity, FriendsAdapter.VH>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -25,30 +30,42 @@ class FriendsAdapter(
     }
 
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        private val tvSubtitle: TextView = itemView.findViewById(R.id.tvSubtitle)
+
+        private val tvTitle: TextView? = itemView.findViewById(R.id.tvFriendTitle)
+            ?: itemView.findViewById(R.id.tvTitle)
+
+        private val tvSubtitle: TextView? = itemView.findViewById(R.id.tvFriendSubtitle)
+            ?: itemView.findViewById(R.id.tvSubtitle)
+
+        private val btnAccept: MaterialButton? = itemView.findViewById(R.id.btnAccept)
+        private val btnReject: MaterialButton? = itemView.findViewById(R.id.btnReject)
 
         fun bind(item: FriendEntity) {
             val title = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
-            // Subtítulo neutro (sin datos personales)
             val subtitle = when (item.status) {
-                com.ludiary.android.data.model.FriendStatus.PENDING_OUTGOING,
-                com.ludiary.android.data.model.FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
-                com.ludiary.android.data.model.FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
-                com.ludiary.android.data.model.FriendStatus.BLOCKED -> "Bloqueado"
+                FriendStatus.PENDING_OUTGOING,
+                FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
+                FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
+                FriendStatus.BLOCKED -> "Bloqueado"
                 else -> ""
             }
 
-            tvTitle.text = title
-            tvSubtitle.text = subtitle
-            tvSubtitle.visibility = if (subtitle.isBlank()) View.GONE else View.VISIBLE
+            tvTitle?.text = title
+            tvSubtitle?.text = subtitle
+            tvSubtitle?.isVisible = subtitle.isNotBlank()
+
+            val showActions = item.status == FriendStatus.PENDING_INCOMING
+            btnAccept?.isVisible = showActions
+            btnReject?.isVisible = showActions
+
+            btnAccept?.setOnClickListener { onAccept?.invoke(item) }
+            btnReject?.setOnClickListener { onReject?.invoke(item) }
 
             itemView.setOnClickListener { onClick(item) }
         }
-
     }
 
     private object Diff : DiffUtil.ItemCallback<FriendEntity>() {

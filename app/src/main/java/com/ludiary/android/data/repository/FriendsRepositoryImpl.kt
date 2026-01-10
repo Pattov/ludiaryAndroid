@@ -23,45 +23,25 @@ class FriendsRepositoryImpl(
     override fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> =
         local.observeOutgoingRequests(query)
 
-    override fun observeGroups(query: String): Flow<List<FriendEntity>> {
-        // TODO: cuando tengas GroupEntity/GroupDao, lo cambiamos.
-        return flowOf(emptyList())
-    }
+    override fun observeGroups(query: String): Flow<List<FriendEntity>> =
+        flowOf(emptyList()) // MVP: grupos solo local (aún no implementado aquí)
 
-    override suspend fun upsert(friend: FriendEntity) {
-        local.upsert(friend)
-    }
-
-    override suspend fun setSyncStatus(id: Long, status: SyncStatus) {
-        local.setSyncStatus(id, status)
-    }
-
-    override suspend fun acceptRequest(friendId: Long): Result<Unit> {
-        return Result.failure(NotImplementedError("acceptRequest pendiente"))
-    }
-
-    override suspend fun rejectRequest(friendId: Long): Result<Unit> {
-        return Result.failure(NotImplementedError("rejectRequest pendiente"))
-    }
-
-
-    override suspend fun sendInviteByCode(codeRaw: String): Result<Unit> {
+    override suspend fun sendInviteByCode(code: String): Result<Unit> {
         val me = auth.currentUser ?: return Result.failure(IllegalStateException("No autenticado"))
 
-        val code = codeRaw.trim()
+        val code = code.trim().uppercase()
         if (code.isBlank()) return Result.failure(IllegalArgumentException("Código vacío"))
 
         val isValid = code.length in 10..12 && code.all { it.isLetterOrDigit() }
         if (!isValid) return Result.failure(IllegalArgumentException("Código inválido"))
 
-        // Evitar duplicados locales por código (pendiente local)
+        // Evitar duplicados locales
         val existing = local.getByFriendCode(code)
-        if (existing != null) {
-            return Result.failure(IllegalStateException("Ya tienes una solicitud con ese código"))
-        }
+        if (existing != null) return Result.failure(IllegalStateException("Ya tienes una solicitud con ese código"))
 
         val now = System.currentTimeMillis()
 
+        // Local-first: pendiente local (sin friendUid todavía)
         local.upsert(
             FriendEntity(
                 friendCode = code,
@@ -90,14 +70,20 @@ class FriendsRepositoryImpl(
 
             val target = runCatching { remote.findUserByFriendCode(code) }.getOrNull()
             if (target == null) {
-                // Código no válido / no existe -> borrar local (y mensaje neutro lo gestiona UI si quieres)
+                // No se puede resolver -> eliminar para no dejarlo atascado (mensaje neutro en UI)
+                local.deleteById(p.id)
+                continue
+            }
+
+            // Evitar auto-invite si alguien pega su propio código
+            if (target.uid == me.uid) {
                 local.deleteById(p.id)
                 continue
             }
 
             val now = System.currentTimeMillis()
 
-            // Crear en remoto ambos lados
+            // Remoto: ambos lados
             runCatching {
                 remote.upsert(
                     uid = me.uid,
@@ -127,18 +113,96 @@ class FriendsRepositoryImpl(
                     )
                 )
 
-                // Actualizar local: ya tenemos uid y pasa de LOCAL -> remoto
-                local.upsert(
-                    p.copy(
-                        friendUid = target.uid,
-                        status = FriendStatus.PENDING_OUTGOING,
-                        syncStatus = SyncStatus.CLEAN,
-                        updatedAt = now
-                    )
+                // Local: ya conocemos friendUid y pasa a pendiente “remota”
+                local.updateStatusAndUid(
+                    id = p.id,
+                    status = FriendStatus.PENDING_OUTGOING,
+                    friendUid = target.uid,
+                    syncStatus = SyncStatus.CLEAN
                 )
             }
         }
 
         return Result.success(Unit)
+    }
+
+    override suspend fun acceptRequest(friendId: Long): Result<Unit> {
+        val me = auth.currentUser ?: return Result.failure(IllegalStateException("No autenticado"))
+
+        val localReq = local.getById(friendId)
+            ?: return Result.failure(IllegalStateException("Solicitud no encontrada"))
+
+        val friendUid = localReq.friendUid
+            ?: return Result.failure(IllegalStateException("Solicitud incompleta (sin uid remoto)"))
+
+        val now = System.currentTimeMillis()
+
+        return runCatching {
+            // Remoto: ambos pasan a ACCEPTED
+            remote.upsert(
+                uid = me.uid,
+                friendUid = friendUid,
+                data = FirestoreFriendsRepository.RemoteFriend(
+                    friendUid = friendUid,
+                    email = null,
+                    displayName = localReq.displayName,
+                    nickname = localReq.nickname,
+                    status = FriendStatus.ACCEPTED.name,
+                    createdAt = localReq.createdAt,
+                    updatedAt = now
+                )
+            )
+
+            remote.upsert(
+                uid = friendUid,
+                friendUid = me.uid,
+                data = FirestoreFriendsRepository.RemoteFriend(
+                    friendUid = me.uid,
+                    email = null,
+                    displayName = me.displayName,
+                    nickname = null,
+                    status = FriendStatus.ACCEPTED.name,
+                    createdAt = localReq.createdAt,
+                    updatedAt = now
+                )
+            )
+
+            // Local
+            local.updateStatusAndUid(
+                id = friendId,
+                status = FriendStatus.ACCEPTED,
+                friendUid = friendUid,
+                syncStatus = SyncStatus.CLEAN
+            )
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
+    }
+
+    override suspend fun rejectRequest(friendId: Long): Result<Unit> {
+        val me = auth.currentUser ?: return Result.failure(IllegalStateException("No autenticado"))
+
+        val localReq = local.getById(friendId)
+            ?: return Result.failure(IllegalStateException("Solicitud no encontrada"))
+
+        val friendUid = localReq.friendUid
+            ?: run {
+                // Si era solo local incompleta, borramos y listo
+                local.deleteById(friendId)
+                return Result.success(Unit)
+            }
+
+        return runCatching {
+            // Remoto: se elimina relación (no quedan “amigos”)
+            remote.delete(me.uid, friendUid)
+            remote.delete(friendUid, me.uid)
+
+            // Local
+            local.deleteById(friendId)
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 }

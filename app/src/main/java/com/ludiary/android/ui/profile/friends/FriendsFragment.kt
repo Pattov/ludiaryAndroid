@@ -28,10 +28,33 @@ import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.FriendsViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 
 class FriendsFragment : Fragment(R.layout.form_friends_profile) {
 
     private lateinit var vm: FriendsViewModel
+
+    private fun showAddFriendDialog() {
+        val til = TextInputLayout(requireContext()).apply {
+            hint = "Friend code"
+        }
+
+        val input = TextInputEditText(til.context)
+        til.addView(input)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Añadir amigo")
+            .setMessage("Introduce el código de amigo (10–12 caracteres).")
+            .setView(til)
+            .setPositiveButton("Enviar") { _, _ ->
+                vm.sendInviteByCode(input.text?.toString().orEmpty())
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -104,7 +127,7 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         Snackbar.make(view, e.message, Snackbar.LENGTH_SHORT).show()
 
                     FriendsUiEvent.OpenAddFriend ->
-                        Snackbar.make(view, "TODO: abrir modal email", Snackbar.LENGTH_SHORT).show()
+                        showAddFriendDialog()
 
                     FriendsUiEvent.OpenAddGroup ->
                         Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()

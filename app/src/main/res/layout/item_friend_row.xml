@@ -44,7 +44,30 @@
                 android:textColor="?attr/colorOnPrimaryContainer" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Título (Nombre o Email) -->
+        <!-- Botón Rechazar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReject"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rechazar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Botón Aceptar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAccept"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aceptar"
+            android:layout_marginEnd="@dimen/space_s"
+            app:layout_constraintEnd_toStartOf="@id/btnReject"
+            app:layout_constraintTop_toTopOf="@id/btnReject"
+            app:layout_constraintBottom_toBottomOf="@id/btnReject" />
+
+        <!-- Título -->
         <TextView
             android:id="@+id/tvFriendTitle"
             android:layout_width="0dp"
@@ -55,9 +78,10 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toTopOf="@id/avatar" />
+            app:layout_constraintTop_toTopOf="@id/avatar"
+            app:layout_constraintEnd_toStartOf="@id/btnAccept" />
 
-        <!-- Subtítulo (Email / mote / info extra) -->
+        <!-- Subtítulo -->
         <TextView
             android:id="@+id/tvFriendSubtitle"
             android:layout_width="0dp"
@@ -68,7 +92,8 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@id/tvFriendTitle" />
+            app:layout_constraintTop_toBottomOf="@id/tvFriendTitle"
+            app:layout_constraintEnd_toStartOf="@id/btnAccept" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

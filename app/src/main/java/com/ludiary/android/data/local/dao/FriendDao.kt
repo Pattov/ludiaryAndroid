@@ -13,6 +13,9 @@ interface FriendDao {
     @Query(" SELECT * FROM friends WHERE status = :status AND ( IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query OR IFNULL(friendCode, '') LIKE :query ) ORDER BY CASE WHEN nickname IS NOT NULL AND nickname != '' THEN 0 ELSE 1 END, nickname COLLATE NOCASE, displayName COLLATE NOCASE")
     fun observeSearch(status: FriendStatus, query: String): Flow<List<FriendEntity>>
 
+    @Query("SELECT * FROM friends WHERE status IN (:statuses) AND (nickname LIKE :query OR displayName LIKE :query OR friendCode LIKE :query) ORDER BY updatedAt DESC")
+    fun observeSearchByStatuses(statuses: List<FriendStatus>, query: String): Flow<List<FriendEntity>>
+
     @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
     fun observeBySyncStatus(syncStatus: SyncStatus): Flow<List<FriendEntity>>
 
@@ -21,6 +24,9 @@ interface FriendDao {
 
     @Query("SELECT * FROM friends WHERE friendCode = :code LIMIT 1")
     suspend fun getByFriendCode(code: String): FriendEntity?
+
+    @Query("SELECT * FROM friends WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): FriendEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(friend: FriendEntity): Long

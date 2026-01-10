@@ -53,10 +53,6 @@ class FriendsViewModel(
         }
     }
 
-    fun onMenuAddFriendClicked() {
-        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenAddFriend) }
-    }
-
     fun onFriendClicked(item: FriendEntity) {
         viewModelScope.launch { _events.emit(FriendsUiEvent.OpenEditNickname(item.id)) }
     }
@@ -65,12 +61,35 @@ class FriendsViewModel(
         viewModelScope.launch {
             val r = repo.sendInviteByCode(code)
             if (r.isSuccess) {
-                _events.emit(
-                    FriendsUiEvent.ShowSnack("Si el usuario existe, recibirá tu solicitud.")
-                )
+                // Mensaje neutro (privacidad)
+                _events.emit(FriendsUiEvent.ShowSnack("Si el usuario existe, recibirá tu solicitud."))
+                // Intento inmediato de sync (si hay red, se publicará ya)
+                repo.flushOfflineInvites()
             } else {
                 _events.emit(FriendsUiEvent.ShowSnack(r.exceptionOrNull()?.message ?: "Error"))
             }
+        }
+    }
+
+    fun acceptRequest(friendId: Long) {
+        viewModelScope.launch {
+            val r = repo.acceptRequest(friendId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Solicitud aceptada" else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
+        }
+    }
+
+    fun rejectRequest(friendId: Long) {
+        viewModelScope.launch {
+            val r = repo.rejectRequest(friendId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Solicitud rechazada" else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
         }
     }
 

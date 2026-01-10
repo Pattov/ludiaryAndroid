@@ -10,13 +10,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.tasks.await
 
 class FirestoreFriendsRepository(
     private val db: FirebaseFirestore
 ) {
-    /**
-     * Modelo remoto para /users/{uid}/friends/{friendUid}
-     */
     data class RemoteFriend(
         val friendUid: String = "",
         val email: String? = null,
@@ -65,22 +63,24 @@ class FirestoreFriendsRepository(
      * Solo se usa en sync (no en UI).
      */
     suspend fun findUserByFriendCode(code: String): RemoteUser? {
-        val idx = db.collection("friend_code_index")
+        val idxDoc = db.collection("friend_code_index")
             .document(code)
             .get()
-            .awaitResult()
+            .await()
 
-        val uid = idx.getString("uid") ?: return null
+        val uid = idxDoc.getString("uid") ?: return null
 
-        val user = db.collection("users")
+        val userDoc = db.collection("users")
             .document(uid)
             .get()
-            .awaitResult()
+            .await()
+
+        if (!userDoc.exists()) return null
 
         return RemoteUser(
-            uid = user.id,
-            email = user.getString("email"),
-            displayName = user.getString("displayName")
+            uid = userDoc.id,
+            email = userDoc.getString("email"),
+            displayName = userDoc.getString("displayName")
         )
     }
 
