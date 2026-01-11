@@ -9,8 +9,8 @@ import com.ludiary.android.data.model.SyncStatus
 @Entity(
     tableName = "friends",
     indices = [
-        Index(value = ["friendUid"], unique = true),
         Index(value = ["friendCode"], unique = true),
+        Index(value = ["friendUid"], unique = true),
         Index(value = ["status"])
     ]
 )

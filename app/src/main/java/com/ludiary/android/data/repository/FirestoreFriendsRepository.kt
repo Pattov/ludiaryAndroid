@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.tasks.await
 
 class FirestoreFriendsRepository(
     private val firestore: FirebaseFirestore
@@ -61,6 +62,10 @@ class FirestoreFriendsRepository(
             .awaitResult()
     }
 
+    suspend fun getMyFriendCode(uid: String): String? {
+        val doc = firestore.collection("users").document(uid).get().await()
+        return doc.getString("friendCode")
+    }
     /**
      * ✅ NUEVO: Busca usuario por friendCode usando el índice friend_code_index/{code} -> { uid }
      */

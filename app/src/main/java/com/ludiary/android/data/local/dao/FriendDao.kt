@@ -12,17 +12,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FriendDao {
 
-    @Query("SELECT * FROM friends WHERE status = :status AND ( IFNULL(friendCode,'') LIKE :query OR IFNULL(displayName,'') LIKE :query OR IFNULL(nickname,'') LIKE :query) ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM friends WHERE status = :status AND ( IFNULL(friendCode, '') LIKE :query OR IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query) ORDER BY CASE WHEN nickname IS NOT NULL AND nickname != '' THEN 0 ELSE 1 END, nickname COLLATE NOCASE, displayName COLLATE NOCASE")
     fun observeByStatus(status: FriendStatus, query: String): Flow<List<FriendEntity>>
 
-    @Query("SELECT * FROM friends WHERE status IN (:statuses) AND ( IFNULL(friendCode,'') LIKE :query OR IFNULL(displayName,'') LIKE :query OR IFNULL(nickname,'') LIKE :query) ORDER BY updatedAt DESC")
+    // Para "Solicitudes" (incoming) es suficiente, pero para outgoing queremos incluir LOCAL también.
+    @Query("SELECT * FROM friends WHERE status IN (:statuses) AND ( IFNULL(friendCode, '') LIKE :query OR IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query ) ORDER BY updatedAt DESC")
     fun observeByStatuses(statuses: List<FriendStatus>, query: String): Flow<List<FriendEntity>>
 
     @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
     fun observeBySyncStatus(syncStatus: SyncStatus): Flow<List<FriendEntity>>
-
-    @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
-    suspend fun getBySyncStatus(syncStatus: SyncStatus): List<FriendEntity>
 
     @Query("SELECT * FROM friends WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): FriendEntity?
@@ -34,7 +32,7 @@ interface FriendDao {
     suspend fun getByFriendUid(uid: String): FriendEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(friend: FriendEntity): Long
+    suspend fun upsert(friend: FriendEntity)
 
     @Query("DELETE FROM friends WHERE id = :id")
     suspend fun deleteById(id: Long)
