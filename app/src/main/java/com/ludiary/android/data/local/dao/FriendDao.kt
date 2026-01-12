@@ -12,24 +12,34 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FriendDao {
 
-    @Query("SELECT * FROM friends WHERE status = :status AND ( IFNULL(friendCode, '') LIKE :query OR IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query) ORDER BY CASE WHEN nickname IS NOT NULL AND nickname != '' THEN 0 ELSE 1 END, nickname COLLATE NOCASE, displayName COLLATE NOCASE")
+    @Query("""
+        SELECT * FROM friends
+        WHERE status = :status
+          AND (
+            IFNULL(friendCode, '') LIKE :query OR
+            IFNULL(displayName, '') LIKE :query OR
+            IFNULL(nickname, '') LIKE :query
+          )
+        ORDER BY
+          CASE WHEN nickname IS NOT NULL AND nickname != '' THEN 0 ELSE 1 END,
+          nickname COLLATE NOCASE,
+          displayName COLLATE NOCASE,
+          friendCode COLLATE NOCASE
+    """)
     fun observeByStatus(status: FriendStatus, query: String): Flow<List<FriendEntity>>
-
-    // Para "Solicitudes" (incoming) es suficiente, pero para outgoing queremos incluir LOCAL también.
-    @Query("SELECT * FROM friends WHERE status IN (:statuses) AND ( IFNULL(friendCode, '') LIKE :query OR IFNULL(displayName, '') LIKE :query OR IFNULL(nickname, '') LIKE :query ) ORDER BY updatedAt DESC")
-    fun observeByStatuses(statuses: List<FriendStatus>, query: String): Flow<List<FriendEntity>>
-
-    @Query("SELECT * FROM friends WHERE syncStatus = :syncStatus ORDER BY updatedAt DESC")
-    fun observeBySyncStatus(syncStatus: SyncStatus): Flow<List<FriendEntity>>
 
     @Query("SELECT * FROM friends WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): FriendEntity?
 
-    @Query("SELECT * FROM friends WHERE friendCode = :code LIMIT 1")
-    suspend fun getByFriendCode(code: String): FriendEntity?
+    @Query("SELECT * FROM friends WHERE friendUid = :friendUid LIMIT 1")
+    suspend fun getByFriendUid(friendUid: String): FriendEntity?
 
-    @Query("SELECT * FROM friends WHERE friendUid = :uid LIMIT 1")
-    suspend fun getByFriendUid(uid: String): FriendEntity?
+    @Query("""
+        SELECT * FROM friends
+        WHERE status = :status AND syncStatus = :syncStatus
+        ORDER BY updatedAt DESC
+    """)
+    suspend fun getByStatusAndSync(status: FriendStatus, syncStatus: SyncStatus): List<FriendEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(friend: FriendEntity)
@@ -37,15 +47,30 @@ interface FriendDao {
     @Query("DELETE FROM friends WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("UPDATE friends SET syncStatus = :syncStatus, updatedAt = :updatedAt WHERE id = :id")
+    @Query("""
+        UPDATE friends
+        SET syncStatus = :syncStatus, updatedAt = :updatedAt
+        WHERE id = :id
+    """)
     suspend fun updateSyncStatus(id: Long, syncStatus: SyncStatus, updatedAt: Long)
 
-    @Query("UPDATE friends SET status = :status, friendUid = :friendUid, syncStatus = :syncStatus, updatedAt = :updatedAt WHERE id = :id")
+    @Query("""
+        UPDATE friends
+        SET status = :status, friendUid = :friendUid, updatedAt = :updatedAt, syncStatus = :syncStatus
+        WHERE id = :id
+    """)
     suspend fun updateStatusAndUid(
         id: Long,
         status: FriendStatus,
         friendUid: String?,
-        syncStatus: SyncStatus,
-        updatedAt: Long
+        updatedAt: Long,
+        syncStatus: SyncStatus
     )
+
+    @Query("""
+        UPDATE friends
+        SET nickname = :nickname, updatedAt = :updatedAt, syncStatus = :syncStatus
+        WHERE id = :id
+    """)
+    suspend fun updateNickname(id: Long, nickname: String?, updatedAt: Long, syncStatus: SyncStatus)
 }

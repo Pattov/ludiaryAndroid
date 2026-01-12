@@ -1,14 +1,14 @@
 package com.ludiary.android.data.repository
 
 import com.ludiary.android.data.local.entity.FriendEntity
-import com.ludiary.android.data.model.SyncStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 interface FriendsRepository {
     fun observeFriends(query: String): Flow<List<FriendEntity>>
     fun observeIncomingRequests(query: String): Flow<List<FriendEntity>>
     fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>>
-    fun observeGroups(query: String): Flow<List<FriendEntity>>
+    fun observeGroups(query: String) = flowOf(emptyList<FriendEntity>())
 
     suspend fun sendInviteByCode(code: String): Result<Unit>
 

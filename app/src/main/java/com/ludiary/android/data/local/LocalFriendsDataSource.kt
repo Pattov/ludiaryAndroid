@@ -5,53 +5,38 @@ import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.data.model.SyncStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class LocalFriendsDataSource(
-    private val friendDao: FriendDao
+    private val dao: FriendDao
 ) {
-    fun observeFriends(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeByStatus(
-            status = FriendStatus.ACCEPTED,
-            query = "%${query.trim()}%"
-        )
+    fun observeByStatus(status: FriendStatus, query: String): Flow<List<FriendEntity>> {
+        val q = "%${query.trim()}%"
+        return dao.observeByStatus(status, q)
+    }
 
-    fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeByStatus(
-            status = FriendStatus.PENDING_INCOMING,
-            query = "%${query.trim()}%"
-        )
+    // 👇 MVP: no hay “grupos” en esta tabla todavía
+    fun observeGroups(query: String): Flow<List<FriendEntity>> = flowOf(emptyList())
 
-    fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> =
-        friendDao.observeByStatuses(
-            statuses = listOf(FriendStatus.PENDING_OUTGOING, FriendStatus.PENDING_OUTGOING_LOCAL),
-            query = "%${query.trim()}%"
-        )
+    suspend fun upsert(friend: FriendEntity) = dao.upsert(friend)
 
-    fun observePendingToSync(): Flow<List<FriendEntity>> =
-        friendDao.observeBySyncStatus(SyncStatus.PENDING)
+    suspend fun deleteById(id: Long) = dao.deleteById(id)
 
-    suspend fun upsert(entity: FriendEntity) = friendDao.upsert(entity)
+    suspend fun getById(id: Long): FriendEntity? = dao.getById(id)
 
-    suspend fun deleteById(id: Long) = friendDao.deleteById(id)
-
-    suspend fun getById(id: Long): FriendEntity? = friendDao.getById(id)
-
-    suspend fun getByFriendCode(code: String): FriendEntity? = friendDao.getByFriendCode(code)
-
-    suspend fun getByFriendUid(uid: String): FriendEntity? = friendDao.getByFriendUid(uid)
+    suspend fun getByFriendUid(friendUid: String): FriendEntity? = dao.getByFriendUid(friendUid)
 
     suspend fun updateStatusAndUid(
         id: Long,
         status: FriendStatus,
         friendUid: String?,
+        updatedAt: Long,
         syncStatus: SyncStatus
-    ) {
-        friendDao.updateStatusAndUid(
-            id = id,
-            status = status,
-            friendUid = friendUid,
-            syncStatus = syncStatus,
-            updatedAt = System.currentTimeMillis()
-        )
-    }
+    ) = dao.updateStatusAndUid(id, status, friendUid, updatedAt, syncStatus)
+
+    suspend fun updateSyncStatus(id: Long, syncStatus: SyncStatus, updatedAt: Long) =
+        dao.updateSyncStatus(id, syncStatus, updatedAt)
+
+    suspend fun getPendingInvites(): List<FriendEntity> =
+        dao.getByStatusAndSync(FriendStatus.PENDING_OUTGOING_LOCAL, SyncStatus.PENDING)
 }
