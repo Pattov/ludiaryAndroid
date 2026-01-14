@@ -1,7 +1,6 @@
 package com.ludiary.android.data.repository
 
 import android.util.Log
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.entity.FriendEntity
@@ -22,11 +21,24 @@ class FriendsRepositoryImpl(
 ) : FriendsRepository {
 
     private var remoteSyncJob: Job? = null
+
+    // ✅ Este era el que te faltaba (por eso el Unresolved reference)
     private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    override fun observeFriends(query: String): Flow<List<FriendEntity>> = local.observeFriends(query)
+    override fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> = local.observeIncomingRequests(query)
+    override fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> = local.observeOutgoingRequests(query)
+    override fun observeGroups(query: String): Flow<List<FriendEntity>> = local.observeGroups(query)
+
+    /**
+     * Listener realtime Firestore -> Room
+     * Firebase siempre tiene razón: lo remoto pisa lo local en conflictos.
+     */
     fun startRemoteSync() {
         val me = auth.currentUser ?: return
-        if (remoteSyncJob?.isActive == true) return
+
+        // ✅ Importante: evitar listeners duplicados al reentrar a la pantalla
+        remoteSyncJob?.cancel()
 
         remoteSyncJob = repoScope.launch {
             Log.d("LUDIARY_FRIENDS_DEBUG", "startRemoteSync uid=${me.uid}")
@@ -35,218 +47,201 @@ class FriendsRepositoryImpl(
                 Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE size=${remoteList.size}")
 
                 for (rf in remoteList) {
-                    val status = runCatching { FriendStatus.valueOf(rf.status) }.getOrNull() ?: continue
-                    val existing = local.getByFriendUid(rf.friendUid)
+                    val status = runCatching { FriendStatus.valueOf(rf.status) }.getOrNull()
+                    if (status == null) {
+                        Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE skip invalid status=${rf.status}")
+                        continue
+                    }
 
-                    local.upsert(
-                        FriendEntity(
-                            id = existing?.id ?: 0L,
-                            friendUid = rf.friendUid,
-                            friendCode = existing?.friendCode, // remoto no lo trae
-                            displayName = rf.displayName,
-                            nickname = rf.nickname,
-                            status = status,
-                            createdAt = rf.createdAt ?: existing?.createdAt ?: System.currentTimeMillis(),
-                            updatedAt = rf.updatedAt ?: System.currentTimeMillis(),
-                            syncStatus = SyncStatus.CLEAN
-                        )
+                    // ✅ Nunca insertar a pelo: esto evita el UNIQUE constraint failed: friends.friendUid
+                    local.upsertRemote(
+                        friendUid = rf.friendUid,
+                        displayName = rf.displayName,
+                        nickname = rf.nickname,
+                        status = status,
+                        createdAt = rf.createdAt,
+                        updatedAt = rf.updatedAt
                     )
                 }
             }
         }
     }
 
-    override fun observeFriends(query: String): Flow<List<FriendEntity>> =
-        local.observeByStatus(FriendStatus.ACCEPTED, query)
-
-    override fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> =
-        local.observeByStatus(FriendStatus.PENDING_INCOMING, query)
-
-    override fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> =
-        local.observeByStatus(FriendStatus.PENDING_OUTGOING, query)
-
-    override fun observeGroups(query: String): Flow<List<FriendEntity>> =
-        local.observeGroups(query)
-
     override suspend fun sendInviteByCode(code: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error("No hay sesión")
 
-            val trimmed = code.trim().uppercase()
-            Log.d("LUDIARY_FRIENDS_DEBUG", "sendInviteByCode() code=$trimmed from=${me.uid}")
+            val normalized = code.trim().uppercase()
+            Log.d("LUDIARY_FRIENDS_DEBUG", "sendInviteByCode() code=$normalized from=${me.uid}")
 
-            // 1) Guardamos local como “pending local” (aún sin friendUid)
-            val now = System.currentTimeMillis()
-            local.upsert(
+            // Local-first: guardamos pendiente local
+            local.insert(
                 FriendEntity(
-                    friendUid = null,
-                    friendCode = trimmed,
+                    friendCode = normalized,
+                    friendUid = null, // aún no resuelto
                     displayName = null,
                     nickname = null,
                     status = FriendStatus.PENDING_OUTGOING_LOCAL,
-                    createdAt = now,
-                    updatedAt = now,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis(),
                     syncStatus = SyncStatus.PENDING
                 )
             )
 
-            Log.d("LUDIARY_FRIENDS_DEBUG", "Local saved PENDING_OUTGOING_LOCAL")
-        }.fold(
-            onSuccess = { Result.success(Unit) },
-            onFailure = { Result.failure(it) }
-        )
+            Log.d("LUDIARY_FRIENDS_DEBUG", "Local saved PENDING_OUTGOING_LOCAL + PENDING")
+            Unit
+        }
     }
 
     override suspend fun flushOfflineInvites(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
-            val me = auth.currentUser ?: return@runCatching
+            val me = auth.currentUser ?: return@runCatching Unit
+
             val pending = local.getPendingInvites()
             Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites() pending=${pending.size}")
 
-            for (p in pending) {
-                val code = p.friendCode?.trim().orEmpty()
-                if (code.isBlank()) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "pending without code -> delete local id=${p.id}")
-                    local.deleteById(p.id)
-                    continue
-                }
+            for (entity in pending) {
+                val localId = entity.id
+                val code = entity.friendCode?.trim()?.uppercase().orEmpty()
+                if (code.isBlank()) continue
 
-                Log.d("LUDIARY_FRIENDS_DEBUG", "Resolving friendCode=$code localId=${p.id}")
+                Log.d("LUDIARY_FRIENDS_DEBUG", "Resolving friendCode=$code localId=$localId")
+
                 val target = remote.findUserByFriendCode(code)
-
-                // Mensaje neutro: si no existe, borramos local (o podrías dejarlo y reintentar)
                 if (target == null) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "friendCode MISS -> delete local id=${p.id}")
-                    local.deleteById(p.id)
+                    Log.d("LUDIARY_FRIENDS_DEBUG", "resolve MISS -> keep local pending localId=$localId")
                     continue
                 }
 
-                // Bloquea self-invite
+                // ✅ No permitir enviarse a uno mismo
                 if (target.uid == me.uid) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "Self-invite blocked -> delete local id=${p.id}")
-                    local.deleteById(p.id)
+                    Log.d("LUDIARY_FRIENDS_DEBUG", "Self-invite blocked -> delete local id=$localId")
+                    local.deleteById(localId)
                     continue
                 }
+
+                // ✅ Atamos primero friendUid en local para que cuando llegue Firestore no intente insertar otra fila
+                local.updateStatusAndUid(
+                    id = localId,
+                    status = FriendStatus.PENDING_OUTGOING,
+                    friendUid = target.uid,
+                    syncStatus = SyncStatus.PENDING
+                )
 
                 val now = System.currentTimeMillis()
 
-                // ✅ CLAVE ANTI-DUPLICADO:
-                // antes de escribir remoto, fija friendUid en el row local
-                local.updateStatusAndUid(
-                    id = p.id,
-                    status = FriendStatus.PENDING_OUTGOING,
+                // Firestore: escribimos en ambos lados
+                remote.upsert(
+                    uid = me.uid,
                     friendUid = target.uid,
-                    updatedAt = now,
-                    syncStatus = SyncStatus.CLEAN
+                    data = FirestoreFriendsRepository.RemoteFriend(
+                        friendUid = target.uid,
+                        displayName = target.displayName,
+                        nickname = null,
+                        status = FriendStatus.PENDING_OUTGOING.name,
+                        createdAt = entity.createdAt,
+                        updatedAt = now
+                    )
                 )
 
-                Log.d("LUDIARY_FRIENDS_DEBUG", "Local updated -> friendUid=${target.uid} status=PENDING_OUTGOING")
-
-                // Ahora escribe remoto (dos docs: el mío y el del target)
-                val rfMine = FirestoreFriendsRepository.RemoteFriend(
-                    friendUid = target.uid,
-                    displayName = target.displayName,
-                    nickname = null,
-                    status = FriendStatus.PENDING_OUTGOING.name,
-                    createdAt = now,
-                    updatedAt = now
-                )
-                val rfTarget = FirestoreFriendsRepository.RemoteFriend(
+                remote.upsert(
+                    uid = target.uid,
                     friendUid = me.uid,
-                    displayName = null,
-                    nickname = null,
-                    status = FriendStatus.PENDING_INCOMING.name,
-                    createdAt = now,
-                    updatedAt = now
+                    data = FirestoreFriendsRepository.RemoteFriend(
+                        friendUid = me.uid,
+                        displayName = null, // MVP: neutro
+                        nickname = null,
+                        status = FriendStatus.PENDING_INCOMING.name,
+                        createdAt = entity.createdAt,
+                        updatedAt = now
+                    )
                 )
 
-                Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE write outgoing(me) + incoming(target)")
-                remote.upsert(uid = me.uid, friendUid = target.uid, data = rfMine)
-                remote.upsert(uid = target.uid, friendUid = me.uid, data = rfTarget)
+                // Local: ya está escrito remoto -> limpio
+                local.updateSyncStatus(localId, SyncStatus.CLEAN)
+                Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites OK localId=$localId -> remote written")
             }
-        }.fold(
-            onSuccess = { Result.success(Unit) },
-            onFailure = { e ->
-                Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites FAIL err=${e.message}", e)
-                Result.failure(e)
-            }
-        )
+
+            Unit
+        }.onFailure {
+            Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites FAIL err=${it.message}")
+        }
     }
 
     override suspend fun acceptRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error("No hay sesión")
             val entity = local.getById(friendId) ?: error("No existe en local")
-            val friendUid = entity.friendUid ?: error("friendUid null (no resuelto)")
 
+            val friendUid = entity.friendUid ?: error("No tiene friendUid (no sincronizado aún)")
             Log.d("LUDIARY_FRIENDS_DEBUG", "acceptRequest id=$friendId friendUid=$friendUid")
 
             val now = System.currentTimeMillis()
 
-            // remoto: ambos lados ACCEPTED
-            val mine = FirestoreFriendsRepository.RemoteFriend(
+            // Firestore: ambos ACCEPTED
+            remote.upsert(
+                uid = me.uid,
                 friendUid = friendUid,
-                displayName = entity.displayName,
-                nickname = entity.nickname,
-                status = FriendStatus.ACCEPTED.name,
-                createdAt = entity.createdAt,
-                updatedAt = now
+                data = FirestoreFriendsRepository.RemoteFriend(
+                    friendUid = friendUid,
+                    displayName = entity.displayName,
+                    nickname = entity.nickname,
+                    status = FriendStatus.ACCEPTED.name,
+                    createdAt = entity.createdAt,
+                    updatedAt = now
+                )
             )
-            val theirs = FirestoreFriendsRepository.RemoteFriend(
+
+            remote.upsert(
+                uid = friendUid,
                 friendUid = me.uid,
-                displayName = null,
-                nickname = null,
-                status = FriendStatus.ACCEPTED.name,
-                createdAt = entity.createdAt,
-                updatedAt = now
+                data = FirestoreFriendsRepository.RemoteFriend(
+                    friendUid = me.uid,
+                    displayName = null,
+                    nickname = null,
+                    status = FriendStatus.ACCEPTED.name,
+                    createdAt = entity.createdAt,
+                    updatedAt = now
+                )
             )
 
-            remote.upsert(uid = me.uid, friendUid = friendUid, data = mine)
-            remote.upsert(uid = friendUid, friendUid = me.uid, data = theirs)
-
-            // local: ACCEPTED
+            // Local
             local.updateStatusAndUid(
                 id = friendId,
                 status = FriendStatus.ACCEPTED,
                 friendUid = friendUid,
-                updatedAt = now,
                 syncStatus = SyncStatus.CLEAN
             )
 
             Log.d("LUDIARY_FRIENDS_DEBUG", "acceptRequest OK -> local ACCEPTED")
-        }.fold(
-            onSuccess = { Result.success(Unit) },
-            onFailure = { e ->
-                Log.d("LUDIARY_FRIENDS_DEBUG", "acceptRequest FAIL err=${e.message}", e)
-                Result.failure(e)
-            }
-        )
+            Unit
+        }
+    }
+
+    fun stopRemoteSync() {
+        remoteSyncJob?.cancel()
+        remoteSyncJob = null
     }
 
     override suspend fun rejectRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error("No hay sesión")
-            val entity = local.getById(friendId) ?: return@runCatching
-            val otherUid = entity.friendUid
+            val entity = local.getById(friendId) ?: return@runCatching Unit
 
-            Log.d("LUDIARY_FRIENDS_DEBUG", "reject/cancel id=$friendId otherUid=$otherUid status=${entity.status}")
+            val friendUid = entity.friendUid
+            Log.d("LUDIARY_FRIENDS_DEBUG", "rejectRequest id=$friendId friendUid=$friendUid status=${entity.status}")
 
-            // MVP: “borrar al rechazar”
-            // - si era incoming: reject
-            // - si era outgoing: cancel
-            if (!otherUid.isNullOrBlank()) {
-                remote.delete(uid = me.uid, friendUid = otherUid)
-                remote.delete(uid = otherUid, friendUid = me.uid)
+            // MVP: borrar en remoto si tenemos uid
+            if (!friendUid.isNullOrBlank()) {
+                remote.delete(me.uid, friendUid)
+                remote.delete(friendUid, me.uid)
             }
 
+            // MVP: borrar en local
             local.deleteById(friendId)
-            Log.d("LUDIARY_FRIENDS_DEBUG", "reject/cancel OK -> deleted local row")
-        }.fold(
-            onSuccess = { Result.success(Unit) },
-            onFailure = { e ->
-                Log.d("LUDIARY_FRIENDS_DEBUG", "reject/cancel FAIL err=${e.message}", e)
-                Result.failure(e)
-            }
-        )
+
+            Log.d("LUDIARY_FRIENDS_DEBUG", "rejectRequest OK -> deleted local + remote(if possible)")
+            Unit
+        }
     }
 }

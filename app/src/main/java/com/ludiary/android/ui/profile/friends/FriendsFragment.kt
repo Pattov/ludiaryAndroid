@@ -40,17 +40,36 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
     private fun showAddFriendDialog() {
         val til = TextInputLayout(requireContext()).apply {
             hint = "Friend code"
+            isHintEnabled = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
 
-        val input = TextInputEditText(til.context)
+        val input = TextInputEditText(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        // ✅ Importante: TextInputLayout internamente espera LayoutParams tipo LinearLayout
         til.addView(input)
+
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0) // opcional, para que el dialog no quede pegado
+            addView(til)
+        }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Añadir amigo")
             .setMessage("Introduce el código de amigo (10–12 caracteres).")
-            .setView(til)
+            .setView(container)
             .setPositiveButton("Enviar") { _, _ ->
-                vm.sendInviteByCode(input.text?.toString().orEmpty())
+                val code = input.text?.toString().orEmpty().trim().uppercase()
+                vm.sendInviteByCode(code)
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -139,6 +158,16 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         }
 
         vm.start()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        vm.start()
+    }
+
+    override fun onStop() {
+        vm.stop()
+        super.onStop()
     }
 
     private inner class FriendsPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {

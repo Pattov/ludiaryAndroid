@@ -29,11 +29,15 @@ class FriendsViewModel(
 
     private val _uiState = MutableStateFlow(FriendsUiState())
     val uiState: StateFlow<FriendsUiState> = _uiState.asStateFlow()
+    private var started = false
 
     private val _events = MutableSharedFlow<FriendsUiEvent>()
     val events: SharedFlow<FriendsUiEvent> = _events.asSharedFlow()
 
     fun start() {
+        if (started) return
+        started = true
+
         (repo as? FriendsRepositoryImpl)?.startRemoteSync()
 
         viewModelScope.launch {
@@ -93,6 +97,11 @@ class FriendsViewModel(
                 )
             )
         }
+    }
+
+    fun stop() {
+        started = false
+        (repo as? FriendsRepositoryImpl)?.stopRemoteSync()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

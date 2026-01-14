@@ -30,11 +30,9 @@ class FriendsAdapter(
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
 
-        // IDs reales de tu item_friend_row.xml
         private val tvTitle: TextView = view.findViewById(R.id.tvFriendTitle)
         private val tvSubtitle: TextView = view.findViewById(R.id.tvFriendSubtitle)
 
-        // Botones (existen en tu layout)
         private val btnAccept: View = view.findViewById(R.id.btnAccept)
         private val btnReject: View = view.findViewById(R.id.btnReject)
 
@@ -43,7 +41,6 @@ class FriendsAdapter(
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
-            // Subtítulo neutro (sin email)
             val subtitle = when (item.status) {
                 FriendStatus.PENDING_OUTGOING,
                 FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
@@ -61,8 +58,14 @@ class FriendsAdapter(
             btnAccept.isVisible = showActions
             btnReject.isVisible = showActions
 
-            btnAccept.setOnClickListener { onAccept(item.id) }
-            btnReject.setOnClickListener { onReject(item.id) }
+            // Evita doble click con “rebind”
+            btnAccept.setOnClickListener(null)
+            btnReject.setOnClickListener(null)
+
+            if (showActions) {
+                btnAccept.setOnClickListener { onAccept(item.id) }
+                btnReject.setOnClickListener { onReject(item.id) }
+            }
 
             itemView.setOnClickListener { onClick(item) }
         }

@@ -9,25 +9,25 @@ import com.ludiary.android.data.model.SyncStatus
 @Entity(
     tableName = "friends",
     indices = [
-        Index(value = ["friendUid"], unique = true)
+        Index(value = ["friendUid"], unique = true),
+        Index(value = ["friendCode"]),
+        Index(value = ["status"])
     ]
 )
 data class FriendEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 0L,
+    val id: Long = 0,
 
-    val friendUid: String? = null,
-
-    // Para mostrar y para reintentos offline antes de resolver uid
     val friendCode: String? = null,
+    val friendUid: String? = null,
 
     val displayName: String? = null,
     val nickname: String? = null,
 
-    val status: FriendStatus,
+    val status: FriendStatus = FriendStatus.ACCEPTED,
 
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
 
-    val syncStatus: SyncStatus = SyncStatus.PENDING
+    val syncStatus: SyncStatus = SyncStatus.CLEAN
 )
