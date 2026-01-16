@@ -181,6 +181,14 @@ class FriendsRepositoryImpl(
         }
     }
 
+    override suspend fun getMyFriendCode(): Result<String> = withContext(Dispatchers.IO) {
+        runCatching {
+            val me = auth.currentUser ?: error("No hay sesión")
+            remote.getMyFriendCode(me.uid) ?: error("No tienes friendCode")
+        }
+    }
+
+
     override suspend fun acceptRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error("No hay sesión")

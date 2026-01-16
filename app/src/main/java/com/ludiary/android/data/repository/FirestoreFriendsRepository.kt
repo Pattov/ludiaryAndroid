@@ -51,6 +51,11 @@ class FirestoreFriendsRepository(
         col(uid).document(friendUid).delete().await()
     }
 
+    suspend fun getMyFriendCode(uid: String): String? {
+        val doc = firestore.collection("users").document(uid).get().await()
+        return doc.getString("friendCode")
+    }
+
     suspend fun getUserDisplayName(uid: String): String? {
         val doc = firestore.collection("users").document(uid).get().await()
         return doc.getString("displayName")

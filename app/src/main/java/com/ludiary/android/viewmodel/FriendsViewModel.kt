@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 
 data class FriendsUiState(
     val tab: FriendsTab = FriendsTab.FRIENDS,
-    val query: String = ""
+    val query: String = "",
+    val myFriendCode: String? = null
 )
 
 sealed class FriendsUiEvent {
@@ -45,7 +46,8 @@ class FriendsViewModel(
         repo.startRemoteSync()
 
         viewModelScope.launch {
-            repo.flushOfflineInvites()
+            repo.getMyFriendCode()
+                .onSuccess { code -> _uiState.update { it.copy(myFriendCode = code) } }
         }
     }
 

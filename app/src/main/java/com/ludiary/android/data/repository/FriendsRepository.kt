@@ -13,6 +13,7 @@ interface FriendsRepository {
     fun startRemoteSync()
     fun stopRemoteSync()
 
+    suspend fun getMyFriendCode(): Result<String>
     suspend fun sendInviteByCode(code: String): Result<Unit>
     suspend fun acceptRequest(friendId: Long): Result<Unit>
     suspend fun rejectRequest(friendId: Long): Result<Unit>

@@ -28,10 +28,14 @@ import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.FriendsViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 
 class FriendsFragment : Fragment(R.layout.form_friends_profile) {
 
@@ -93,7 +97,14 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         val search: TextInputEditText = view.findViewById(R.id.textSearchFriends)
         val btnPrimary: MaterialButton = view.findViewById(R.id.btnPrimary)
 
-        topAppBar.setNavigationOnClickListener { findNavController().popBackStack() }
+        // 👉 NUEVO: vistas del código de amigo
+        val tvMyFriendCode: TextView = view.findViewById(R.id.tvMyFriendCode)
+        val btnCopy: View = view.findViewById(R.id.btnCopyCode)
+        val btnShare: View = view.findViewById(R.id.btnShareCode)
+
+        topAppBar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
         pager.adapter = FriendsPagerAdapter(this)
 
@@ -115,16 +126,24 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                     }
                 )
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
-        search.addTextChangedListener { vm.onQueryChanged(it?.toString().orEmpty()) }
+        search.addTextChangedListener {
+            vm.onQueryChanged(it?.toString().orEmpty())
+        }
 
-        btnPrimary.setOnClickListener { vm.onPrimaryActionClicked() }
+        btnPrimary.setOnClickListener {
+            vm.onPrimaryActionClicked()
+        }
 
+        // 👉 NUEVO: pintar mi friendCode
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.collectLatest { state ->
+                tvMyFriendCode.text = state.myFriendCode ?: "—"
+
                 when (state.tab) {
                     FriendsTab.FRIENDS -> {
                         btnPrimary.visibility = View.VISIBLE
@@ -134,9 +153,41 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         btnPrimary.visibility = View.VISIBLE
                         btnPrimary.text = getString(R.string.profile_friends_add_group)
                     }
-                    FriendsTab.REQUESTS -> btnPrimary.visibility = View.GONE
+                    FriendsTab.REQUESTS -> {
+                        btnPrimary.visibility = View.GONE
+                    }
                 }
             }
+        }
+
+        // 👉 NUEVO: copiar código
+        btnCopy.setOnClickListener {
+            val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
+            val cm = requireContext()
+                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+            cm.setPrimaryClip(
+                ClipData.newPlainText("Ludiary friend code", code)
+            )
+
+            Snackbar.make(view, "Código copiado", Snackbar.LENGTH_SHORT).show()
+        }
+
+        // 👉 NUEVO: compartir código
+        btnShare.setOnClickListener {
+            val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "Añádeme en Ludiary con este código: $code"
+                )
+            }
+
+            startActivity(
+                Intent.createChooser(intent, "Compartir código")
+            )
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -152,7 +203,11 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()
 
                     is FriendsUiEvent.OpenEditNickname ->
-                        Snackbar.make(view, "TODO: editar mote (${e.friendId})", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(
+                            view,
+                            "TODO: editar mote (${e.friendId})",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
                 }
             }
         }
