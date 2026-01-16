@@ -10,10 +10,11 @@ interface FriendsRepository {
     fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>>
     fun observeGroups(query: String) = flowOf(emptyList<FriendEntity>())
 
-    suspend fun sendInviteByCode(code: String): Result<Unit>
+    fun startRemoteSync()
+    fun stopRemoteSync()
 
+    suspend fun sendInviteByCode(code: String): Result<Unit>
     suspend fun acceptRequest(friendId: Long): Result<Unit>
     suspend fun rejectRequest(friendId: Long): Result<Unit>
-
     suspend fun flushOfflineInvites(): Result<Unit>
 }

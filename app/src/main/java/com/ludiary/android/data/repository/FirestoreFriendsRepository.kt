@@ -50,6 +50,11 @@ class FirestoreFriendsRepository(
         col(uid).document(friendUid).delete().await()
     }
 
+    suspend fun getUserDisplayName(uid: String): String? {
+        val doc = firestore.collection("users").document(uid).get().await()
+        return doc.getString("displayName")
+    }
+
     suspend fun findUserByFriendCode(codeRaw: String): RemoteUser? {
         val code = codeRaw.trim().uppercase()
         Log.d("LUDIARY_FRIENDS_DEBUG", "findUserByFriendCode() code=$code")

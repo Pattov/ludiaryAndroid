@@ -31,19 +31,35 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
         val recycler: RecyclerView = view.findViewById(R.id.recyclerFriends)
         val empty: TextView = view.findViewById(R.id.tvEmptyFriends)
 
-        val adapter = FriendsAdapter(
-            onClick = { vm.onFriendClicked(it) },
-            onAccept = { friendId -> vm.acceptRequest(friendId) },
-            onReject = { friendId -> vm.rejectRequest(friendId) }
-        )
-
         recycler.layoutManager = LinearLayoutManager(requireContext())
-        recycler.adapter = adapter
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            vm.items(tab).collectLatest { items ->
-                adapter.submitList(items)
-                empty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+        if (tab == FriendsTab.REQUESTS) {
+            val adapter = RequestsAdapter(
+                onClick = { vm.onFriendClicked(it) },
+                onAccept = { friendId -> vm.acceptRequest(friendId) },
+                onReject = { friendId -> vm.rejectRequest(friendId) }
+            )
+            recycler.adapter = adapter
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                vm.requestRows().collectLatest { rows ->
+                    adapter.submitList(rows)
+                    empty.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+        } else {
+            val adapter = FriendsAdapter(
+                onClick = { vm.onFriendClicked(it) },
+                onAccept = { friendId -> vm.acceptRequest(friendId) },
+                onReject = { friendId -> vm.rejectRequest(friendId) }
+            )
+            recycler.adapter = adapter
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                vm.items(tab).collectLatest { items ->
+                    adapter.submitList(items)
+                    empty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+                }
             }
         }
     }

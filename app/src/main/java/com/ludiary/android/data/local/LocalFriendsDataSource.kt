@@ -8,16 +8,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class LocalFriendsDataSource(
-    private val dao: FriendDao
+    private val friendDao: FriendDao
 ) {
     fun observeFriends(query: String): Flow<List<FriendEntity>> =
-        dao.observeByStatus(FriendStatus.ACCEPTED.name, query)
+        friendDao.observeByStatus(FriendStatus.ACCEPTED.name, query)
 
     fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> =
-        dao.observeByStatus(FriendStatus.PENDING_INCOMING.name, query)
+        friendDao.observeByStatus(FriendStatus.PENDING_INCOMING.name, query)
 
     fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> =
-        dao.observeByStatuses(
+        friendDao.observeByStatuses(
             listOf(FriendStatus.PENDING_OUTGOING.name, FriendStatus.PENDING_OUTGOING_LOCAL.name),
             query
         )
@@ -25,21 +25,21 @@ class LocalFriendsDataSource(
     // MVP: grupos aún no implementados
     fun observeGroups(query: String): Flow<List<FriendEntity>> = flowOf(emptyList())
 
-    suspend fun getById(id: Long): FriendEntity? = dao.getById(id)
+    suspend fun getById(id: Long): FriendEntity? = friendDao.getById(id)
 
-    suspend fun getByFriendUid(uid: String): FriendEntity? = dao.getByFriendUid(uid)
+    suspend fun getByFriendUid(uid: String): FriendEntity? = friendDao.getByFriendUid(uid)
 
     suspend fun getPendingInvites(): List<FriendEntity> =
-        dao.getPendingInvites(
+        friendDao.getPendingInvites(
             status = FriendStatus.PENDING_OUTGOING_LOCAL.name,
             syncStatus = SyncStatus.PENDING.name
         )
 
-    suspend fun insert(entity: FriendEntity): Long = dao.insert(entity)
+    suspend fun insert(entity: FriendEntity): Long = friendDao.insert(entity)
 
     suspend fun upsert(entity: FriendEntity) {
         // MVP simple: insert (ABORT si choca unique). Para actualizar, usa updateStatusAndUid por id.
-        dao.insert(entity)
+        friendDao.insert(entity)
     }
 
     suspend fun updateStatusAndUid(
@@ -47,7 +47,7 @@ class LocalFriendsDataSource(
         status: FriendStatus,
         friendUid: String?,
         syncStatus: SyncStatus
-    ): Int = dao.updateStatusAndUid(
+    ): Int = friendDao.updateStatusAndUid(
         id = id,
         status = status.name,
         friendUid = friendUid,
@@ -56,9 +56,11 @@ class LocalFriendsDataSource(
     )
 
     suspend fun updateSyncStatus(id: Long, syncStatus: SyncStatus): Int =
-        dao.updateSyncStatus(id, syncStatus.name, System.currentTimeMillis())
+        friendDao.updateSyncStatus(id, syncStatus.name, System.currentTimeMillis())
 
-    suspend fun deleteById(id: Long): Int = dao.deleteById(id)
+    suspend fun deleteById(id: Long): Int = friendDao.deleteById(id)
+
+    suspend fun clearAll() = friendDao.clearAll()
 
     suspend fun upsertRemote(
         friendUid: String,
@@ -68,7 +70,7 @@ class LocalFriendsDataSource(
         createdAt: Long?,
         updatedAt: Long?
     ) {
-        dao.upsertByFriendUid(
+        friendDao.upsertByFriendUid(
             FriendEntity(
                 id = 0L,
                 friendUid = friendUid,

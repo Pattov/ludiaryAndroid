@@ -21,7 +21,7 @@ import com.ludiary.android.data.local.entity.*
         SessionPlayerEntity::class,
         FriendEntity::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = true
 )
 @TypeConverters(LudiaryConverters::class)

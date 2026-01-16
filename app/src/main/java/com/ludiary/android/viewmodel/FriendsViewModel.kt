@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FriendsRepository
-import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -21,6 +20,11 @@ sealed class FriendsUiEvent {
     object OpenAddFriend : FriendsUiEvent()
     object OpenAddGroup : FriendsUiEvent()
     data class OpenEditNickname(val friendId: Long) : FriendsUiEvent()
+}
+
+sealed class FriendRowUi {
+    data class Header(val title: String) : FriendRowUi()
+    data class Item(val friend: FriendEntity) : FriendRowUi()
 }
 
 class FriendsViewModel(
@@ -38,7 +42,7 @@ class FriendsViewModel(
         if (started) return
         started = true
 
-        (repo as? FriendsRepositoryImpl)?.startRemoteSync()
+        repo.startRemoteSync()
 
         viewModelScope.launch {
             repo.flushOfflineInvites()
@@ -101,7 +105,7 @@ class FriendsViewModel(
 
     fun stop() {
         started = false
-        (repo as? FriendsRepositoryImpl)?.stopRemoteSync()
+        repo.stopRemoteSync()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -129,4 +133,31 @@ class FriendsViewModel(
             }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun requestRows(): Flow<List<FriendRowUi>> {
+        return uiState
+            .map { it.query }
+            .distinctUntilChanged()
+            .flatMapLatest { q ->
+                combine(
+                    repo.observeIncomingRequests(q),
+                    repo.observeOutgoingRequests(q)
+                ) { incoming, outgoing ->
+
+                    val rows = mutableListOf<FriendRowUi>()
+
+                    if (incoming.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Recibidas")
+                        rows += incoming.map { FriendRowUi.Item(it) }
+                    }
+
+                    if (outgoing.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Enviadas")
+                        rows += outgoing.map { FriendRowUi.Item(it) }
+                    }
+
+                    rows
+                }
+            }
+    }
 }

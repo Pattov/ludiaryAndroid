@@ -25,6 +25,8 @@ class FriendsRepositoryImpl(
     // ✅ Este era el que te faltaba (por eso el Unresolved reference)
     private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    private var lastUid: String? = null
+
     override fun observeFriends(query: String): Flow<List<FriendEntity>> = local.observeFriends(query)
     override fun observeIncomingRequests(query: String): Flow<List<FriendEntity>> = local.observeIncomingRequests(query)
     override fun observeOutgoingRequests(query: String): Flow<List<FriendEntity>> = local.observeOutgoingRequests(query)
@@ -34,8 +36,14 @@ class FriendsRepositoryImpl(
      * Listener realtime Firestore -> Room
      * Firebase siempre tiene razón: lo remoto pisa lo local en conflictos.
      */
-    fun startRemoteSync() {
+    override fun startRemoteSync() {
         val me = auth.currentUser ?: return
+
+        if (lastUid != null && lastUid != me.uid) {
+            Log.d("LUDIARY_FRIENDS_DEBUG", "User changed ${lastUid} -> ${me.uid}. Clearing friends table.")
+            repoScope.launch { local.clearAll() }
+        }
+        lastUid = me.uid
 
         // ✅ Importante: evitar listeners duplicados al reentrar a la pantalla
         remoteSyncJob?.cancel()
@@ -102,6 +110,9 @@ class FriendsRepositoryImpl(
 
             for (entity in pending) {
                 val localId = entity.id
+                val senderName = remote.getUserDisplayName(me.uid) ?: "Usuario"
+                val now = System.currentTimeMillis()
+
                 val code = entity.friendCode?.trim()?.uppercase().orEmpty()
                 if (code.isBlank()) continue
 
@@ -128,8 +139,6 @@ class FriendsRepositoryImpl(
                     syncStatus = SyncStatus.PENDING
                 )
 
-                val now = System.currentTimeMillis()
-
                 // Firestore: escribimos en ambos lados
                 remote.upsert(
                     uid = me.uid,
@@ -149,7 +158,7 @@ class FriendsRepositoryImpl(
                     friendUid = me.uid,
                     data = FirestoreFriendsRepository.RemoteFriend(
                         friendUid = me.uid,
-                        displayName = null, // MVP: neutro
+                        displayName = senderName,
                         nickname = null,
                         status = FriendStatus.PENDING_INCOMING.name,
                         createdAt = entity.createdAt,
@@ -218,7 +227,7 @@ class FriendsRepositoryImpl(
         }
     }
 
-    fun stopRemoteSync() {
+    override fun stopRemoteSync() {
         remoteSyncJob?.cancel()
         remoteSyncJob = null
     }
