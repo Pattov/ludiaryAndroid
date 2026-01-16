@@ -42,11 +42,11 @@ class FriendsAdapter(
                 ?: "Amigo"
 
             val subtitle = when (item.status) {
+                FriendStatus.ACCEPTED -> item.friendCode?.let { "#$it" } ?: ""
                 FriendStatus.PENDING_OUTGOING,
                 FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
                 FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
                 FriendStatus.BLOCKED -> "Bloqueado"
-                FriendStatus.ACCEPTED -> ""
             }
 
             tvTitle.text = title

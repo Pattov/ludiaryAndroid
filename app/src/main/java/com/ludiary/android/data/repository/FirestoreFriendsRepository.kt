@@ -14,6 +14,7 @@ class FirestoreFriendsRepository(
 ) {
     data class RemoteFriend(
         val friendUid: String = "",
+        val friendCode: String? = null,
         val displayName: String? = null,
         val nickname: String? = null,
         val status: String = "",
@@ -55,6 +56,16 @@ class FirestoreFriendsRepository(
         return doc.getString("displayName")
     }
 
+    suspend fun findFriendCodeByUid(uid: String): String? {
+        val snap = firestore.collection("friend_code_index")
+            .whereEqualTo("uid", uid)
+            .limit(1)
+            .get()
+            .await()
+
+        return snap.documents.firstOrNull()?.id
+    }
+
     suspend fun findUserByFriendCode(codeRaw: String): RemoteUser? {
         val code = codeRaw.trim().uppercase()
         Log.d("LUDIARY_FRIENDS_DEBUG", "findUserByFriendCode() code=$code")
@@ -92,6 +103,7 @@ class FirestoreFriendsRepository(
 
         return RemoteFriend(
             friendUid = friendUid,
+            friendCode = getString("friendCode"),
             displayName = getString("displayName"),
             nickname = getString("nickname"),
             status = status,
@@ -102,6 +114,7 @@ class FirestoreFriendsRepository(
 
     private fun RemoteFriend.toMap(): Map<String, Any?> = mapOf(
         "friendUid" to friendUid,
+        "friendCode" to friendCode,
         "displayName" to displayName,
         "nickname" to nickname,
         "status" to status,

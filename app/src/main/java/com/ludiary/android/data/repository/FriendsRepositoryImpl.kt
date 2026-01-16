@@ -40,7 +40,6 @@ class FriendsRepositoryImpl(
         val me = auth.currentUser ?: return
 
         if (lastUid != null && lastUid != me.uid) {
-            Log.d("LUDIARY_FRIENDS_DEBUG", "User changed ${lastUid} -> ${me.uid}. Clearing friends table.")
             repoScope.launch { local.clearAll() }
         }
         lastUid = me.uid
@@ -64,6 +63,7 @@ class FriendsRepositoryImpl(
                     // ✅ Nunca insertar a pelo: esto evita el UNIQUE constraint failed: friends.friendUid
                     local.upsertRemote(
                         friendUid = rf.friendUid,
+                        friendCode = rf.friendCode,
                         displayName = rf.displayName,
                         nickname = rf.nickname,
                         status = status,
@@ -103,7 +103,7 @@ class FriendsRepositoryImpl(
 
     override suspend fun flushOfflineInvites(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
-            val me = auth.currentUser ?: return@runCatching Unit
+            val me = auth.currentUser ?: return@runCatching
 
             val pending = local.getPendingInvites()
             Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites() pending=${pending.size}")
@@ -117,6 +117,9 @@ class FriendsRepositoryImpl(
                 if (code.isBlank()) continue
 
                 Log.d("LUDIARY_FRIENDS_DEBUG", "Resolving friendCode=$code localId=$localId")
+
+                val myCode = remote.findFriendCodeByUid(me.uid)
+                val targetCode = code // ya lo tienes normalizado
 
                 val target = remote.findUserByFriendCode(code)
                 if (target == null) {
@@ -145,6 +148,7 @@ class FriendsRepositoryImpl(
                     friendUid = target.uid,
                     data = FirestoreFriendsRepository.RemoteFriend(
                         friendUid = target.uid,
+                        friendCode = targetCode,
                         displayName = target.displayName,
                         nickname = null,
                         status = FriendStatus.PENDING_OUTGOING.name,
@@ -158,6 +162,7 @@ class FriendsRepositoryImpl(
                     friendUid = me.uid,
                     data = FirestoreFriendsRepository.RemoteFriend(
                         friendUid = me.uid,
+                        friendCode = myCode,
                         displayName = senderName,
                         nickname = null,
                         status = FriendStatus.PENDING_INCOMING.name,
@@ -171,7 +176,6 @@ class FriendsRepositoryImpl(
                 Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites OK localId=$localId -> remote written")
             }
 
-            Unit
         }.onFailure {
             Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites FAIL err=${it.message}")
         }
@@ -187,12 +191,16 @@ class FriendsRepositoryImpl(
 
             val now = System.currentTimeMillis()
 
+            val friendCodeOfOther = entity.friendCode ?: remote.findFriendCodeByUid(friendUid)
+            val myCode = remote.findFriendCodeByUid(me.uid)
+
             // Firestore: ambos ACCEPTED
             remote.upsert(
                 uid = me.uid,
                 friendUid = friendUid,
                 data = FirestoreFriendsRepository.RemoteFriend(
                     friendUid = friendUid,
+                    friendCode = friendCodeOfOther,
                     displayName = entity.displayName,
                     nickname = entity.nickname,
                     status = FriendStatus.ACCEPTED.name,
@@ -206,6 +214,7 @@ class FriendsRepositoryImpl(
                 friendUid = me.uid,
                 data = FirestoreFriendsRepository.RemoteFriend(
                     friendUid = me.uid,
+                    friendCode = myCode,
                     displayName = null,
                     nickname = null,
                     status = FriendStatus.ACCEPTED.name,
@@ -235,7 +244,7 @@ class FriendsRepositoryImpl(
     override suspend fun rejectRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error("No hay sesión")
-            val entity = local.getById(friendId) ?: return@runCatching Unit
+            val entity = local.getById(friendId) ?: return@runCatching
 
             val friendUid = entity.friendUid
             Log.d("LUDIARY_FRIENDS_DEBUG", "rejectRequest id=$friendId friendUid=$friendUid status=${entity.status}")

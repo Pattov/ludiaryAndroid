@@ -70,9 +70,12 @@ class RequestsAdapter(
         private val btnReject: View = view.findViewById(R.id.btnReject)
 
         fun bind(item: FriendEntity) {
-            val title = item.nickname?.takeIf { it.isNotBlank() }
+            val baseName = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
+
+            val code = item.friendCode?.takeIf { it.isNotBlank() }?.let { "#$it" } ?: ""
+            val title = if (code.isBlank()) baseName else "$baseName · $code"
 
             val subtitle = when (item.status) {
                 FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"

@@ -64,6 +64,7 @@ class LocalFriendsDataSource(
 
     suspend fun upsertRemote(
         friendUid: String,
+        friendCode: String?,
         displayName: String?,
         nickname: String?,
         status: FriendStatus,
@@ -74,7 +75,7 @@ class LocalFriendsDataSource(
             FriendEntity(
                 id = 0L,
                 friendUid = friendUid,
-                friendCode = null,
+                friendCode = friendCode,
                 displayName = displayName,
                 nickname = nickname,
                 status = status,
