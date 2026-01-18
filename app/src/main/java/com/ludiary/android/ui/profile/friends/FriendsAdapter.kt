@@ -15,7 +15,9 @@ import com.ludiary.android.data.model.FriendStatus
 class FriendsAdapter(
     private val onClick: (FriendEntity) -> Unit,
     private val onAccept: (Long) -> Unit,
-    private val onReject: (Long) -> Unit
+    private val onReject: (Long) -> Unit,
+    private val onEditNickname: (Long) -> Unit,
+    private val onDeleteFriend: (Long) -> Unit
 ) : ListAdapter<FriendEntity, FriendsAdapter.VH>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -35,6 +37,11 @@ class FriendsAdapter(
 
         private val btnAccept: View = view.findViewById(R.id.btnAccept)
         private val btnReject: View = view.findViewById(R.id.btnReject)
+        private val btnEdit: View = view.findViewById(R.id.btnEdit)
+        private val btnDelete: View = view.findViewById(R.id.btnDelete)
+
+        private val groupRequestActions: View = view.findViewById(R.id.groupRequestActions)
+        private val groupFriendActions: View = view.findViewById(R.id.groupFriendActions)
 
         fun bind(item: FriendEntity) {
             val title = item.nickname?.takeIf { it.isNotBlank() }
@@ -43,9 +50,9 @@ class FriendsAdapter(
 
             val subtitle = when (item.status) {
                 FriendStatus.ACCEPTED -> item.friendCode?.let { "#$it" } ?: ""
+                FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
                 FriendStatus.PENDING_OUTGOING,
                 FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
-                FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
                 FriendStatus.BLOCKED -> "Bloqueado"
             }
 
@@ -53,18 +60,33 @@ class FriendsAdapter(
             tvSubtitle.text = subtitle
             tvSubtitle.isVisible = subtitle.isNotBlank()
 
-            // ✅ Botones SOLO para solicitudes entrantes
-            val showActions = item.status == FriendStatus.PENDING_INCOMING
-            btnAccept.isVisible = showActions
-            btnReject.isVisible = showActions
+            val isAccepted = item.status == FriendStatus.ACCEPTED
+            val isIncoming = item.status == FriendStatus.PENDING_INCOMING
+            val isOutgoing = item.status == FriendStatus.PENDING_OUTGOING ||
+                    item.status == FriendStatus.PENDING_OUTGOING_LOCAL
 
-            // Evita doble click con “rebind”
+            // Grupos (asegúrate de tenerlos como views)
+            groupRequestActions.isVisible = isIncoming || isOutgoing
+            groupFriendActions.isVisible = isAccepted
+
+            // Dentro del grupo de solicitud:
+            btnAccept.isVisible = isIncoming
+            btnReject.isVisible = isIncoming || isOutgoing
+
+            // Limpieza de clicks
             btnAccept.setOnClickListener(null)
             btnReject.setOnClickListener(null)
+            btnEdit.setOnClickListener(null)
+            btnDelete.setOnClickListener(null)
 
-            if (showActions) {
+            if (isIncoming) {
                 btnAccept.setOnClickListener { onAccept(item.id) }
                 btnReject.setOnClickListener { onReject(item.id) }
+            } else if (isOutgoing) {
+                btnReject.setOnClickListener { onReject(item.id) } // cancelar
+            } else if (isAccepted) {
+                btnEdit.setOnClickListener { onEditNickname(item.id) }
+                btnDelete.setOnClickListener { onDeleteFriend(item.id) }
             }
 
             itemView.setOnClickListener { onClick(item) }

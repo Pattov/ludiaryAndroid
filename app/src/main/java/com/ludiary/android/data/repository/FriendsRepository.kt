@@ -18,4 +18,5 @@ interface FriendsRepository {
     suspend fun acceptRequest(friendId: Long): Result<Unit>
     suspend fun rejectRequest(friendId: Long): Result<Unit>
     suspend fun flushOfflineInvites(): Result<Unit>
+    suspend fun removeFriend(friendId: Long): Result<Unit>
 }

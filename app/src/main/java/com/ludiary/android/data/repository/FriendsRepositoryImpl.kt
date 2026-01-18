@@ -270,4 +270,20 @@ class FriendsRepositoryImpl(
             Unit
         }
     }
+
+    override suspend fun removeFriend(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val me = auth.currentUser ?: error("No hay sesión")
+            val entity = local.getById(friendId) ?: return@runCatching Unit
+            val friendUid = entity.friendUid ?: error("No tiene friendUid")
+
+            remote.delete(me.uid, friendUid)
+            remote.delete(friendUid, me.uid)
+
+            local.deleteById(friendId)
+
+            Unit
+        }
+    }
+
 }

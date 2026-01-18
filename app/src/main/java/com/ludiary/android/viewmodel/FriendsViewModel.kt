@@ -21,6 +21,7 @@ sealed class FriendsUiEvent {
     object OpenAddFriend : FriendsUiEvent()
     object OpenAddGroup : FriendsUiEvent()
     data class OpenEditNickname(val friendId: Long) : FriendsUiEvent()
+    data class OpenFriendActions(val friendId: Long) : FriendsUiEvent()
 }
 
 sealed class FriendRowUi {
@@ -68,7 +69,7 @@ class FriendsViewModel(
     }
 
     fun onFriendClicked(item: FriendEntity) {
-        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenEditNickname(item.id)) }
+        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenFriendActions(item.id)) }
     }
 
     fun sendInviteByCode(code: String) {
@@ -108,6 +109,16 @@ class FriendsViewModel(
     fun stop() {
         started = false
         repo.stopRemoteSync()
+    }
+
+    fun removeFriend(friendId: Long) = viewModelScope.launch {
+        repo.removeFriend(friendId)
+            .onSuccess { _events.emit(FriendsUiEvent.ShowSnack("Amigo eliminado")) }
+            .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo eliminar")) }
+    }
+
+    fun editNickname(friendId: Long) {
+        _events.tryEmit(FriendsUiEvent.OpenEditNickname(friendId))
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

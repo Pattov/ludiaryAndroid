@@ -51,7 +51,9 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
             val adapter = FriendsAdapter(
                 onClick = { vm.onFriendClicked(it) },
                 onAccept = { friendId -> vm.acceptRequest(friendId) },
-                onReject = { friendId -> vm.rejectRequest(friendId) }
+                onReject = { friendId -> vm.rejectRequest(friendId) },
+                onEditNickname = { vm.editNickname(it) },
+                onDeleteFriend = { vm.removeFriend(it) }
             )
             recycler.adapter = adapter
 

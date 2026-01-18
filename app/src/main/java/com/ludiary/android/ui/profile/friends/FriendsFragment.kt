@@ -1,7 +1,13 @@
 package com.ludiary.android.ui.profile.friends
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -11,10 +17,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
@@ -28,14 +36,6 @@ import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.FriendsViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import android.widget.LinearLayout
-import android.widget.TextView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputLayout
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
 
 class FriendsFragment : Fragment(R.layout.form_friends_profile) {
 
@@ -79,6 +79,27 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             .show()
     }
 
+    private fun showFriendActionsDialog(friendId: Long) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Acciones")
+            .setItems(arrayOf("Eliminar amigo", "Bloquear usuario")) { _, which ->
+                when (which) {
+                    0 -> showConfirmRemove(friendId)
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun showConfirmRemove(friendId: Long) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Eliminar amigo")
+            .setMessage("¿Seguro que quieres eliminar a este amigo? Se borrará en ambos usuarios.")
+            .setPositiveButton("Eliminar") { _, _ -> vm.removeFriend(friendId) }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -97,7 +118,6 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         val search: TextInputEditText = view.findViewById(R.id.textSearchFriends)
         val btnPrimary: MaterialButton = view.findViewById(R.id.btnPrimary)
 
-        // 👉 NUEVO: vistas del código de amigo
         val tvMyFriendCode: TextView = view.findViewById(R.id.tvMyFriendCode)
         val btnCopy: View = view.findViewById(R.id.btnCopyCode)
         val btnShare: View = view.findViewById(R.id.btnShareCode)
@@ -139,7 +159,7 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             vm.onPrimaryActionClicked()
         }
 
-        // 👉 NUEVO: pintar mi friendCode
+        // UI state: friendCode + botón primary
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.collectLatest { state ->
                 tvMyFriendCode.text = state.myFriendCode ?: "—"
@@ -160,36 +180,25 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             }
         }
 
-        // 👉 NUEVO: copiar código
+        // Copiar código
         btnCopy.setOnClickListener {
             val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
-            val cm = requireContext()
-                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-            cm.setPrimaryClip(
-                ClipData.newPlainText("Ludiary friend code", code)
-            )
-
+            val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            cm.setPrimaryClip(ClipData.newPlainText("Ludiary friend code", code))
             Snackbar.make(view, "Código copiado", Snackbar.LENGTH_SHORT).show()
         }
 
-        // 👉 NUEVO: compartir código
+        // Compartir código
         btnShare.setOnClickListener {
             val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    "Añádeme en Ludiary con este código: $code"
-                )
+                putExtra(Intent.EXTRA_TEXT, "Añádeme en Ludiary con este código: $code")
             }
-
-            startActivity(
-                Intent.createChooser(intent, "Compartir código")
-            )
+            startActivity(Intent.createChooser(shareIntent, "Compartir código"))
         }
 
+        // Eventos
         viewLifecycleOwner.lifecycleScope.launch {
             vm.events.collectLatest { e ->
                 when (e) {
@@ -203,16 +212,17 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()
 
                     is FriendsUiEvent.OpenEditNickname ->
-                        Snackbar.make(
-                            view,
-                            "TODO: editar mote (${e.friendId})",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        Snackbar.make(view, "TODO: editar mote (${e.friendId})", Snackbar.LENGTH_SHORT).show()
+
+                    // ✅ NUEVO: acciones eliminar/bloquear
+                    is FriendsUiEvent.OpenFriendActions ->
+                        showFriendActionsDialog(e.friendId)
                 }
             }
         }
 
-        vm.start()
+        // ✅ IMPORTANTE: solo arrancamos aquí o en onStart, pero no en ambos.
+        // Yo lo dejo en onStart (más correcto con stop/start).
     }
 
     override fun onStart() {

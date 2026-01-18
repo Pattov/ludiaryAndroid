@@ -45,28 +45,65 @@
                 android:textColor="?attr/colorOnPrimaryContainer" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Botón Rechazar -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReject"
-            style="@style/Widget.Material3.Button.TextButton"
+        <!-- Grupo acciones SOLICITUD-->
+        <LinearLayout
+            android:id="@+id/groupRequestActions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/action_reject"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Botón Aceptar -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccept"
-            style="@style/Widget.Material3.Button.TextButton"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccept"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_check"
+                app:iconTint="?attr/colorPrimary"
+                android:contentDescription="@string/action_accept" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReject"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_close"
+                app:iconTint="?attr/colorError"
+                android:contentDescription="@string/action_reject" />
+        </LinearLayout>
+
+        <!-- Grupo acciones AMIGO -->
+        <LinearLayout
+            android:id="@+id/groupFriendActions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/action_accept"
-            android:layout_marginEnd="@dimen/space_s"
-            app:layout_constraintEnd_toStartOf="@id/btnReject"
-            app:layout_constraintTop_toTopOf="@id/btnReject"
-            app:layout_constraintBottom_toBottomOf="@id/btnReject" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_edit"
+                app:iconTint="?attr/colorOnSurface"
+                android:contentDescription="@string/action_edit" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_close"
+                app:iconTint="?attr/colorError"
+                android:contentDescription="@string/action_delete" />
+        </LinearLayout>
 
         <!-- Título -->
         <TextView
@@ -80,7 +117,7 @@
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="@id/avatar"
-            app:layout_constraintEnd_toStartOf="@id/btnAccept" />
+            app:layout_constraintEnd_toStartOf="@id/groupRequestActions" />
 
         <!-- Subtítulo -->
         <TextView
@@ -94,7 +131,7 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toBottomOf="@id/tvFriendTitle"
-            app:layout_constraintEnd_toStartOf="@id/btnAccept" />
+            app:layout_constraintEnd_toStartOf="@id/groupRequestActions" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
