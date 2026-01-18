@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
@@ -33,13 +34,15 @@ class ProfileViewModelFactory (
         local = localUserGames,
         remote = remoteUserGames
     )
+    private val localFriends = LocalFriendsDataSource(db.friendDao())
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ProfileViewModel(
             repo = profileRepo,
             userGamesRepo = userGamesRepo,
-            localUserGames = localUserGames
+            localUserGames = localUserGames,
+            localFriends = localFriends
         ) as T
     }
 }

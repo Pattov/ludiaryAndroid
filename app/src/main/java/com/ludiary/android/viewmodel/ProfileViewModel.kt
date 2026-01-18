@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.repository.ProfileRepository
@@ -39,7 +40,8 @@ data class ProfileUiState(
 class ProfileViewModel(
     private val repo: ProfileRepository,
     private val userGamesRepo: UserGamesRepository,
-    private val localUserGames: LocalUserGamesDataSource
+    private val localUserGames: LocalUserGamesDataSource,
+    private val localFriends: LocalFriendsDataSource
 ) : ViewModel() {
 
     /**
@@ -84,7 +86,6 @@ class ProfileViewModel(
             return@launch
         }
 
-        // Cancela auto-sync para que no se ejecute sin usuario
         SyncScheduler.disableAutoSyncUserGames(context.applicationContext)
         SyncScheduler.disableAutoSyncSessions(context.applicationContext)
         // 2026 Añadir aquí las nuevas sincro
@@ -104,8 +105,13 @@ class ProfileViewModel(
         runCatching { localUserGames.clearUser(user.uid) }
             .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar Room: ${it.message}") }
 
+        runCatching { localFriends.clearAll()}
+            .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar friends en Room: ${it.message}")
+        }
+
         onDone()
     }
+
 
     /**
      * Actualiza únicamente las preferencias (idioma/tema) del usuario.
