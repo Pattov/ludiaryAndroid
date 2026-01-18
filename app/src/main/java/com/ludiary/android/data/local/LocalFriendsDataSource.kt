@@ -29,6 +29,9 @@ class LocalFriendsDataSource(
 
     suspend fun getByFriendUid(uid: String): FriendEntity? = friendDao.getByFriendUid(uid)
 
+    suspend fun updateNickname(id: Long, nickname: String?, updatedAt: Long) {
+        friendDao.updateNickname(id, nickname, updatedAt)
+    }
     suspend fun getPendingInvites(): List<FriendEntity> =
         friendDao.getPendingInvites(
             status = FriendStatus.PENDING_OUTGOING_LOCAL.name,
@@ -71,6 +74,12 @@ class LocalFriendsDataSource(
         createdAt: Long?,
         updatedAt: Long?
     ) {
+
+        android.util.Log.d(
+            "LUDIARY_SYNC_DEBUG",
+            "upsertRemote(friendUid=$friendUid status=${status.name} code=$friendCode)"
+        )
+
         friendDao.upsertByFriendUid(
             FriendEntity(
                 id = 0L,

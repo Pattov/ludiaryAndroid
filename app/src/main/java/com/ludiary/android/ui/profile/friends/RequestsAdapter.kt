@@ -1,17 +1,17 @@
 package com.ludiary.android.ui.profile.friends
 
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.viewmodel.FriendRowUi
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.isVisible
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 
 class RequestsAdapter(
     private val onClick: (FriendEntity) -> Unit,
@@ -54,7 +54,9 @@ class RequestsAdapter(
 
     class HeaderVH(view: View) : RecyclerView.ViewHolder(view) {
         private val tv: TextView = view.findViewById(R.id.tvHeader)
-        fun bind(h: FriendRowUi.Header) { tv.text = h.title }
+        fun bind(h: FriendRowUi.Header) {
+            tv.text = h.title
+        }
     }
 
     class ItemVH(
@@ -66,38 +68,63 @@ class RequestsAdapter(
 
         private val tvTitle: TextView = view.findViewById(R.id.tvFriendTitle)
         private val tvSubtitle: TextView = view.findViewById(R.id.tvFriendSubtitle)
+
         private val btnAccept: View = view.findViewById(R.id.btnAccept)
         private val btnReject: View = view.findViewById(R.id.btnReject)
+
+        // OJO: item_friend_row también tiene btnEdit/btnDelete.
+        // En solicitudes NO deben aparecer nunca.
+        private val btnEdit: View? = view.findViewById(R.id.btnEdit)
+        private val btnDelete: View? = view.findViewById(R.id.btnDelete)
 
         fun bind(item: FriendEntity) {
             val baseName = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
-            val code = item.friendCode?.takeIf { it.isNotBlank() }?.let { "#$it" } ?: ""
-            val title = if (code.isBlank()) baseName else "$baseName · $code"
+            // En solicitudes: código abreviado para que no se coma el espacio de los iconos
+            val codeShort = item.friendCode
+                ?.takeIf { it.isNotBlank() }
+                ?.let {
+                    val last = it.trim().takeLast(5)
+                    "#…$last"
+                }
+                .orEmpty()
 
-            val subtitle = when (item.status) {
-                FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
-                FriendStatus.PENDING_OUTGOING,
-                FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud enviada"
+            tvTitle.text = if (codeShort.isBlank()) baseName else "$baseName · $codeShort"
+
+            val isIncoming = item.status == FriendStatus.PENDING_INCOMING
+            val isOutgoing = item.status == FriendStatus.PENDING_OUTGOING ||
+                    item.status == FriendStatus.PENDING_OUTGOING_LOCAL
+
+            val subtitle = when {
+                isIncoming -> "Quiere ser tu amigo"
+                isOutgoing -> "Solicitud enviada"
                 else -> ""
             }
 
-            tvTitle.text = title
             tvSubtitle.text = subtitle
             tvSubtitle.isVisible = subtitle.isNotBlank()
 
-            val showActions = item.status == FriendStatus.PENDING_INCOMING
-            btnAccept.isVisible = showActions
-            btnReject.isVisible = showActions
+            // ✅ Reglas exactas:
+            // - Recibidas: Aceptar + Rechazar
+            // - Enviadas: solo Cancelar (Rechazar reutilizado)
+            btnAccept.isVisible = isIncoming
+            btnReject.isVisible = isIncoming || isOutgoing
 
+            // Nunca mostrar acciones de amigo en solicitudes
+            btnEdit?.isVisible = false
+            btnDelete?.isVisible = false
+
+            // Limpieza listeners
             btnAccept.setOnClickListener(null)
             btnReject.setOnClickListener(null)
 
-            if (showActions) {
+            if (isIncoming) {
                 btnAccept.setOnClickListener { onAccept(item.id) }
-                btnReject.setOnClickListener { onReject(item.id) }
+                btnReject.setOnClickListener { onReject(item.id) } // rechazar
+            } else if (isOutgoing) {
+                btnReject.setOnClickListener { onReject(item.id) } // cancelar
             }
 
             itemView.setOnClickListener { onClick(item) }

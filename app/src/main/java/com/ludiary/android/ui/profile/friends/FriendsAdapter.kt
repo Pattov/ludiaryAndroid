@@ -14,8 +14,6 @@ import com.ludiary.android.data.model.FriendStatus
 
 class FriendsAdapter(
     private val onClick: (FriendEntity) -> Unit,
-    private val onAccept: (Long) -> Unit,
-    private val onReject: (Long) -> Unit,
     private val onEditNickname: (Long) -> Unit,
     private val onDeleteFriend: (Long) -> Unit
 ) : ListAdapter<FriendEntity, FriendsAdapter.VH>(Diff) {
@@ -23,69 +21,60 @@ class FriendsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_friend_row, parent, false)
-        return VH(view)
+        return VH(view, onClick, onEditNickname, onDeleteFriend)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class VH(view: View) : RecyclerView.ViewHolder(view) {
+    class VH(
+        view: View,
+        private val onClick: (FriendEntity) -> Unit,
+        private val onEditNickname: (Long) -> Unit,
+        private val onDeleteFriend: (Long) -> Unit
+    ) : RecyclerView.ViewHolder(view) {
 
         private val tvTitle: TextView = view.findViewById(R.id.tvFriendTitle)
         private val tvSubtitle: TextView = view.findViewById(R.id.tvFriendSubtitle)
 
-        private val btnAccept: View = view.findViewById(R.id.btnAccept)
-        private val btnReject: View = view.findViewById(R.id.btnReject)
         private val btnEdit: View = view.findViewById(R.id.btnEdit)
         private val btnDelete: View = view.findViewById(R.id.btnDelete)
 
-        private val groupRequestActions: View = view.findViewById(R.id.groupRequestActions)
-        private val groupFriendActions: View = view.findViewById(R.id.groupFriendActions)
+        // Si tu layout todavía tiene btnAccept/btnReject, los ocultamos por seguridad (opcional)
+        private val btnAccept: View? = view.findViewById(R.id.btnAccept)
+        private val btnReject: View? = view.findViewById(R.id.btnReject)
 
         fun bind(item: FriendEntity) {
+            // Friends tab debería traer solo ACCEPTED, pero por robustez lo controlamos:
+            val isAccepted = item.status == FriendStatus.ACCEPTED
+
             val title = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
-            val subtitle = when (item.status) {
-                FriendStatus.ACCEPTED -> item.friendCode?.let { "#$it" } ?: ""
-                FriendStatus.PENDING_INCOMING -> "Quiere ser tu amigo"
-                FriendStatus.PENDING_OUTGOING,
-                FriendStatus.PENDING_OUTGOING_LOCAL -> "Solicitud pendiente"
-                FriendStatus.BLOCKED -> "Bloqueado"
-            }
+            val codeFull = item.friendCode?.takeIf { it.isNotBlank() }?.let { "#$it" }.orEmpty()
 
             tvTitle.text = title
-            tvSubtitle.text = subtitle
-            tvSubtitle.isVisible = subtitle.isNotBlank()
+            tvSubtitle.text = codeFull
+            tvSubtitle.isVisible = codeFull.isNotBlank()
 
-            val isAccepted = item.status == FriendStatus.ACCEPTED
-            val isIncoming = item.status == FriendStatus.PENDING_INCOMING
-            val isOutgoing = item.status == FriendStatus.PENDING_OUTGOING ||
-                    item.status == FriendStatus.PENDING_OUTGOING_LOCAL
+            // En Amigos: solo ✏️ y ❌ (eliminar)
+            btnEdit.isVisible = isAccepted
+            btnDelete.isVisible = isAccepted
 
-            // Grupos (asegúrate de tenerlos como views)
-            groupRequestActions.isVisible = isIncoming || isOutgoing
-            groupFriendActions.isVisible = isAccepted
+            // En Amigos: nunca acciones de solicitud
+            btnAccept?.isVisible = false
+            btnReject?.isVisible = false
 
-            // Dentro del grupo de solicitud:
-            btnAccept.isVisible = isIncoming
-            btnReject.isVisible = isIncoming || isOutgoing
-
-            // Limpieza de clicks
-            btnAccept.setOnClickListener(null)
-            btnReject.setOnClickListener(null)
             btnEdit.setOnClickListener(null)
             btnDelete.setOnClickListener(null)
 
-            if (isIncoming) {
-                btnAccept.setOnClickListener { onAccept(item.id) }
-                btnReject.setOnClickListener { onReject(item.id) }
-            } else if (isOutgoing) {
-                btnReject.setOnClickListener { onReject(item.id) } // cancelar
-            } else if (isAccepted) {
-                btnEdit.setOnClickListener { onEditNickname(item.id) }
+            if (isAccepted) {
+                btnEdit.setOnClickListener {
+                    android.util.Log.d("LUDIARY_EDIT_DEBUG", "✏️ CLICK btnEdit friendId=${item.id}")
+                    onEditNickname(item.id)
+                }
                 btnDelete.setOnClickListener { onDeleteFriend(item.id) }
             }
 

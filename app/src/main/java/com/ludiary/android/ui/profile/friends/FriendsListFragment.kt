@@ -35,26 +35,34 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
 
         if (tab == FriendsTab.REQUESTS) {
             val adapter = RequestsAdapter(
-                onClick = { vm.onFriendClicked(it) },
+                onClick = { /* opcional: no hacemos nada en solicitudes */ },
                 onAccept = { friendId -> vm.acceptRequest(friendId) },
-                onReject = { friendId -> vm.rejectRequest(friendId) }
+                onReject = { friendId -> vm.rejectRequest(friendId) } // rechazar o cancelar
             )
             recycler.adapter = adapter
+
+            android.util.Log.d(
+                "LUDIARY_UI_DEBUG",
+                "FriendsListFragment tab=$tab adapter=${recycler.adapter?.javaClass?.simpleName}"
+            )
 
             viewLifecycleOwner.lifecycleScope.launch {
                 vm.requestRows().collectLatest { rows ->
                     adapter.submitList(rows)
                     empty.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
+                    android.util.Log.d("LUDIARY_UI_DEBUG", "tab=$tab submitList size=${rows.size}")
                 }
             }
         } else {
             val adapter = FriendsAdapter(
                 onClick = { vm.onFriendClicked(it) },
-                onAccept = { friendId -> vm.acceptRequest(friendId) },
-                onReject = { friendId -> vm.rejectRequest(friendId) },
-                onEditNickname = { vm.editNickname(it) },
-                onDeleteFriend = { vm.removeFriend(it) }
+                onEditNickname = { friendId ->
+                    android.util.Log.d("LUDIARY_EDIT_DEBUG", "ListFragment -> vm.editNickname($friendId)")
+                    vm.editNickname(friendId)
+                },
+                onDeleteFriend = { friendId -> vm.removeFriend(friendId) }
             )
+
             recycler.adapter = adapter
 
             viewLifecycleOwner.lifecycleScope.launch {

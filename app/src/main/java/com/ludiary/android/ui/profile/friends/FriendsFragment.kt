@@ -79,15 +79,21 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             .show()
     }
 
-    private fun showFriendActionsDialog(friendId: Long) {
+
+    private fun showEditNicknameDialog(friendId: Long) {
+        val input = TextInputEditText(requireContext()).apply {
+            hint = "Apodo"
+        }
+
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Acciones")
-            .setItems(arrayOf("Eliminar amigo", "Bloquear usuario")) { _, which ->
-                when (which) {
-                    0 -> showConfirmRemove(friendId)
-                }
+            .setTitle("Editar apodo")
+            .setView(input)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val nickname = input.text?.toString()?.trim().orEmpty()
+                android.util.Log.d("LUDIARY_EDIT_DEBUG", "Dialog OK -> saveNickname($friendId, '$nickname')")
+                vm.saveNickname(friendId, nickname)
             }
-            .setNegativeButton("Cancelar", null)
             .show()
     }
 
@@ -211,18 +217,12 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                     FriendsUiEvent.OpenAddGroup ->
                         Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()
 
-                    is FriendsUiEvent.OpenEditNickname ->
-                        Snackbar.make(view, "TODO: editar mote (${e.friendId})", Snackbar.LENGTH_SHORT).show()
-
-                    // ✅ NUEVO: acciones eliminar/bloquear
-                    is FriendsUiEvent.OpenFriendActions ->
-                        showFriendActionsDialog(e.friendId)
+                    is FriendsUiEvent.OpenEditNickname -> {
+                        showEditNicknameDialog(e.friendId)   // 👈 AQUÍ
+                    }
                 }
             }
         }
-
-        // ✅ IMPORTANTE: solo arrancamos aquí o en onStart, pero no en ambos.
-        // Yo lo dejo en onStart (más correcto con stop/start).
     }
 
     override fun onStart() {

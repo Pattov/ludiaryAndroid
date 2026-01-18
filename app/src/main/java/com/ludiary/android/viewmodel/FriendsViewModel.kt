@@ -17,11 +17,10 @@ data class FriendsUiState(
 )
 
 sealed class FriendsUiEvent {
+    data class OpenEditNickname(val friendId: Long) : FriendsUiEvent()
     data class ShowSnack(val message: String) : FriendsUiEvent()
     object OpenAddFriend : FriendsUiEvent()
     object OpenAddGroup : FriendsUiEvent()
-    data class OpenEditNickname(val friendId: Long) : FriendsUiEvent()
-    data class OpenFriendActions(val friendId: Long) : FriendsUiEvent()
 }
 
 sealed class FriendRowUi {
@@ -69,7 +68,16 @@ class FriendsViewModel(
     }
 
     fun onFriendClicked(item: FriendEntity) {
-        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenFriendActions(item.id)) }
+        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenEditNickname(item.id)) }
+    }
+
+    fun saveNickname(friendId: Long, nickname: String) {
+        viewModelScope.launch {
+            Log.d("LUDIARY_EDIT_DEBUG", "VM.saveNickname -> repo.updateNickname($friendId)")
+            repo.updateNickname(friendId, nickname)
+                .onSuccess { _events.emit(FriendsUiEvent.ShowSnack("Apodo actualizado")) }
+                .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo actualizar")) }
+        }
     }
 
     fun sendInviteByCode(code: String) {
@@ -118,7 +126,10 @@ class FriendsViewModel(
     }
 
     fun editNickname(friendId: Long) {
-        _events.tryEmit(FriendsUiEvent.OpenEditNickname(friendId))
+        viewModelScope.launch {
+            Log.d("LUDIARY_EDIT_DEBUG", "VM emit OpenEditNickname($friendId)")
+            _events.emit(FriendsUiEvent.OpenEditNickname(friendId))
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

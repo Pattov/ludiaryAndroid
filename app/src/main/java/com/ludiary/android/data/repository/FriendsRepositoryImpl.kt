@@ -59,6 +59,7 @@ class FriendsRepositoryImpl(
                         Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE skip invalid status=${rf.status}")
                         continue
                     }
+                    Log.d("LUDIARY_SYNC_DEBUG", "REMOTE -> local friendUid=${rf.friendUid} status=${rf.status} code=${rf.friendCode} name=${rf.displayName}")
 
                     // ✅ Nunca insertar a pelo: esto evita el UNIQUE constraint failed: friends.friendUid
                     local.upsertRemote(
@@ -248,6 +249,33 @@ class FriendsRepositoryImpl(
         remoteSyncJob?.cancel()
         remoteSyncJob = null
     }
+
+    override suspend fun updateNickname(friendId: Long, nickname: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val me = auth.currentUser ?: error("No hay sesión")
+                val entity = local.getById(friendId) ?: error("No existe en local")
+                val friendUid = entity.friendUid ?: error("No tiene friendUid")
+
+                val now = System.currentTimeMillis()
+
+                remote.upsert(
+                    uid = me.uid,
+                    friendUid = friendUid,
+                    data = FirestoreFriendsRepository.RemoteFriend(
+                        friendUid = friendUid,
+                        friendCode = entity.friendCode,
+                        displayName = entity.displayName,
+                        nickname = nickname,
+                        status = entity.status.name,
+                        createdAt = entity.createdAt,
+                        updatedAt = now
+                    )
+                )
+
+                local.updateNickname(friendId, nickname, now)
+            }
+        }
 
     override suspend fun rejectRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {

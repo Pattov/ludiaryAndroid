@@ -64,6 +64,9 @@ interface FriendDao {
     @Query("DELETE FROM friends")
     suspend fun clearAll()
 
+    @Query("UPDATE friends SET nickname = :nickname, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateNickname(id: Long, nickname: String?, updatedAt: Long)
+
     @Transaction
     suspend fun upsertByFriendUid(entity: FriendEntity): Long {
         val uid = entity.friendUid
