@@ -67,7 +67,7 @@
     <string name="profile_friends_empty_groups">Crea tu primer grupo</string>
     <string name="profile_friends_empty_requests">No pending requests</string>
     <string name="profile_friend_message">If the user exists, you will receive your request.</string>
-
+    <string name="profile_my_code">My code</string>
 
     <string name="library_title">Library</string>
     <string name="library_hint_search">Search game&#8230;</string>
@@ -146,6 +146,11 @@
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_edit_profile">Edit Profile</string>
+    <string name="action_reject">Reject</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_share">Share</string>
+    <string name="action_copy">Copy</string>
+
     <string name="action_close">Close</string>
     <string name="action_ok">OK</string>
     <string name="action_back">Back</string>

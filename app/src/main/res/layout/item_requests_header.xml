@@ -3,9 +3,9 @@
     android:id="@+id/tvHeader"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="8dp"
+    android:paddingStart="@dimen/space_m"
+    android:paddingEnd="@dimen/space_m"
+    android:paddingTop="@dimen/space_m"
+    android:paddingBottom="@dimen/space_s"
     android:textStyle="bold"
     android:text="Recibidas" />
