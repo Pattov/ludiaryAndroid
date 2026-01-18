@@ -17,7 +17,7 @@ data class FriendsUiState(
 )
 
 sealed class FriendsUiEvent {
-    data class OpenEditNickname(val friendId: Long) : FriendsUiEvent()
+    data class OpenEditNickname(val friendId: Long, val currentNickname: String?) : FriendsUiEvent()
     data class ShowSnack(val message: String) : FriendsUiEvent()
     object OpenAddFriend : FriendsUiEvent()
     object OpenAddGroup : FriendsUiEvent()
@@ -67,13 +67,23 @@ class FriendsViewModel(
         }
     }
 
+    // ✅ Click en fila (si lo usas): abre editar con el nickname actual si existe
     fun onFriendClicked(item: FriendEntity) {
-        viewModelScope.launch { _events.emit(FriendsUiEvent.OpenEditNickname(item.id)) }
+        viewModelScope.launch {
+            _events.emit(FriendsUiEvent.OpenEditNickname(item.id, item.nickname))
+        }
+    }
+
+    // ✅ ÚNICA función de editar: siempre con (id, nickname?)
+    fun editNickname(friendId: Long, currentNickname: String?) {
+        viewModelScope.launch {
+            Log.d("LUDIARY_EDIT_DEBUG", "VM emit OpenEditNickname($friendId, $currentNickname)")
+            _events.emit(FriendsUiEvent.OpenEditNickname(friendId, currentNickname))
+        }
     }
 
     fun saveNickname(friendId: Long, nickname: String) {
         viewModelScope.launch {
-            Log.d("LUDIARY_EDIT_DEBUG", "VM.saveNickname -> repo.updateNickname($friendId)")
             repo.updateNickname(friendId, nickname)
                 .onSuccess { _events.emit(FriendsUiEvent.ShowSnack("Apodo actualizado")) }
                 .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo actualizar")) }
@@ -125,13 +135,6 @@ class FriendsViewModel(
             .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo eliminar")) }
     }
 
-    fun editNickname(friendId: Long) {
-        viewModelScope.launch {
-            Log.d("LUDIARY_EDIT_DEBUG", "VM emit OpenEditNickname($friendId)")
-            _events.emit(FriendsUiEvent.OpenEditNickname(friendId))
-        }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     fun items(tab: FriendsTab): Flow<List<FriendEntity>> {
         return uiState
@@ -147,10 +150,7 @@ class FriendsViewModel(
                         repo.observeIncomingRequests(q),
                         repo.observeOutgoingRequests(q)
                     ) { incoming, outgoing ->
-                        Log.d(
-                            "LUDIARY_FRIENDS_DEBUG",
-                            "REQUESTS incoming=${incoming.size} outgoing=${outgoing.size}"
-                        )
+                        Log.d("LUDIARY_FRIENDS_DEBUG", "REQUESTS incoming=${incoming.size} outgoing=${outgoing.size}")
                         incoming + outgoing
                     }
                 }

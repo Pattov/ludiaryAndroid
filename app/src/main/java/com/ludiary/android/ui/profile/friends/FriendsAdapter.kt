@@ -14,7 +14,7 @@ import com.ludiary.android.data.model.FriendStatus
 
 class FriendsAdapter(
     private val onClick: (FriendEntity) -> Unit,
-    private val onEditNickname: (Long) -> Unit,
+    private val onEditNickname: (Long, String?) -> Unit,
     private val onDeleteFriend: (Long) -> Unit
 ) : ListAdapter<FriendEntity, FriendsAdapter.VH>(Diff) {
 
@@ -31,7 +31,7 @@ class FriendsAdapter(
     class VH(
         view: View,
         private val onClick: (FriendEntity) -> Unit,
-        private val onEditNickname: (Long) -> Unit,
+        private val onEditNickname: (Long, String?) -> Unit,
         private val onDeleteFriend: (Long) -> Unit
     ) : RecyclerView.ViewHolder(view) {
 
@@ -41,12 +41,11 @@ class FriendsAdapter(
         private val btnEdit: View = view.findViewById(R.id.btnEdit)
         private val btnDelete: View = view.findViewById(R.id.btnDelete)
 
-        // Si tu layout todavía tiene btnAccept/btnReject, los ocultamos por seguridad (opcional)
+        // Si existen en tu layout, los ocultamos por seguridad en tab Amigos
         private val btnAccept: View? = view.findViewById(R.id.btnAccept)
         private val btnReject: View? = view.findViewById(R.id.btnReject)
 
         fun bind(item: FriendEntity) {
-            // Friends tab debería traer solo ACCEPTED, pero por robustez lo controlamos:
             val isAccepted = item.status == FriendStatus.ACCEPTED
 
             val title = item.nickname?.takeIf { it.isNotBlank() }
@@ -59,11 +58,11 @@ class FriendsAdapter(
             tvSubtitle.text = codeFull
             tvSubtitle.isVisible = codeFull.isNotBlank()
 
-            // En Amigos: solo ✏️ y ❌ (eliminar)
+            // Solo amigos aceptados pueden editar / eliminar
             btnEdit.isVisible = isAccepted
             btnDelete.isVisible = isAccepted
 
-            // En Amigos: nunca acciones de solicitud
+            // Nunca acciones de solicitud en Amigos
             btnAccept?.isVisible = false
             btnReject?.isVisible = false
 
@@ -72,10 +71,11 @@ class FriendsAdapter(
 
             if (isAccepted) {
                 btnEdit.setOnClickListener {
-                    android.util.Log.d("LUDIARY_EDIT_DEBUG", "✏️ CLICK btnEdit friendId=${item.id}")
-                    onEditNickname(item.id)
+                    onEditNickname(item.id, item.nickname)
                 }
-                btnDelete.setOnClickListener { onDeleteFriend(item.id) }
+                btnDelete.setOnClickListener {
+                    onDeleteFriend(item.id)
+                }
             }
 
             itemView.setOnClickListener { onClick(item) }

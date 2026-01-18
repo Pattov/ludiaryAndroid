@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
@@ -79,19 +80,35 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             .show()
     }
 
-
-    private fun showEditNicknameDialog(friendId: Long) {
-        val input = TextInputEditText(requireContext()).apply {
+    private fun showEditNicknameDialog(friendId: Long, currentNickname: String?) {
+        val til = TextInputLayout(requireContext()).apply {
             hint = "Apodo"
+            val padH = (16 * resources.displayMetrics.density).toInt()
+            val padTop = (8 * resources.displayMetrics.density).toInt()
+            setPadding(padH, padTop, padH, 0)
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
+        val input = TextInputEditText(til.context).apply {
+            setText(currentNickname.orEmpty())
+            setSelection(text?.length ?: 0)
+        }
+
+        til.addView(input)
+
+        val hasNickname = !currentNickname.isNullOrBlank()
+        val dialogTitle = if (hasNickname) "Editar apodo" else "Añadir apodo"
+
+
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Editar apodo")
-            .setView(input)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
+            .setTitle(dialogTitle)
+            .setView(til)
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Aceptar") { _, _ ->
                 val nickname = input.text?.toString()?.trim().orEmpty()
-                android.util.Log.d("LUDIARY_EDIT_DEBUG", "Dialog OK -> saveNickname($friendId, '$nickname')")
                 vm.saveNickname(friendId, nickname)
             }
             .show()
@@ -218,7 +235,7 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()
 
                     is FriendsUiEvent.OpenEditNickname -> {
-                        showEditNicknameDialog(e.friendId)   // 👈 AQUÍ
+                        showEditNicknameDialog(e.friendId, e.currentNickname)
                     }
                 }
             }

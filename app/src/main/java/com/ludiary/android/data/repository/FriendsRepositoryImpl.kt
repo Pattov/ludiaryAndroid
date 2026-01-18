@@ -135,6 +135,62 @@ class FriendsRepositoryImpl(
                     continue
                 }
 
+                // ✅ Caso cruce de solicitudes:
+                // Si el target YA me había enviado solicitud (yo lo tengo como PENDING_INCOMING),
+                // enviarle yo solicitud debe equivaler a ACEPTAR automáticamente.
+                val existingIncoming = local.getByFriendUid(target.uid)
+                if (existingIncoming != null && existingIncoming.status == FriendStatus.PENDING_INCOMING) {
+                    Log.d("LUDIARY_FRIENDS_DEBUG", "Cross-invite detected -> auto-accept friendUid=${target.uid}")
+
+                    val nowAccept = System.currentTimeMillis()
+                    val myCodeResolved = remote.findFriendCodeByUid(me.uid)
+                    val senderNameResolved = remote.getUserDisplayName(me.uid) ?: "Usuario"
+
+                    // Firestore: ambos ACCEPTED
+                    remote.upsert(
+                        uid = me.uid,
+                        friendUid = target.uid,
+                        data = FirestoreFriendsRepository.RemoteFriend(
+                            friendUid = target.uid,
+                            friendCode = code, // el código del target (el que tú has escrito)
+                            displayName = target.displayName,
+                            nickname = existingIncoming.nickname,
+                            status = FriendStatus.ACCEPTED.name,
+                            createdAt = existingIncoming.createdAt,
+                            updatedAt = nowAccept
+                        )
+                    )
+
+                    remote.upsert(
+                        uid = target.uid,
+                        friendUid = me.uid,
+                        data = FirestoreFriendsRepository.RemoteFriend(
+                            friendUid = me.uid,
+                            friendCode = myCodeResolved,
+                            displayName = senderNameResolved,
+                            nickname = null,
+                            status = FriendStatus.ACCEPTED.name,
+                            createdAt = existingIncoming.createdAt,
+                            updatedAt = nowAccept
+                        )
+                    )
+
+                    // Local: marco ACCEPTED la fila existente (la incoming)
+                    local.updateStatusAndUid(
+                        id = existingIncoming.id,
+                        status = FriendStatus.ACCEPTED,
+                        friendUid = target.uid,
+                        syncStatus = SyncStatus.CLEAN
+                    )
+
+                    // Local: borro el pendiente local que acabamos de procesar (para no dejar basura)
+                    local.deleteById(localId)
+
+                    Log.d("LUDIARY_FRIENDS_DEBUG", "Auto-accept OK -> localId=$localId deleted, existingIncoming set ACCEPTED")
+                    continue
+                }
+
+
                 // ✅ Atamos primero friendUid en local para que cuando llegue Firestore no intente insertar otra fila
                 local.updateStatusAndUid(
                     id = localId,
