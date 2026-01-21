@@ -151,15 +151,6 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             .show()
     }
 
-    private fun showConfirmRemove(friendId: Long) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Eliminar amigo")
-            .setMessage("¿Seguro que quieres eliminar a este amigo? Se borrará en ambos usuarios.")
-            .setPositiveButton("Eliminar") { _, _ -> vm.removeFriend(friendId) }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

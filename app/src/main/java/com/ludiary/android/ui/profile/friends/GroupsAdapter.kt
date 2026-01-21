@@ -10,12 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.GroupEntity
+import com.ludiary.android.viewmodel.GroupRowUi
 
 class GroupsAdapter(
     private val onOpen: (GroupEntity) -> Unit,
     private val onInvite: (GroupEntity) -> Unit,
     private val onDelete: (GroupEntity) -> Unit
-) : ListAdapter<GroupEntity, GroupsAdapter.VH>(Diff) {
+) : ListAdapter<GroupRowUi, GroupsAdapter.VH>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = LayoutInflater.from(parent.context)
@@ -34,28 +35,22 @@ class GroupsAdapter(
         private val onDelete: (GroupEntity) -> Unit
     ) : RecyclerView.ViewHolder(view) {
 
-        private val tvAvatarLetter: TextView =
-            view.findViewById(R.id.tvAvatarLetter)
-        private val tvTitle: TextView =
-            view.findViewById(R.id.tvGroupTitle)
-        private val tvSubtitle: TextView =
-            view.findViewById(R.id.tvGroupSubtitle)
+        private val tvAvatarLetter: TextView = view.findViewById(R.id.tvAvatarLetter)
+        private val tvTitle: TextView = view.findViewById(R.id.tvGroupTitle)
+        private val tvSubtitle: TextView = view.findViewById(R.id.tvGroupSubtitle)
+        private val btnInvite: MaterialButton = view.findViewById(R.id.btnInvite)
+        private val btnDelete: MaterialButton = view.findViewById(R.id.btnDelete)
 
-        private val btnInvite: MaterialButton =
-            view.findViewById(R.id.btnInvite)
-        private val btnDelete: MaterialButton =
-            view.findViewById(R.id.btnDelete)
+        fun bind(row: GroupRowUi) {
+            val item = row.group
 
-        fun bind(item: GroupEntity) {
             tvTitle.text = item.nameSnapshot
+            tvAvatarLetter.text = item.nameSnapshot.firstOrNull()?.uppercase() ?: "G"
 
-            tvAvatarLetter.text =
-                item.nameSnapshot.firstOrNull()?.uppercase() ?: "G"
+            val n = row.membersCount
+            tvSubtitle.text = if (n == 1) "1 miembro" else "$n miembros"
+            tvSubtitle.visibility = View.VISIBLE
 
-            // De momento ocultamos subtítulo (miembros vendrá luego)
-            tvSubtitle.visibility = View.GONE
-
-            // Abrir detalle (anti doble click)
             itemView.setOnClickListener {
                 itemView.isEnabled = false
                 onOpen(item)
@@ -67,15 +62,11 @@ class GroupsAdapter(
         }
     }
 
-    private object Diff : DiffUtil.ItemCallback<GroupEntity>() {
-        override fun areItemsTheSame(
-            oldItem: GroupEntity,
-            newItem: GroupEntity
-        ) = oldItem.groupId == newItem.groupId
+    private object Diff : DiffUtil.ItemCallback<GroupRowUi>() {
+        override fun areItemsTheSame(oldItem: GroupRowUi, newItem: GroupRowUi) =
+            oldItem.group.groupId == newItem.group.groupId
 
-        override fun areContentsTheSame(
-            oldItem: GroupEntity,
-            newItem: GroupEntity
-        ) = oldItem == newItem
+        override fun areContentsTheSame(oldItem: GroupRowUi, newItem: GroupRowUi) =
+            oldItem == newItem
     }
 }

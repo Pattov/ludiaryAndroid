@@ -49,6 +49,9 @@ interface GroupDao {
     @Query("SELECT * FROM group_invites WHERE status = 'PENDING' ORDER BY createdAt DESC ")
     fun observePendingInvites(): Flow<List<GroupInviteEntity>>
 
+    @Query("SELECT * FROM group_invites WHERE groupId = :groupId AND status = 'PENDING_OUTGOING'")
+    suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertInvite(item: GroupInviteEntity)
 

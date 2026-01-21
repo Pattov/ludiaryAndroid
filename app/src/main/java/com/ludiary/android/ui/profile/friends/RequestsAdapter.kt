@@ -10,13 +10,16 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
+import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.viewmodel.FriendRowUi
 
 class RequestsAdapter(
-    private val onClick: (FriendEntity) -> Unit,
-    private val onAccept: (Long) -> Unit,
-    private val onReject: (Long) -> Unit
+    private val onFriendClick: (FriendEntity) -> Unit,
+    private val onAcceptFriend: (Long) -> Unit,
+    private val onRejectFriend: (Long) -> Unit,
+    private val onAcceptGroup: (String) -> Unit,
+    private val onRejectGroup: (String) -> Unit
 ) : ListAdapter<FriendRowUi, RecyclerView.ViewHolder>(Diff) {
 
     companion object {
@@ -27,7 +30,7 @@ class RequestsAdapter(
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
             is FriendRowUi.Header -> TYPE_HEADER
-            is FriendRowUi.Item -> TYPE_ITEM
+            else -> TYPE_ITEM
         }
     }
 
@@ -40,7 +43,7 @@ class RequestsAdapter(
             }
             else -> {
                 val v = inflater.inflate(R.layout.item_friend_row, parent, false)
-                ItemVH(v, onClick, onAccept, onReject)
+                ItemVH(v)
             }
         }
     }
@@ -48,7 +51,8 @@ class RequestsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val row = getItem(position)) {
             is FriendRowUi.Header -> (holder as HeaderVH).bind(row)
-            is FriendRowUi.Item -> (holder as ItemVH).bind(row.friend)
+            is FriendRowUi.FriendItem -> (holder as ItemVH).bindFriend(row.friend)
+            is FriendRowUi.GroupItem -> (holder as ItemVH).bindGroupInvite(row.invite)
         }
     }
 
@@ -59,12 +63,7 @@ class RequestsAdapter(
         }
     }
 
-    class ItemVH(
-        view: View,
-        private val onClick: (FriendEntity) -> Unit,
-        private val onAccept: (Long) -> Unit,
-        private val onReject: (Long) -> Unit
-    ) : RecyclerView.ViewHolder(view) {
+    inner class ItemVH(view: View) : RecyclerView.ViewHolder(view) {
 
         private val tvTitle: TextView = view.findViewById(R.id.tvFriendTitle)
         private val tvSubtitle: TextView = view.findViewById(R.id.tvFriendSubtitle)
@@ -72,23 +71,19 @@ class RequestsAdapter(
         private val btnAccept: View = view.findViewById(R.id.btnAccept)
         private val btnReject: View = view.findViewById(R.id.btnReject)
 
-        // OJO: item_friend_row también tiene btnEdit/btnDelete.
-        // En solicitudes NO deben aparecer nunca.
+        // item_friend_row también tiene btnEdit/btnDelete, aquí nunca
         private val btnEdit: View? = view.findViewById(R.id.btnEdit)
         private val btnDelete: View? = view.findViewById(R.id.btnDelete)
 
-        fun bind(item: FriendEntity) {
+        fun bindFriend(item: FriendEntity) {
             val baseName = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
+                ?: item.friendCode?.takeIf { it.isNotBlank() }
                 ?: "Amigo"
 
-            // En solicitudes: código abreviado para que no se coma el espacio de los iconos
             val codeShort = item.friendCode
                 ?.takeIf { it.isNotBlank() }
-                ?.let {
-                    val last = it.trim().takeLast(5)
-                    "#…$last"
-                }
+                ?.let { "#…${it.trim().takeLast(5)}" }
                 .orEmpty()
 
             tvTitle.text = if (codeShort.isBlank()) baseName else "$baseName · $codeShort"
@@ -106,29 +101,50 @@ class RequestsAdapter(
             tvSubtitle.text = subtitle
             tvSubtitle.isVisible = subtitle.isNotBlank()
 
-            // ✅ Reglas exactas:
-            // - Recibidas: Aceptar + Rechazar
-            // - Enviadas: solo Cancelar (Rechazar reutilizado)
             btnAccept.isVisible = isIncoming
             btnReject.isVisible = isIncoming || isOutgoing
 
-            // Nunca mostrar acciones de amigo en solicitudes
             btnEdit?.isVisible = false
             btnDelete?.isVisible = false
 
-            // Limpieza listeners
             btnAccept.setOnClickListener(null)
             btnReject.setOnClickListener(null)
 
             if (isIncoming) {
-                btnAccept.setOnClickListener { onAccept(item.id) }
-                btnReject.setOnClickListener { onReject(item.id) } // rechazar
+                btnAccept.setOnClickListener { onAcceptFriend(item.id) }
+                btnReject.setOnClickListener { onRejectFriend(item.id) } // rechazar
             } else if (isOutgoing) {
-                btnReject.setOnClickListener { onReject(item.id) } // cancelar
+                btnReject.setOnClickListener { onRejectFriend(item.id) } // cancelar
             }
 
-            itemView.setOnClickListener { onClick(item) }
+            itemView.setOnClickListener { onFriendClick(item) }
         }
+
+        fun bindGroupInvite(invite: GroupInviteEntity) {
+            val name = invite.groupNameSnapshot.ifBlank { "Grupo" }
+
+            val suffix = invite.groupId.takeLast(5)
+            tvTitle.text = "$name · #…$suffix"
+
+            tvSubtitle.text = "Te han invitado al grupo"
+            tvSubtitle.isVisible = true
+
+            // En MVP: solo invitaciones recibidas PENDING
+            btnAccept.isVisible = true
+            btnReject.isVisible = true
+
+            btnEdit?.isVisible = false
+            btnDelete?.isVisible = false
+
+            btnAccept.setOnClickListener(null)
+            btnReject.setOnClickListener(null)
+
+            btnAccept.setOnClickListener { onAcceptGroup(invite.inviteId) }
+            btnReject.setOnClickListener { onRejectGroup(invite.inviteId) }
+
+            itemView.setOnClickListener(null)
+        }
+
     }
 
     private object Diff : DiffUtil.ItemCallback<FriendRowUi>() {
@@ -136,8 +152,13 @@ class RequestsAdapter(
             return when {
                 oldItem is FriendRowUi.Header && newItem is FriendRowUi.Header ->
                     oldItem.title == newItem.title
-                oldItem is FriendRowUi.Item && newItem is FriendRowUi.Item ->
+
+                oldItem is FriendRowUi.FriendItem && newItem is FriendRowUi.FriendItem ->
                     oldItem.friend.id == newItem.friend.id
+
+                oldItem is FriendRowUi.GroupItem && newItem is FriendRowUi.GroupItem ->
+                    oldItem.invite.inviteId == newItem.invite.inviteId
+
                 else -> false
             }
         }

@@ -13,6 +13,7 @@ interface GroupsRepository {
     fun startRemoteSync()
     fun stopRemoteSync()
 
+    suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity>
     suspend fun createGroup(name: String): Result<Unit>
     suspend fun inviteToGroup(groupId: String, groupNameSnapshot: String, toUid: String): Result<Unit>
     suspend fun acceptInvite(inviteId: String): Result<Unit>

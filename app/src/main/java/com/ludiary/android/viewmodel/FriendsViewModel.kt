@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.local.entity.GroupEntity
+import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FriendsRepository
 import com.ludiary.android.data.repository.GroupsRepository
@@ -18,6 +19,11 @@ data class FriendsUiState(
     val myFriendCode: String? = null
 )
 
+data class GroupRowUi(
+    val group: GroupEntity,
+    val membersCount: Int
+)
+
 sealed class FriendsUiEvent {
     data class OpenEditNickname(val friendId: Long, val currentNickname: String?) : FriendsUiEvent()
     data class ShowSnack(val message: String) : FriendsUiEvent()
@@ -27,7 +33,8 @@ sealed class FriendsUiEvent {
 
 sealed class FriendRowUi {
     data class Header(val title: String) : FriendRowUi()
-    data class Item(val friend: FriendEntity) : FriendRowUi()
+    data class FriendItem(val friend: FriendEntity) : FriendRowUi()
+    data class GroupItem(val invite: GroupInviteEntity) : FriendRowUi()
 }
 
 class FriendsViewModel(
@@ -83,6 +90,30 @@ class FriendsViewModel(
         viewModelScope.launch {
             Log.d("LUDIARY_EDIT_DEBUG", "VM emit OpenEditNickname($friendId, $currentNickname)")
             _events.emit(FriendsUiEvent.OpenEditNickname(friendId, currentNickname))
+        }
+    }
+
+    fun acceptGroupInvite(inviteId: String) {
+        viewModelScope.launch {
+            val r = groupsRepo.acceptInvite(inviteId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Invitación de grupo aceptada"
+                    else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
+        }
+    }
+
+    fun rejectGroupInvite(inviteId: String) {
+        viewModelScope.launch {
+            val r = groupsRepo.rejectInvite(inviteId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Invitación de grupo rechazada"
+                    else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
         }
     }
 
@@ -170,8 +201,30 @@ class FriendsViewModel(
         }
     }
 
+    fun groupRows(): Flow<List<GroupRowUi>> {
+        return groupItems().flatMapLatest { groups ->
+            if (groups.isEmpty()) return@flatMapLatest flowOf(emptyList())
+
+            // combinamos counts de miembros por grupo
+            val flows = groups.map { g ->
+                groupsRepo.observeMembers(g.groupId)
+                    .map { members -> GroupRowUi(g, members.size) }
+            }
+
+            combine(flows) { it.toList() }
+        }
+    }
+
     fun leaveGroup(groupId: String) {
-        viewModelScope.launch { groupsRepo.leaveGroup(groupId) }
+        viewModelScope.launch {
+            val r = groupsRepo.leaveGroup(groupId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Has salido del grupo"
+                    else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
+        }
     }
 
     suspend fun groupMembersOnce(groupId: String) =
@@ -194,7 +247,7 @@ class FriendsViewModel(
 
                 when (tab) {
                     FriendsTab.FRIENDS -> friendsRepo.observeFriends(q)
-                    FriendsTab.GROUPS -> groupsRepo.observeGroups(q).map { emptyList<FriendEntity>() }
+                    FriendsTab.GROUPS -> flowOf(emptyList())
                     FriendsTab.REQUESTS -> combine(
                         friendsRepo.observeIncomingRequests(q),
                         friendsRepo.observeOutgoingRequests(q)
@@ -214,19 +267,31 @@ class FriendsViewModel(
             .flatMapLatest { q ->
                 combine(
                     friendsRepo.observeIncomingRequests(q),
-                    friendsRepo.observeOutgoingRequests(q)
-                ) { incoming, outgoing ->
+                    friendsRepo.observeOutgoingRequests(q),
+                    groupsRepo.observePendingInvites()
+                ) { fin, fout, invites ->
 
                     val rows = mutableListOf<FriendRowUi>()
 
-                    if (incoming.isNotEmpty()) {
-                        rows += FriendRowUi.Header("Recibidas")
-                        rows += incoming.map { FriendRowUi.Item(it) }
+                    if (fin.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Amigos · Recibidas")
+                        rows += fin.map { FriendRowUi.FriendItem(it) }
                     }
 
-                    if (outgoing.isNotEmpty()) {
-                        rows += FriendRowUi.Header("Enviadas")
-                        rows += outgoing.map { FriendRowUi.Item(it) }
+                    if (fout.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Amigos · Enviadas")
+                        rows += fout.map { FriendRowUi.FriendItem(it) }
+                    }
+
+                    // Grupos: en MVP solo tenemos "pending invites" (recibidas)
+                    val ql = q.trim().lowercase()
+                    val gin = if (ql.isBlank()) invites else invites.filter {
+                        it.groupNameSnapshot.lowercase().contains(ql)
+                    }
+
+                    if (gin.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Grupos · Recibidas")
+                        rows += gin.map { FriendRowUi.GroupItem(it) }
                     }
 
                     rows

@@ -226,6 +226,10 @@ class GroupsRepositoryImpl(
         groupDao.deleteInvite(inviteId)
     }
 
+    override suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity> {
+        return db.groupDao().pendingOutgoingInvitesForGroup(groupId)
+    }
+
     override suspend fun leaveGroup(groupId: String): Result<Unit> = runCatching {
         val me = auth.currentUser ?: error("No hay sesión")
         val now = System.currentTimeMillis()
