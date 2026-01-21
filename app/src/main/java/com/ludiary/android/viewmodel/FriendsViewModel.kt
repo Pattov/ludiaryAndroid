@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.entity.FriendEntity
+import com.ludiary.android.data.local.entity.GroupEntity
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FriendsRepository
+import com.ludiary.android.data.repository.GroupsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,7 +31,8 @@ sealed class FriendRowUi {
 }
 
 class FriendsViewModel(
-    private val repo: FriendsRepository
+    private val friendsRepo: FriendsRepository,
+    private val groupsRepo: GroupsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FriendsUiState())
@@ -43,10 +46,11 @@ class FriendsViewModel(
         if (started) return
         started = true
 
-        repo.startRemoteSync()
+        friendsRepo.startRemoteSync()
+        groupsRepo.startRemoteSync()
 
         viewModelScope.launch {
-            repo.getMyFriendCode()
+            friendsRepo.getMyFriendCode()
                 .onSuccess { code -> _uiState.update { it.copy(myFriendCode = code) } }
         }
     }
@@ -84,7 +88,7 @@ class FriendsViewModel(
 
     fun saveNickname(friendId: Long, nickname: String) {
         viewModelScope.launch {
-            repo.updateNickname(friendId, nickname)
+            friendsRepo.updateNickname(friendId, nickname)
                 .onSuccess { _events.emit(FriendsUiEvent.ShowSnack("Apodo actualizado")) }
                 .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo actualizar")) }
         }
@@ -92,10 +96,10 @@ class FriendsViewModel(
 
     fun sendInviteByCode(code: String) {
         viewModelScope.launch {
-            val r = repo.sendInviteByCode(code)
+            val r = friendsRepo.sendInviteByCode(code)
             if (r.isSuccess) {
                 _events.emit(FriendsUiEvent.ShowSnack("Si el usuario existe, recibirá tu solicitud."))
-                repo.flushOfflineInvites()
+                friendsRepo.flushOfflineInvites()
             } else {
                 _events.emit(FriendsUiEvent.ShowSnack(r.exceptionOrNull()?.message ?: "Error"))
             }
@@ -104,7 +108,7 @@ class FriendsViewModel(
 
     fun acceptRequest(friendId: Long) {
         viewModelScope.launch {
-            val r = repo.acceptRequest(friendId)
+            val r = friendsRepo.acceptRequest(friendId)
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Solicitud aceptada" else (r.exceptionOrNull()?.message ?: "Error")
@@ -115,7 +119,7 @@ class FriendsViewModel(
 
     fun rejectRequest(friendId: Long) {
         viewModelScope.launch {
-            val r = repo.rejectRequest(friendId)
+            val r = friendsRepo.rejectRequest(friendId)
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Solicitud rechazada" else (r.exceptionOrNull()?.message ?: "Error")
@@ -126,13 +130,58 @@ class FriendsViewModel(
 
     fun stop() {
         started = false
-        repo.stopRemoteSync()
+        friendsRepo.stopRemoteSync()
+        groupsRepo.stopRemoteSync()
     }
 
     fun removeFriend(friendId: Long) = viewModelScope.launch {
-        repo.removeFriend(friendId)
+        friendsRepo.removeFriend(friendId)
             .onSuccess { _events.emit(FriendsUiEvent.ShowSnack("Amigo eliminado")) }
             .onFailure { _events.emit(FriendsUiEvent.ShowSnack("No se pudo eliminar")) }
+    }
+
+    fun createGroup(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isBlank()) {
+            viewModelScope.launch { _events.emit(FriendsUiEvent.ShowSnack("Pon un nombre de grupo")) }
+            return
+        }
+
+        viewModelScope.launch {
+            val r = groupsRepo.createGroup(trimmed)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Grupo creado" else (r.exceptionOrNull()?.message ?: "Error al crear grupo")
+                )
+            )
+        }
+    }
+
+    fun groupMembers(groupId: String) = groupsRepo.observeMembers(groupId)
+
+    fun inviteToGroup(groupId: String, groupNameSnapshot: String, toUid: String) {
+        viewModelScope.launch {
+            val r = groupsRepo.inviteToGroup(groupId, groupNameSnapshot, toUid)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Invitación enviada" else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
+        }
+    }
+
+    fun leaveGroup(groupId: String) {
+        viewModelScope.launch { groupsRepo.leaveGroup(groupId) }
+    }
+
+    suspend fun groupMembersOnce(groupId: String) =
+        groupsRepo.observeMembers(groupId).first()
+
+
+    // Para el picker: lista de amigos aceptados sin filtrar por búsqueda (query vacía)
+    suspend fun friendsSnapshotForInvite(): List<FriendEntity> {
+        // Si tu repo.observeFriends("") es Flow, necesitamos el first()
+        return friendsRepo.observeFriends("").first()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -144,11 +193,11 @@ class FriendsViewModel(
                 Log.d("LUDIARY_FRIENDS_DEBUG", "VM.items() tab=$tab query='$q'")
 
                 when (tab) {
-                    FriendsTab.FRIENDS -> repo.observeFriends(q)
-                    FriendsTab.GROUPS -> repo.observeGroups(q)
+                    FriendsTab.FRIENDS -> friendsRepo.observeFriends(q)
+                    FriendsTab.GROUPS -> groupsRepo.observeGroups(q).map { emptyList<FriendEntity>() }
                     FriendsTab.REQUESTS -> combine(
-                        repo.observeIncomingRequests(q),
-                        repo.observeOutgoingRequests(q)
+                        friendsRepo.observeIncomingRequests(q),
+                        friendsRepo.observeOutgoingRequests(q)
                     ) { incoming, outgoing ->
                         Log.d("LUDIARY_FRIENDS_DEBUG", "REQUESTS incoming=${incoming.size} outgoing=${outgoing.size}")
                         incoming + outgoing
@@ -164,8 +213,8 @@ class FriendsViewModel(
             .distinctUntilChanged()
             .flatMapLatest { q ->
                 combine(
-                    repo.observeIncomingRequests(q),
-                    repo.observeOutgoingRequests(q)
+                    friendsRepo.observeIncomingRequests(q),
+                    friendsRepo.observeOutgoingRequests(q)
                 ) { incoming, outgoing ->
 
                     val rows = mutableListOf<FriendRowUi>()
@@ -184,4 +233,10 @@ class FriendsViewModel(
                 }
             }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun groupItems(): Flow<List<GroupEntity>> =
+        uiState.map { it.query }.distinctUntilChanged().flatMapLatest { q ->
+            groupsRepo.observeGroups(q)
+        }
 }

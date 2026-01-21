@@ -32,6 +32,7 @@ import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FirestoreFriendsRepository
 import com.ludiary.android.data.repository.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsUiEvent
 import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.FriendsViewModelFactory
@@ -75,6 +76,42 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             .setPositiveButton("Enviar") { _, _ ->
                 val code = input.text?.toString().orEmpty().trim().uppercase()
                 vm.sendInviteByCode(code)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun showAddGroupDialog() {
+        val til = TextInputLayout(requireContext()).apply {
+            hint = "Nombre del grupo"
+            isHintEnabled = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val input = TextInputEditText(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        til.addView(input)
+
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+            addView(til)
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Crear grupo")
+            .setView(container)
+            .setPositiveButton("Crear") { _, _ ->
+                val name = input.text?.toString().orEmpty().trim()
+                vm.createGroup(name)
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -131,9 +168,18 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
 
         val local = LocalFriendsDataSource(db.friendDao())
         val remote = FirestoreFriendsRepository(FirebaseFirestore.getInstance())
-        val repo = FriendsRepositoryImpl(local, remote, FirebaseAuth.getInstance())
+        val friendsRepo = FriendsRepositoryImpl(local, remote, FirebaseAuth.getInstance())
 
-        vm = ViewModelProvider(this, FriendsViewModelFactory(repo))[FriendsViewModel::class.java]
+        val groupsRepo = GroupsRepositoryImpl(
+            db = db,
+            fs = FirebaseFirestore.getInstance(),
+            auth = FirebaseAuth.getInstance()
+        )
+
+        vm = ViewModelProvider(
+            this,
+            FriendsViewModelFactory(friendsRepo, groupsRepo)
+        )[FriendsViewModel::class.java]
 
         val topAppBar: MaterialToolbar = view.findViewById(R.id.topAppBar)
         val tabLayout: TabLayout = view.findViewById(R.id.tabFriends)
@@ -232,7 +278,7 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                         showAddFriendDialog()
 
                     FriendsUiEvent.OpenAddGroup ->
-                        Snackbar.make(view, "TODO: crear grupo", Snackbar.LENGTH_SHORT).show()
+                        showAddGroupDialog()
 
                     is FriendsUiEvent.OpenEditNickname -> {
                         showEditNicknameDialog(e.friendId, e.currentNickname)

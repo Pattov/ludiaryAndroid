@@ -62,6 +62,22 @@
         tools:layout="@layout/form_friends_profile" />
 
     <fragment
+        android:id="@+id/nav_groupDetailFragment"
+        android:name="com.ludiary.android.ui.profile.friends.GroupDetailFragment"
+        android:label="Detalle grupo"
+        tools:layout="@layout/fragment_group_detail">
+
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+
+        <argument
+            android:name="groupName"
+            app:argType="string" />
+    </fragment>
+
+
+    <fragment
         android:id="@+id/nav_edit_user_game"
         android:name="com.ludiary.android.ui.library.EditUserGameFragment"
         android:label="Añadir/Editar juego">
