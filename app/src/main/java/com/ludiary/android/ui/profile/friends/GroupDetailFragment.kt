@@ -94,6 +94,8 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
                     )
                 }
 
+                topAppBar.subtitle = if (ui.size == 1) "1 miembro" else "${ui.size} miembros"
+
                 adapter.submitList(ui)
                 empty.visibility = if (ui.isEmpty()) View.VISIBLE else View.GONE
             }

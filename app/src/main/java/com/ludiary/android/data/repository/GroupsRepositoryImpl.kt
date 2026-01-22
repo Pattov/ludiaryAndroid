@@ -127,7 +127,7 @@ class GroupsRepositoryImpl(
                 )
             ).await()
 
-        // Local (opcional; útil si quieres ver “pendientes” también localmente)
+        // Local
         groupDao.upsertInvite(
             GroupInviteEntity(
                 inviteId = inviteId,

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -12,25 +13,19 @@ import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.viewmodel.FriendsViewModel
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.ludiary.android.data.local.LocalFriendsDataSource
-import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreFriendsRepository
-import com.ludiary.android.data.repository.FriendsRepositoryImpl
-import com.ludiary.android.data.repository.GroupsRepositoryImpl
-import com.ludiary.android.viewmodel.FriendsViewModelFactory
 
 class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
 
-    private lateinit var vm: FriendsViewModel
+    private val vm: FriendsViewModel by activityViewModels()
+
     private val groupId: String by lazy { requireArguments().getString(ARG_GROUP_ID).orEmpty() }
     private val groupName: String by lazy { requireArguments().getString(ARG_GROUP_NAME).orEmpty() }
     private val memberUids: Set<String> by lazy {
         requireArguments().getStringArrayList(ARG_MEMBER_UIDS)?.toSet().orEmpty()
     }
+
+    private lateinit var adapter: InviteFriendsAdapter
+    private lateinit var rootView: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,47 +33,52 @@ class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        rootView = view
 
-        // --- VM (mismo patrón que FriendsFragment) ---
-        val ctx = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(ctx)
-
-        val local = LocalFriendsDataSource(db.friendDao())
-        val remote = FirestoreFriendsRepository(FirebaseFirestore.getInstance())
-        val friendsRepo = FriendsRepositoryImpl(local, remote, FirebaseAuth.getInstance())
-
-        val groupsRepo = GroupsRepositoryImpl(
-            db = db,
-            fs = FirebaseFirestore.getInstance(),
-            auth = FirebaseAuth.getInstance()
-        )
-
-        vm = ViewModelProvider(
-            requireActivity(),
-            FriendsViewModelFactory(friendsRepo, groupsRepo)
-        )[FriendsViewModel::class.java]
-
-        // --- UI ---
         val recycler = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerInviteFriends)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapter = InviteFriendsAdapter { row ->
-            if (row.isMember) return@InviteFriendsAdapter
+        adapter = InviteFriendsAdapter(
+            onClick = { row ->
+                if (row.isMember || row.isPending) return@InviteFriendsAdapter
 
-            val uid = row.friendUid
-            if (uid.isBlank()) {
-                Snackbar.make(view, "Este amigo aún no tiene UID", Snackbar.LENGTH_SHORT).show()
-                return@InviteFriendsAdapter
+                val uid = row.friendUid
+                if (uid.isBlank()) {
+                    Snackbar.make(view, "Este amigo aún no tiene UID", Snackbar.LENGTH_SHORT).show()
+                    return@InviteFriendsAdapter
+                }
+
+                vm.inviteToGroup(groupId, groupName, uid)
+                Snackbar.make(view, "Invitación enviada", Snackbar.LENGTH_SHORT).show()
+                refreshList()
+            },
+            onLongClickPending = { row ->
+                val inviteId = row.pendingInviteId
+                if (inviteId.isNullOrBlank()) {
+                    Snackbar.make(view, "No se pudo cancelar (sin inviteId)", Snackbar.LENGTH_SHORT).show()
+                    return@InviteFriendsAdapter
+                }
+
+                vm.cancelGroupInvite(inviteId)
+                Snackbar.make(view, "Invitación cancelada", Snackbar.LENGTH_SHORT).show()
+                refreshList()
             }
+        )
 
-            vm.inviteToGroup(groupId, groupName, uid)
-            Snackbar.make(view, "Invitación enviada", Snackbar.LENGTH_SHORT).show()
-        }
         recycler.adapter = adapter
 
-        // Cargamos amigos una vez (MVP)
-        viewLifecycleOwner.lifecycleScope.launch {
+        // Primera carga
+        refreshList()
+    }
+
+    private fun refreshList() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             val friends: List<FriendEntity> = vm.friendsSnapshotForInvite()
+
+            // Invitaciones pendientes ya enviadas (local)
+            val pendingInvites = vm.pendingOutgoingInvitesForGroup(groupId)
+            val pendingByUid: Map<String, String> = pendingInvites.associate { it.toUid to it.inviteId }
+            val pendingUids = pendingInvites.map { it.toUid }.toSet()
 
             val rows = friends.map { f ->
                 val uid = f.friendUid.orEmpty()
@@ -87,13 +87,17 @@ class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
                     ?: f.friendCode?.takeIf { it.isNotBlank() }
                     ?: uid
 
+                val pendingInviteId = pendingByUid[uid]
+
                 InviteFriendRow(
                     friendUid = uid,
                     label = label,
-                    isMember = uid.isNotBlank() && memberUids.contains(uid)
+                    isMember = uid.isNotBlank() && memberUids.contains(uid),
+                    isPending = uid.isNotBlank() && pendingByUid.containsKey(uid),
+                    pendingInviteId = pendingInviteId
                 )
             }.sortedWith(
-                compareBy<InviteFriendRow> { it.isMember } // primero invitables
+                compareBy<InviteFriendRow> { it.isMember || it.isPending } // invitables primero
                     .thenBy { it.label.lowercase() }
             )
 
@@ -120,5 +124,7 @@ class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
 data class InviteFriendRow(
     val friendUid: String,
     val label: String,
-    val isMember: Boolean
+    val isMember: Boolean,
+    val isPending: Boolean,
+    val pendingInviteId: String? = null
 )

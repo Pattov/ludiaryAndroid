@@ -201,6 +201,18 @@ class FriendsViewModel(
         }
     }
 
+    fun cancelGroupInvite(inviteId: String) {
+        viewModelScope.launch {
+            val r = groupsRepo.cancelInvite(inviteId)
+            _events.emit(
+                FriendsUiEvent.ShowSnack(
+                    if (r.isSuccess) "Invitación cancelada"
+                    else (r.exceptionOrNull()?.message ?: "Error")
+                )
+            )
+        }
+    }
+
     fun groupRows(): Flow<List<GroupRowUi>> {
         return groupItems().flatMapLatest { groups ->
             if (groups.isEmpty()) return@flatMapLatest flowOf(emptyList())
@@ -225,6 +237,10 @@ class FriendsViewModel(
                 )
             )
         }
+    }
+
+    suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity> {
+        return groupsRepo.pendingOutgoingInvitesForGroup(groupId)
     }
 
     suspend fun groupMembersOnce(groupId: String) =
