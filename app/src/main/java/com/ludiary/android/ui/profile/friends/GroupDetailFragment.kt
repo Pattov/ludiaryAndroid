@@ -33,6 +33,10 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
     private val groupId: String by lazy { requireArguments().getString("groupId").orEmpty() }
     private val groupName: String by lazy { requireArguments().getString("groupName").orEmpty() }
 
+    private val membersCountArg: Int by lazy {
+        requireArguments().getInt("membersCount", 1)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -94,7 +98,8 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
                     )
                 }
 
-                topAppBar.subtitle = if (ui.size == 1) "1 miembro" else "${ui.size} miembros"
+                topAppBar.subtitle =
+                    if (membersCountArg == 1) "1 miembro" else "$membersCountArg miembros"
 
                 adapter.submitList(ui)
                 empty.visibility = if (ui.isEmpty()) View.VISIBLE else View.GONE
@@ -106,7 +111,12 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
             viewLifecycleOwner.lifecycleScope.launch {
                 val members = vm.groupMembersOnce(groupId)
                 InviteFriendsBottomSheet
-                    .newInstance(groupId, groupName, members.map { it.uid })
+                    .newInstance(
+                        groupId = groupId,
+                        groupName = groupName,
+                        memberUids = members.map { it.uid },
+                        membersCount = membersCountArg
+                    )
                     .show(parentFragmentManager, "InviteFriendsBottomSheet")
             }
         }

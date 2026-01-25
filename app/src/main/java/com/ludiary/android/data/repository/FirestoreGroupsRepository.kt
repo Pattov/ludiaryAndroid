@@ -1,6 +1,7 @@
 package com.ludiary.android.data.repository
 
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,21 @@ class FirestoreGroupsRepository(
     // ---------------------------
     // Observers (realtime)
     // ---------------------------
+
+    fun observeGroupDoc(groupId: String): Flow<Pair<Int, Long>> = callbackFlow {
+        val reg = firestore.collection("groups")
+            .document(groupId)
+            .addSnapshotListener { snap, err ->
+                if (err != null) { close(err); return@addSnapshotListener }
+                if (snap == null || !snap.exists()) return@addSnapshotListener
+
+                val count = snap.getLong("membersCount")?.toInt() ?: 1
+                val updatedAt = snap.getLong("updatedAt") ?: System.currentTimeMillis()
+                trySend(count to updatedAt)
+            }
+
+        awaitClose { reg.remove() }
+    }
 
     fun observeUserGroupsIndex(uid: String): Flow<List<RemoteUserGroupIndex>> = callbackFlow {
         val reg = firestore.collection("users")
@@ -106,7 +122,7 @@ class FirestoreGroupsRepository(
         val idxRef = firestore.collection("users").document(myUid).collection("groups").document(groupId)
 
         firestore.runBatch { b ->
-            b.set(groupRef, mapOf("name" to name, "createdAt" to now, "updatedAt" to now))
+            b.set(groupRef, mapOf("name" to name, "createdAt" to now, "updatedAt" to now, "membersCount" to 1L))
             b.set(memberRef, mapOf("uid" to myUid, "joinedAt" to now))
             b.set(
                 idxRef,
@@ -214,7 +230,7 @@ class FirestoreGroupsRepository(
                     "updatedAt" to now
                 )
             )
-            b.update(groupRef, mapOf("updatedAt" to now))
+            b.update(groupRef, mapOf("updatedAt" to now, "membersCount" to FieldValue.increment(1)))
         }.await()
 
         return InviteSnapshot(
@@ -276,7 +292,7 @@ class FirestoreGroupsRepository(
         firestore.runBatch { b ->
             b.delete(memberRef)
             b.delete(idxRef)
-            b.update(groupRef, mapOf("updatedAt" to now))
+            b.update(groupRef, mapOf("updatedAt" to now, "membersCount" to FieldValue.increment(-1)))
         }.await()
 
         // si se queda vacío, borramos

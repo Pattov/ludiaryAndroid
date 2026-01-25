@@ -72,7 +72,12 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                         viewLifecycleOwner.lifecycleScope.launch {
                             val members = vm.groupMembersOnce(group.groupId)
                             InviteFriendsBottomSheet
-                                .newInstance(group.groupId, group.nameSnapshot, members.map { it.uid })
+                                .newInstance(
+                                    groupId = group.groupId,
+                                    groupName = group.nameSnapshot,
+                                    memberUids = members.map { it.uid },
+                                    membersCount = row.membersCount
+                                )
                                 .show(parentFragmentManager, "InviteFriendsBottomSheet")
                         }
                     },

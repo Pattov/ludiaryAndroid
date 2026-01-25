@@ -21,6 +21,7 @@ class GroupsRepositoryImpl(
 
     private var remoteSyncJob: Job? = null
     private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val groupDocJobs = mutableMapOf<String, Job>()
 
     override fun observeGroups(query: String) = local.observeGroups(query)
     override fun observeMembers(groupId: String) = local.observeMembers(groupId)
@@ -47,6 +48,8 @@ class GroupsRepositoryImpl(
             // 1) Índice users/{uid}/groups
             launch {
                 remote.observeUserGroupsIndex(me.uid).collect { remoteGroups ->
+
+                    // 1) upsert básico (nombre, fechas)
                     val items = remoteGroups.map {
                         GroupEntity(
                             groupId = it.groupId,
@@ -56,7 +59,34 @@ class GroupsRepositoryImpl(
                         )
                     }
                     local.upsertGroups(items)
-                    Log.d("LUDIARY_GROUPS_DEBUG", "groups=${items.size}")
+
+                    // 2) 👇 AQUÍ VA EL CÓDIGO QUE PREGUNTABAS
+                    val groupIds = remoteGroups.map { it.groupId }.toSet()
+
+                    // parar jobs de grupos que ya no están
+                    (groupDocJobs.keys - groupIds).forEach { gid ->
+                        groupDocJobs.remove(gid)?.cancel()
+                    }
+
+                    // arrancar jobs nuevos
+                    (groupIds - groupDocJobs.keys).forEach { gid ->
+                        groupDocJobs[gid] = repoScope.launch {
+                            remote.observeGroupDoc(gid).collect { (count, updatedAt) ->
+
+                                val meta = remoteGroups.firstOrNull { it.groupId == gid }
+
+                                local.upsertGroup(
+                                    GroupEntity(
+                                        groupId = gid,
+                                        nameSnapshot = meta?.nameSnapshot ?: "Grupo",
+                                        createdAt = meta?.joinedAt ?: System.currentTimeMillis(),
+                                        updatedAt = updatedAt,
+                                        membersCount = count
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -125,6 +155,8 @@ class GroupsRepositoryImpl(
     override fun stopRemoteSync() {
         remoteSyncJob?.cancel()
         remoteSyncJob = null
+        groupDocJobs.values.forEach { it.cancel() }
+        groupDocJobs.clear()
     }
 
     override suspend fun createGroup(name: String): Result<Unit> =

@@ -226,16 +226,8 @@ class FriendsViewModel(
     }
 
     fun groupRows(): Flow<List<GroupRowUi>> {
-        return groupItems().flatMapLatest { groups ->
-            if (groups.isEmpty()) return@flatMapLatest flowOf(emptyList())
-
-            // combinamos counts de miembros por grupo
-            val flows = groups.map { g ->
-                groupsRepo.observeMembers(g.groupId)
-                    .map { members -> GroupRowUi(g, members.size) }
-            }
-
-            combine(flows) { it.toList() }
+        return groupItems().map { groups ->
+            groups.map { g -> GroupRowUi(g, g.membersCount) }
         }
     }
 

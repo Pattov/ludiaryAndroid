@@ -9,7 +9,8 @@ data class GroupEntity(
     @PrimaryKey val groupId: String,
     val nameSnapshot: String,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val membersCount: Int = 1
 )
 
 // ------------------- MEMBERS -------------------

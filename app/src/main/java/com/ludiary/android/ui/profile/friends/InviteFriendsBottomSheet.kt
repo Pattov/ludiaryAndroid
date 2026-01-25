@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -13,10 +14,41 @@ import com.ludiary.android.R
 import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.viewmodel.FriendsViewModel
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.data.local.LocalFriendsDataSource
+import com.ludiary.android.data.local.LocalGroupsDataSource
+import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.data.repository.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.FirestoreGroupsRepository
+import com.ludiary.android.data.repository.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.GroupsRepositoryImpl
+import com.ludiary.android.viewmodel.FriendsViewModelFactory
 
 class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
 
-    private val vm: FriendsViewModel by activityViewModels()
+    private val vm: FriendsViewModel by activityViewModels {
+        val ctx = requireContext().applicationContext
+        val db = LudiaryDatabase.getInstance(ctx)
+        val fs = FirebaseFirestore.getInstance()
+        val auth = FirebaseAuth.getInstance()
+
+        val friendsRepo = FriendsRepositoryImpl(
+            local = LocalFriendsDataSource(db.friendDao()),
+            remote = FirestoreFriendsRepository(fs),
+            auth = auth
+        )
+
+        val groupsRepo = GroupsRepositoryImpl(
+            local = LocalGroupsDataSource(db.groupDao()),
+            remote = FirestoreGroupsRepository(fs),
+            auth = auth
+        )
+
+        FriendsViewModelFactory(friendsRepo, groupsRepo)
+    }
+
+    private val membersCount: Int by lazy { requireArguments().getInt(ARG_MEMBERS_COUNT, 1) }
 
     private val groupId: String by lazy { requireArguments().getString(ARG_GROUP_ID).orEmpty() }
     private val groupName: String by lazy { requireArguments().getString(ARG_GROUP_NAME).orEmpty() }
@@ -109,15 +141,21 @@ class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_GROUP_ID = "groupId"
         private const val ARG_GROUP_NAME = "groupName"
         private const val ARG_MEMBER_UIDS = "memberUids"
+        private const val ARG_MEMBERS_COUNT = "membersCount"
 
-        fun newInstance(groupId: String, groupName: String, memberUids: List<String>) =
-            InviteFriendsBottomSheet().apply {
-                arguments = bundleOf(
-                    ARG_GROUP_ID to groupId,
-                    ARG_GROUP_NAME to groupName,
-                    ARG_MEMBER_UIDS to ArrayList(memberUids)
-                )
-            }
+        fun newInstance(
+            groupId: String,
+            groupName: String,
+            memberUids: List<String>,
+            membersCount: Int
+        ) = InviteFriendsBottomSheet().apply {
+            arguments = bundleOf(
+                ARG_GROUP_ID to groupId,
+                ARG_GROUP_NAME to groupName,
+                ARG_MEMBER_UIDS to ArrayList(memberUids),
+                ARG_MEMBERS_COUNT to membersCount
+            )
+        }
     }
 }
 
