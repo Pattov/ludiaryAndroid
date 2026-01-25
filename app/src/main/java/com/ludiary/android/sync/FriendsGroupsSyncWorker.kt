@@ -8,7 +8,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
+import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.repository.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.FirestoreGroupsRepository
 import com.ludiary.android.data.repository.FriendsRepository
 import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import com.ludiary.android.data.repository.GroupsRepository
@@ -36,10 +38,12 @@ class FriendsGroupsSyncWorker(
                 auth = auth
             )
 
-            // Groups repo
+            // Groups repo (refactor: local + remote)
+            val groupsLocal = LocalGroupsDataSource(db.groupDao())
+            val groupsRemote = FirestoreGroupsRepository(fs)
             val groupsRepo: GroupsRepository = GroupsRepositoryImpl(
-                db = db,
-                fs = fs,
+                local = groupsLocal,
+                remote = groupsRemote,
                 auth = auth
             )
 
@@ -50,7 +54,6 @@ class FriendsGroupsSyncWorker(
             // 2) marcar “última sync ok”
             SyncStatusPrefs(applicationContext).setLastSyncMillis(System.currentTimeMillis())
 
-            Log.d("LUDIARY_SYNC_FG", "OK uid=${me.uid}")
             Result.success()
         } catch (e: Exception) {
             Log.w("LUDIARY_SYNC_FG", "Retry", e)

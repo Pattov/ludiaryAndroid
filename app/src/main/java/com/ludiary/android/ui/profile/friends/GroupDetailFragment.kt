@@ -18,8 +18,10 @@ import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LocalFriendsDataSource
+import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.repository.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.FirestoreGroupsRepository
 import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import com.ludiary.android.data.repository.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsViewModelFactory
@@ -38,15 +40,13 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
         val ctx = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(ctx)
 
-        val local = LocalFriendsDataSource(db.friendDao())
-        val remote = FirestoreFriendsRepository(FirebaseFirestore.getInstance())
-        val friendsRepo = FriendsRepositoryImpl(local, remote, FirebaseAuth.getInstance())
+        val friendsLocal = LocalFriendsDataSource(db.friendDao())
+        val friendsRemote = FirestoreFriendsRepository(FirebaseFirestore.getInstance())
+        val friendsRepo = FriendsRepositoryImpl(friendsLocal, friendsRemote, FirebaseAuth.getInstance())
 
-        val groupsRepo = GroupsRepositoryImpl(
-            db = db,
-            fs = FirebaseFirestore.getInstance(),
-            auth = FirebaseAuth.getInstance()
-        )
+        val groupsLocal = LocalGroupsDataSource(db.groupDao())
+        val groupsRemote = FirestoreGroupsRepository(FirebaseFirestore.getInstance())
+        val groupsRepo = GroupsRepositoryImpl( groupsLocal, groupsRemote, FirebaseAuth.getInstance())
 
         vm = ViewModelProvider(
             requireActivity(),
