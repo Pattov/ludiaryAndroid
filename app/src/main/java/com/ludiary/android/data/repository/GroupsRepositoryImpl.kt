@@ -336,17 +336,31 @@ class GroupsRepositoryImpl(
         val memberRef = groupRef.collection("members").document(me.uid)
         val idxRef = fs.collection("users").document(me.uid).collection("groups").document(groupId)
 
+        // 1) Salir (batch)
         fs.runBatch { b ->
             b.delete(memberRef)
             b.delete(idxRef)
             b.update(groupRef, mapOf("updatedAt" to now))
         }.await()
 
-        // Local
+        // 2) Local
         groupDao.leaveGroupLocal(groupId, me.uid)
 
-        // NOTA MVP:
-        // El borrado del grupo cuando queda vacío lo remataremos luego
-        // (memberCount o limpieza por backend).
+        // 3) Si el grupo se queda vacío, lo borramos
+        //    (lo hacemos AFTER para no bloquear el leave)
+        try {
+            val membersSnap = groupRef.collection("members").limit(1).get().await()
+            if (membersSnap.isEmpty) {
+                // Si no queda nadie, borramos el doc del grupo
+                // (si ya lo ha borrado otro cliente, no pasa nada)
+                groupRef.delete().await()
+                Log.d("LUDIARY_GROUPS_DEBUG", "Group deleted (empty) groupId=$groupId")
+            } else {
+                Log.d("LUDIARY_GROUPS_DEBUG", "Group not empty, keep groupId=$groupId")
+            }
+        } catch (e: Exception) {
+            // No queremos que esto rompa el leave
+            Log.w("LUDIARY_GROUPS_DEBUG", "leaveGroup: could not check/delete empty groupId=$groupId", e)
+        }
     }
 }

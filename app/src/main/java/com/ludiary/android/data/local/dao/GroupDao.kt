@@ -85,6 +85,7 @@ interface GroupDao {
     @Transaction
     suspend fun leaveGroupLocal(groupId: String, myUid: String) {
         deleteMember(groupId, myUid)
+        deleteMembersByGroup(groupId)
         deleteGroup(groupId)
     }
 }
