@@ -100,7 +100,7 @@ class FriendsViewModel(
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Invitación de grupo aceptada"
-                    else (r.exceptionOrNull()?.message ?: "Error")
+                    else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -112,7 +112,7 @@ class FriendsViewModel(
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Invitación de grupo rechazada"
-                    else (r.exceptionOrNull()?.message ?: "Error")
+                    else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -143,7 +143,7 @@ class FriendsViewModel(
             val r = friendsRepo.acceptRequest(friendId)
             _events.emit(
                 FriendsUiEvent.ShowSnack(
-                    if (r.isSuccess) "Solicitud aceptada" else (r.exceptionOrNull()?.message ?: "Error")
+                    if (r.isSuccess) "Solicitud aceptada" else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -154,7 +154,7 @@ class FriendsViewModel(
             val r = friendsRepo.rejectRequest(friendId)
             _events.emit(
                 FriendsUiEvent.ShowSnack(
-                    if (r.isSuccess) "Solicitud rechazada" else (r.exceptionOrNull()?.message ?: "Error")
+                    if (r.isSuccess) "Solicitud rechazada" else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -209,7 +209,7 @@ class FriendsViewModel(
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Invitación cancelada"
-                    else (r.exceptionOrNull()?.message ?: "Error")
+                    else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -235,7 +235,7 @@ class FriendsViewModel(
             _events.emit(
                 FriendsUiEvent.ShowSnack(
                     if (r.isSuccess) "Has salido del grupo"
-                    else (r.exceptionOrNull()?.message ?: "Error")
+                    else friendlyError(r.exceptionOrNull())
                 )
             )
         }
@@ -332,4 +332,14 @@ class FriendsViewModel(
         uiState.map { it.query }.distinctUntilChanged().flatMapLatest { q ->
             groupsRepo.observeGroups(q)
         }
+}
+
+private fun friendlyError(e: Throwable?): String {
+    val msg = e?.message?.lowercase().orEmpty()
+    return when {
+        msg.contains("permission") -> "No tienes permisos para esta acción"
+        msg.contains("unavailable") || msg.contains("network") -> "Sin conexión. Se reintentará automáticamente"
+        msg.contains("not found") -> "Ya no existe o ya se gestionó"
+        else -> e?.message ?: "Error"
+    }
 }

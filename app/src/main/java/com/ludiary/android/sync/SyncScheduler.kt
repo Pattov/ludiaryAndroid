@@ -14,8 +14,9 @@ object SyncScheduler {
     private const val WORK_USER_GAMES_PERIODIC = "ludiary_usergames_auto_sync"
     private const val WORK_SESSIONS_PERIODIC = "ludiary_sessions_auto_sync"
     private const val WORK_USER_GAMES_ONE_TIME = "ludiary_usergames_one_time_sync"
-
     private const val WORK_SESSIONS_ONE_TIME = "ludiary_sessions_one_time_sync"
+    private const val WORK_FRIENDS_GROUPS_PERIODIC = "ludiary_friends_groups_auto_sync"
+    private const val WORK_FRIENDS_GROUPS_ONE_TIME = "ludiary_friends_groups_one_time_sync"
 
 
     /**
@@ -62,6 +63,23 @@ object SyncScheduler {
         enqueueOneTimeSessionsSync(context)
     }
 
+    fun enableAutoSyncFriendsGroups(context: Context) {
+        val constraints = connectedConstraints()
+
+        val request = PeriodicWorkRequestBuilder<FriendsGroupsSyncWorker>(6, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            WORK_FRIENDS_GROUPS_PERIODIC,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+
+        enqueueOneTimeFriendsGroupsSync(context)
+    }
+
     /**
      * Desprograma una sync automática de juegos del usuario.
      * @param context Contexto de la aplicación.
@@ -76,6 +94,10 @@ object SyncScheduler {
      */
     fun disableAutoSyncSessions(context: Context) {
         WorkManager.getInstance(context).cancelUniqueWork(WORK_SESSIONS_PERIODIC)
+    }
+
+    fun disableAutoSyncFriendsGroups(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(WORK_FRIENDS_GROUPS_PERIODIC)
     }
 
     /**
@@ -109,6 +131,20 @@ object SyncScheduler {
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             WORK_SESSIONS_ONE_TIME,
+            ExistingWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    fun enqueueOneTimeFriendsGroupsSync(context: Context) {
+        val constraints = connectedConstraints()
+
+        val request = OneTimeWorkRequestBuilder<FriendsGroupsSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            WORK_FRIENDS_GROUPS_ONE_TIME,
             ExistingWorkPolicy.KEEP,
             request
         )

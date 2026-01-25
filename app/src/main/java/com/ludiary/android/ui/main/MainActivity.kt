@@ -101,9 +101,11 @@ class MainActivity : AppCompatActivity() {
         if (syncPrefs.isAutoSyncEnabled()) {
             SyncScheduler.enableAutoSyncUserGames(applicationContext)
             SyncScheduler.enableAutoSyncSessions(applicationContext)
+            SyncScheduler.enableAutoSyncFriendsGroups(applicationContext)
         } else {
             SyncScheduler.disableAutoSyncUserGames(applicationContext)
             SyncScheduler.disableAutoSyncSessions(applicationContext)
+            SyncScheduler.disableAutoSyncFriendsGroups(applicationContext)
         }
     }
 

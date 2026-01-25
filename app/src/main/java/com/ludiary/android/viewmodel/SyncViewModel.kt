@@ -61,9 +61,11 @@ class SyncViewModel(
         if (autoEnabled) {
             SyncScheduler.enableAutoSyncUserGames(ctx)
             SyncScheduler.enableAutoSyncSessions(ctx)
+            SyncScheduler.enableAutoSyncFriendsGroups(ctx)
         } else {
             SyncScheduler.disableAutoSyncUserGames(ctx)
             SyncScheduler.disableAutoSyncSessions(ctx)
+            SyncScheduler.disableAutoSyncFriendsGroups(ctx)
         }
     }
 
@@ -75,9 +77,11 @@ class SyncViewModel(
         if (enabled) {
             SyncScheduler.enableAutoSyncUserGames(ctx)
             SyncScheduler.enableAutoSyncSessions(ctx)
+            SyncScheduler.enableAutoSyncFriendsGroups(ctx)
         } else {
             SyncScheduler.disableAutoSyncUserGames(ctx)
             SyncScheduler.disableAutoSyncSessions(ctx)
+            SyncScheduler.disableAutoSyncFriendsGroups(ctx)
         }
 
         _ui.value = _ui.value.copy(autoSyncEnabled = enabled, errorMessage = null)
