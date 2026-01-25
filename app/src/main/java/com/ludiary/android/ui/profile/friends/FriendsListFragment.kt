@@ -56,7 +56,8 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
 
             FriendsTab.GROUPS -> {
                 val adapter = GroupsAdapter(
-                    onOpen = { group ->
+                    onOpen = { row ->
+                        val group = row.group
                         findNavController().navigate(
                             R.id.nav_groupDetailFragment,
                             bundleOf(
@@ -65,7 +66,8 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                             )
                         )
                     },
-                    onInvite = { group ->
+                    onInvite = { row ->
+                        val group = row.group
                         viewLifecycleOwner.lifecycleScope.launch {
                             val members = vm.groupMembersOnce(group.groupId)
                             InviteFriendsBottomSheet
@@ -73,7 +75,8 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                                 .show(parentFragmentManager, "InviteFriendsBottomSheet")
                         }
                     },
-                    onDelete = { group ->
+                    onDelete = { row ->
+                        val group = row.group
                         MaterialAlertDialogBuilder(requireContext())
                             .setTitle("Salir del grupo")
                             .setMessage("¿Quieres salir de “${group.nameSnapshot}”?")
@@ -124,5 +127,4 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
             arguments = bundleOf(ARG_TAB to tab.name)
         }
     }
-
 }

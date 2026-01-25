@@ -57,6 +57,7 @@ class FriendsViewModel(
         groupsRepo.startRemoteSync()
 
         viewModelScope.launch {
+            groupsRepo.flushPendingInvites()
             friendsRepo.getMyFriendCode()
                 .onSuccess { code -> _uiState.update { it.copy(myFriendCode = code) } }
         }
@@ -195,7 +196,8 @@ class FriendsViewModel(
             val r = groupsRepo.inviteToGroup(groupId, groupNameSnapshot, toUid)
             _events.emit(
                 FriendsUiEvent.ShowSnack(
-                    if (r.isSuccess) "Invitación enviada" else (r.exceptionOrNull()?.message ?: "Error")
+                    if (r.isSuccess) "Invitación enviada"
+                    else "Invitación pendiente (sin conexión)"
                 )
             )
         }

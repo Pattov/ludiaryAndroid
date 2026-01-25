@@ -46,11 +46,14 @@ interface GroupDao {
 
     // ------------------- INVITES -------------------
 
-    @Query("SELECT * FROM group_invites WHERE status = 'PENDING' ORDER BY createdAt DESC ")
-    fun observePendingInvites(): Flow<List<GroupInviteEntity>>
+    @Query("SELECT * FROM group_invites WHERE toUid = :myUid AND status = 'PENDING' ORDER BY createdAt DESC")
+    fun observePendingInvites(myUid: String): Flow<List<GroupInviteEntity>>
 
-    @Query("SELECT * FROM group_invites WHERE groupId = :groupId AND status = 'PENDING_OUTGOING'")
-    suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity>
+    @Query("SELECT * FROM group_invites WHERE groupId = :groupId AND fromUid = :myUid AND status = 'PENDING'")
+    suspend fun pendingOutgoingInvitesForGroup(groupId: String, myUid: String): List<GroupInviteEntity>
+
+    @Query("SELECT * FROM group_invites WHERE fromUid = :myUid AND status = 'PENDING'")
+    suspend fun pendingOutgoingInvitesAll(myUid: String): List<GroupInviteEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertInvite(item: GroupInviteEntity)
@@ -60,6 +63,18 @@ interface GroupDao {
 
     @Query("DELETE FROM group_invites WHERE inviteId = :inviteId")
     suspend fun deleteInvite(inviteId: String)
+
+    @Query("DELETE FROM group_invites WHERE fromUid = :myUid AND status = 'PENDING' AND inviteId NOT IN (:remoteIds)")
+    suspend fun deleteMissingOutgoingInvites(myUid: String, remoteIds: List<String>)
+
+    @Query("DELETE FROM group_invites WHERE fromUid = :myUid AND status = 'PENDING'")
+    suspend fun deleteAllOutgoingPendingInvites(myUid: String)
+
+    @Query("DELETE FROM group_invites WHERE toUid = :myUid AND status = 'PENDING' AND inviteId NOT IN (:remoteIds)")
+    suspend fun deleteMissingIncomingInvites(myUid: String, remoteIds: List<String>)
+
+    @Query("DELETE FROM group_invites WHERE toUid = :myUid AND status = 'PENDING'")
+    suspend fun deleteAllIncomingPendingInvites(myUid: String)
 
     // -------------------------
     // Helper (opcional) para “salir” local

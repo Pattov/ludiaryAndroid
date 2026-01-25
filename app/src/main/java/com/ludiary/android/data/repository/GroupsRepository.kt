@@ -20,4 +20,5 @@ interface GroupsRepository {
     suspend fun cancelInvite(inviteId: String): Result<Unit>
     suspend fun rejectInvite(inviteId: String): Result<Unit>
     suspend fun leaveGroup(groupId: String): Result<Unit>
+    suspend fun flushPendingInvites(): Result<Unit>
 }

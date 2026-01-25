@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.ludiary.android.R
-import com.ludiary.android.data.local.entity.GroupEntity
 import com.ludiary.android.viewmodel.GroupRowUi
+import java.util.Locale
 
 class GroupsAdapter(
-    private val onOpen: (GroupEntity) -> Unit,
-    private val onInvite: (GroupEntity) -> Unit,
-    private val onDelete: (GroupEntity) -> Unit
+    private val onOpen: (GroupRowUi) -> Unit,
+    private val onInvite: (GroupRowUi) -> Unit,
+    private val onDelete: (GroupRowUi) -> Unit
 ) : ListAdapter<GroupRowUi, GroupsAdapter.VH>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -30,27 +30,31 @@ class GroupsAdapter(
 
     class VH(
         view: View,
-        private val onOpen: (GroupEntity) -> Unit,
-        private val onInvite: (GroupEntity) -> Unit,
-        private val onDelete: (GroupEntity) -> Unit
+        private val onOpen: (GroupRowUi) -> Unit,
+        private val onInvite: (GroupRowUi) -> Unit,
+        private val onDelete: (GroupRowUi) -> Unit
     ) : RecyclerView.ViewHolder(view) {
 
         private val tvAvatarLetter: TextView = view.findViewById(R.id.tvAvatarLetter)
         private val tvTitle: TextView = view.findViewById(R.id.tvGroupTitle)
         private val tvSubtitle: TextView = view.findViewById(R.id.tvGroupSubtitle)
+
         private val btnInvite: MaterialButton = view.findViewById(R.id.btnInvite)
         private val btnDelete: MaterialButton = view.findViewById(R.id.btnDelete)
 
-        fun bind(row: GroupRowUi) {
-            val item = row.group
+        fun bind(item: GroupRowUi) {
+            val g = item.group
+            tvTitle.text = g.nameSnapshot
 
-            tvTitle.text = item.nameSnapshot
-            tvAvatarLetter.text = item.nameSnapshot.firstOrNull()?.uppercase() ?: "G"
+            tvAvatarLetter.text =
+                g.nameSnapshot.firstOrNull()?.uppercase() ?: "G"
 
-            val n = row.membersCount
-            tvSubtitle.text = if (n == 1) "1 miembro" else "$n miembros"
+            // Subtítulo: X miembros
             tvSubtitle.visibility = View.VISIBLE
+            val n = item.membersCount
+            tvSubtitle.text = if (n == 1) "1 miembro" else "$n miembros"
 
+            // Abrir detalle (anti doble click)
             itemView.setOnClickListener {
                 itemView.isEnabled = false
                 onOpen(item)
