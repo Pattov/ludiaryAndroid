@@ -48,20 +48,15 @@ class FriendsRepositoryImpl(
         remoteSyncJob?.cancel()
 
         remoteSyncJob = repoScope.launch {
-            Log.d("LUDIARY_FRIENDS_DEBUG", "startRemoteSync uid=${me.uid}")
 
             remote.observeAll(me.uid).collect { remoteList ->
-                Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE size=${remoteList.size}")
 
                 for (rf in remoteList) {
                     val status = runCatching { FriendStatus.valueOf(rf.status) }.getOrNull()
                     if (status == null) {
-                        Log.d("LUDIARY_FRIENDS_DEBUG", "REMOTE skip invalid status=${rf.status}")
                         continue
                     }
-                    Log.d("LUDIARY_SYNC_DEBUG", "REMOTE -> local friendUid=${rf.friendUid} status=${rf.status} code=${rf.friendCode} name=${rf.displayName}")
 
-                    // ✅ Nunca insertar a pelo: esto evita el UNIQUE constraint failed: friends.friendUid
                     local.upsertRemote(
                         friendUid = rf.friendUid,
                         friendCode = rf.friendCode,
@@ -81,7 +76,6 @@ class FriendsRepositoryImpl(
             val me = auth.currentUser ?: error("No hay sesión")
 
             val normalized = code.trim().uppercase()
-            Log.d("LUDIARY_FRIENDS_DEBUG", "sendInviteByCode() code=$normalized from=${me.uid}")
 
             // Local-first: guardamos pendiente local
             local.insert(
@@ -97,7 +91,6 @@ class FriendsRepositoryImpl(
                 )
             )
 
-            Log.d("LUDIARY_FRIENDS_DEBUG", "Local saved PENDING_OUTGOING_LOCAL + PENDING")
             Unit
         }
     }
@@ -107,7 +100,6 @@ class FriendsRepositoryImpl(
             val me = auth.currentUser ?: return@runCatching
 
             val pending = local.getPendingInvites()
-            Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites() pending=${pending.size}")
 
             for (entity in pending) {
                 val localId = entity.id
@@ -117,20 +109,16 @@ class FriendsRepositoryImpl(
                 val code = entity.friendCode?.trim()?.uppercase().orEmpty()
                 if (code.isBlank()) continue
 
-                Log.d("LUDIARY_FRIENDS_DEBUG", "Resolving friendCode=$code localId=$localId")
-
                 val myCode = remote.findFriendCodeByUid(me.uid)
                 val targetCode = code // ya lo tienes normalizado
 
                 val target = remote.findUserByFriendCode(code)
                 if (target == null) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "resolve MISS -> keep local pending localId=$localId")
                     continue
                 }
 
                 // ✅ No permitir enviarse a uno mismo
                 if (target.uid == me.uid) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "Self-invite blocked -> delete local id=$localId")
                     local.deleteById(localId)
                     continue
                 }
@@ -140,7 +128,6 @@ class FriendsRepositoryImpl(
                 // enviarle yo solicitud debe equivaler a ACEPTAR automáticamente.
                 val existingIncoming = local.getByFriendUid(target.uid)
                 if (existingIncoming != null && existingIncoming.status == FriendStatus.PENDING_INCOMING) {
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "Cross-invite detected -> auto-accept friendUid=${target.uid}")
 
                     val nowAccept = System.currentTimeMillis()
                     val myCodeResolved = remote.findFriendCodeByUid(me.uid)
@@ -186,7 +173,6 @@ class FriendsRepositoryImpl(
                     // Local: borro el pendiente local que acabamos de procesar (para no dejar basura)
                     local.deleteById(localId)
 
-                    Log.d("LUDIARY_FRIENDS_DEBUG", "Auto-accept OK -> localId=$localId deleted, existingIncoming set ACCEPTED")
                     continue
                 }
 
@@ -230,11 +216,13 @@ class FriendsRepositoryImpl(
 
                 // Local: ya está escrito remoto -> limpio
                 local.updateSyncStatus(localId, SyncStatus.CLEAN)
-                Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites OK localId=$localId -> remote written")
             }
 
-        }.onFailure {
-            Log.d("LUDIARY_FRIENDS_DEBUG", "flushOfflineInvites FAIL err=${it.message}")
+        }.onFailure { e ->
+            Log.w(
+                "LUDIARY_FRIENDS_SYNC",
+                "flushOfflineInvites failed: ${e::class.simpleName} - ${e.message}"
+            )
         }
     }
 
@@ -252,7 +240,6 @@ class FriendsRepositoryImpl(
             val entity = local.getById(friendId) ?: error("No existe en local")
 
             val friendUid = entity.friendUid ?: error("No tiene friendUid (no sincronizado aún)")
-            Log.d("LUDIARY_FRIENDS_DEBUG", "acceptRequest id=$friendId friendUid=$friendUid")
 
             val now = System.currentTimeMillis()
 
@@ -296,7 +283,6 @@ class FriendsRepositoryImpl(
                 syncStatus = SyncStatus.CLEAN
             )
 
-            Log.d("LUDIARY_FRIENDS_DEBUG", "acceptRequest OK -> local ACCEPTED")
             Unit
         }
     }
@@ -339,7 +325,6 @@ class FriendsRepositoryImpl(
             val entity = local.getById(friendId) ?: return@runCatching
 
             val friendUid = entity.friendUid
-            Log.d("LUDIARY_FRIENDS_DEBUG", "rejectRequest id=$friendId friendUid=$friendUid status=${entity.status}")
 
             // MVP: borrar en remoto si tenemos uid
             if (!friendUid.isNullOrBlank()) {
@@ -350,7 +335,6 @@ class FriendsRepositoryImpl(
             // MVP: borrar en local
             local.deleteById(friendId)
 
-            Log.d("LUDIARY_FRIENDS_DEBUG", "rejectRequest OK -> deleted local + remote(if possible)")
             Unit
         }
     }

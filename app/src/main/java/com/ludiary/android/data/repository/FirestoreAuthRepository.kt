@@ -129,10 +129,12 @@ class FirestoreAuthRepository(
      */
     override suspend fun register(email: String, password: String): AuthResult {
         return try {
-            auth.createUserWithEmailAndPassword(email.trim(), password).await()
-            val u = auth.currentUser ?: return AuthResult.Error(resources.getString(R.string.auth_error_user_not_found_after_register))
+            val result = auth.createUserWithEmailAndPassword(email.trim(), password).await()
+            val u = result.user ?: return AuthResult.Error(
+                resources.getString(R.string.auth_error_user_not_found_after_register)
+            )
 
-            // Creamos el documento de usuario en Firestore
+            // Creamos el documento de usuario en Firestore (docId = uid)
             ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
             ensureFriendCode(u.uid)
 
@@ -141,17 +143,11 @@ class FirestoreAuthRepository(
             localUser.saveLocalUser(profile)
 
             AuthResult.Success(profile)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             val msg = when (e) {
-                is FirebaseAuthUserCollisionException -> {
-                    resources.getString(R.string.auth_error_collision)
-                }
-                is FirebaseNetworkException -> {
-                    resources.getString(R.string.auth_error_network)
-                }
-                else -> {
-                    resources.getString(R.string.auth_error_generic_register)
-                }
+                is FirebaseAuthUserCollisionException -> resources.getString(R.string.auth_error_collision)
+                is FirebaseNetworkException -> resources.getString(R.string.auth_error_network)
+                else -> resources.getString(R.string.auth_error_generic_register)
             }
 
             Log.e("LUDIARY_AUTH_REPO", "Error al registrar usuario", e)

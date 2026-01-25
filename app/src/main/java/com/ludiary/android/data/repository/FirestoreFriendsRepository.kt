@@ -73,7 +73,6 @@ class FirestoreFriendsRepository(
 
     suspend fun findUserByFriendCode(codeRaw: String): RemoteUser? {
         val code = codeRaw.trim().uppercase()
-        Log.d("LUDIARY_FRIENDS_DEBUG", "findUserByFriendCode() code=$code")
 
         val idx = firestore.collection("friend_code_index")
             .document(code)
@@ -81,7 +80,6 @@ class FirestoreFriendsRepository(
             .await()
 
         if (!idx.exists()) {
-            Log.d("LUDIARY_FRIENDS_DEBUG", "friend_code_index MISS code=$code")
             return null
         }
 
@@ -93,8 +91,6 @@ class FirestoreFriendsRepository(
             .await()
 
         if (!userDoc.exists()) return null
-
-        Log.d("LUDIARY_FRIENDS_DEBUG", "friend_code_index HIT code=$code uid=$uid")
 
         return RemoteUser(
             uid = uid,

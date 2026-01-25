@@ -9,6 +9,7 @@ import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.FriendsRepository
 import com.ludiary.android.data.repository.GroupsRepository
+import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -261,8 +262,6 @@ class FriendsViewModel(
             .map { it.query }
             .distinctUntilChanged()
             .flatMapLatest { q ->
-                Log.d("LUDIARY_FRIENDS_DEBUG", "VM.items() tab=$tab query='$q'")
-
                 when (tab) {
                     FriendsTab.FRIENDS -> friendsRepo.observeFriends(q)
                     FriendsTab.GROUPS -> flowOf(emptyList())
@@ -270,7 +269,6 @@ class FriendsViewModel(
                         friendsRepo.observeIncomingRequests(q),
                         friendsRepo.observeOutgoingRequests(q)
                     ) { incoming, outgoing ->
-                        Log.d("LUDIARY_FRIENDS_DEBUG", "REQUESTS incoming=${incoming.size} outgoing=${outgoing.size}")
                         incoming + outgoing
                     }
                 }

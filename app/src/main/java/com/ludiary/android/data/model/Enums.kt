@@ -99,21 +99,3 @@ enum class FriendStatus {
  * @property REQUESTS Solicitudes de amistad.
  */
 enum class FriendsTab { FRIENDS, GROUPS, REQUESTS }
-
-/**
- * Opciones de solicitud de amistad.
- * @property SEND_INVITE Enviar invitación.
- * @property ACCEPT Aceptar.
- * @property REJECT Rechazar.
- * @property REMOVE Eliminar.
- * @property BLOCK Bloquear.
- * @property UNBLOCK Desbloquear.
- */
-enum class FriendPendingOp {
-    SEND_INVITE,
-    ACCEPT,
-    REJECT,
-    REMOVE,
-    BLOCK,
-    UNBLOCK
-}
