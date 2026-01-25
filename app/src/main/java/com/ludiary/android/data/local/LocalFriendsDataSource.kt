@@ -75,11 +75,6 @@ class LocalFriendsDataSource(
         updatedAt: Long?
     ) {
 
-        android.util.Log.d(
-            "LUDIARY_SYNC_DEBUG",
-            "upsertRemote(friendUid=$friendUid status=${status.name} code=$friendCode)"
-        )
-
         friendDao.upsertByFriendUid(
             FriendEntity(
                 id = 0L,

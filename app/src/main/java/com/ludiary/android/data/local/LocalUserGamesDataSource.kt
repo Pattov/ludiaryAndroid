@@ -94,10 +94,4 @@ class LocalUserGamesDataSource (
      */
     suspend fun upsert(game: UserGame) = userGameDao.upsert(game.toEntity())
 
-    /**
-     * Inserta o actualiza una lista de juegos en la base de datos local.
-     * @param games Lista de juegos a insertar o actualizar.
-     */
-    suspend fun upsertAll(games: List<UserGame>) =
-        userGameDao.upsertAll(games.map { it.toEntity() })
 }

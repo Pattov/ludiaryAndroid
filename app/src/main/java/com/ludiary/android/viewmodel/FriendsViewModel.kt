@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 data class FriendsUiState(
     val tab: FriendsTab = FriendsTab.FRIENDS,
     val query: String = "",
-    val myFriendCode: String? = null
+    val myFriendCode: String? = null,
+    val hasFriends: Boolean = false
 )
 
 data class GroupRowUi(
@@ -59,8 +60,16 @@ class FriendsViewModel(
 
         viewModelScope.launch {
             groupsRepo.flushPendingInvites()
+
             friendsRepo.getMyFriendCode()
                 .onSuccess { code -> _uiState.update { it.copy(myFriendCode = code) } }
+
+            friendsRepo.observeFriends("")
+                .map { friends -> friends.size >= 1 }
+                .distinctUntilChanged()
+                .collect { has ->
+                    _uiState.update { it.copy(hasFriends = has) }
+                }
         }
     }
 

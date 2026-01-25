@@ -32,7 +32,6 @@ class LocalGroupsDataSource(
     suspend fun upsertGroup(item: GroupEntity) = groupDao.upsertGroup(item)
 
     suspend fun upsertMember(item: GroupMemberEntity) = groupDao.upsertMember(item)
-    suspend fun upsertMembers(items: List<GroupMemberEntity>) = groupDao.upsertMembers(items)
 
     suspend fun upsertInvite(item: GroupInviteEntity) = groupDao.upsertInvite(item)
     suspend fun upsertInvites(items: List<GroupInviteEntity>) = groupDao.upsertInvites(items)
