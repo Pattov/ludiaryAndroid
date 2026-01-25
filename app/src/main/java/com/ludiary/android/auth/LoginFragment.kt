@@ -17,6 +17,7 @@ import com.ludiary.android.viewmodel.LoginViewModel
 import com.ludiary.android.viewmodel.LoginViewModelFactory
 import kotlinx.coroutines.launch
 import android.content.Intent
+import android.view.inputmethod.EditorInfo
 import com.ludiary.android.data.local.LudiaryDatabase
 
 /**
@@ -84,6 +85,21 @@ class LoginFragment : Fragment() {
                 text?.toString().orEmpty()
             )
             binding.tvLoginError.visibility = View.GONE
+        }
+        binding.etPassword.setOnEditorActionListener { _, actionId, event ->
+            val isImeDone = actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_GO ||
+                    actionId == EditorInfo.IME_ACTION_SEND
+
+            val isEnterKey = event?.keyCode == android.view.KeyEvent.KEYCODE_ENTER &&
+                    event.action == android.view.KeyEvent.ACTION_DOWN
+
+            if (isImeDone || isEnterKey) {
+                vm.login()
+                true
+            } else {
+                false
+            }
         }
     }
 
