@@ -42,7 +42,8 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                     onAcceptFriend = { friendId -> vm.acceptRequest(friendId) },
                     onRejectFriend = { friendId -> vm.rejectRequest(friendId) },
                     onAcceptGroup = { inviteId -> vm.acceptGroupInvite(inviteId) },
-                    onRejectGroup = { inviteId -> vm.rejectGroupInvite(inviteId) }
+                    onRejectGroup = { inviteId -> vm.rejectGroupInvite(inviteId) },
+                    onCancelGroup = { inviteId -> vm.cancelGroupInvite(inviteId) }
                 )
                 recycler.adapter = adapter
 

@@ -49,6 +49,9 @@ interface GroupDao {
     @Query("SELECT * FROM group_invites WHERE toUid = :myUid AND status = 'PENDING' ORDER BY createdAt DESC")
     fun observePendingInvites(myUid: String): Flow<List<GroupInviteEntity>>
 
+    @Query("SELECT * FROM group_invites WHERE fromUid = :myUid AND status = 'PENDING' ORDER BY createdAt DESC")
+    fun observeOutgoingPendingInvites(myUid: String): Flow<List<GroupInviteEntity>>
+
     @Query("SELECT * FROM group_invites WHERE groupId = :groupId AND fromUid = :myUid AND status = 'PENDING'")
     suspend fun pendingOutgoingInvitesForGroup(groupId: String, myUid: String): List<GroupInviteEntity>
 

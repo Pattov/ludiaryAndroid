@@ -9,6 +9,7 @@ interface GroupsRepository {
     fun observeGroups(query: String): Flow<List<GroupEntity>>
     fun observeMembers(groupId: String): Flow<List<GroupMemberEntity>>
     fun observePendingInvites(): Flow<List<GroupInviteEntity>>
+    fun observeOutgoingPendingInvites(): Flow<List<GroupInviteEntity>>
 
     fun startRemoteSync()
     fun stopRemoteSync()

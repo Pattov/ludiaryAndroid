@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.ludiary.android.R
 import com.ludiary.android.viewmodel.GroupRowUi
-import java.util.Locale
 
 class GroupsAdapter(
     private val onOpen: (GroupRowUi) -> Unit,

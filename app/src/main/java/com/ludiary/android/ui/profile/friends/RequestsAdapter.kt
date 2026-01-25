@@ -19,7 +19,8 @@ class RequestsAdapter(
     private val onAcceptFriend: (Long) -> Unit,
     private val onRejectFriend: (Long) -> Unit,
     private val onAcceptGroup: (String) -> Unit,
-    private val onRejectGroup: (String) -> Unit
+    private val onRejectGroup: (String) -> Unit,
+    private val onCancelGroup: (String) -> Unit
 ) : ListAdapter<FriendRowUi, RecyclerView.ViewHolder>(Diff) {
 
     companion object {
@@ -52,7 +53,7 @@ class RequestsAdapter(
         when (val row = getItem(position)) {
             is FriendRowUi.Header -> (holder as HeaderVH).bind(row)
             is FriendRowUi.FriendItem -> (holder as ItemVH).bindFriend(row.friend)
-            is FriendRowUi.GroupItem -> (holder as ItemVH).bindGroupInvite(row.invite)
+            is FriendRowUi.GroupItem -> (holder as ItemVH).bindGroupInvite(row.invite, row.isOutgoing)
         }
     }
 
@@ -120,27 +121,41 @@ class RequestsAdapter(
             itemView.setOnClickListener { onFriendClick(item) }
         }
 
-        fun bindGroupInvite(invite: GroupInviteEntity) {
+        fun bindGroupInvite(invite: GroupInviteEntity, isOutgoing: Boolean) {
             val name = invite.groupNameSnapshot.ifBlank { "Grupo" }
-
             val suffix = invite.groupId.takeLast(5)
             tvTitle.text = "$name · #…$suffix"
 
-            tvSubtitle.text = "Te han invitado al grupo"
-            tvSubtitle.isVisible = true
+            if (!isOutgoing) {
+                // Recibida
+                tvSubtitle.text = "Te han invitado al grupo"
+                tvSubtitle.isVisible = true
 
-            // En MVP: solo invitaciones recibidas PENDING
-            btnAccept.isVisible = true
-            btnReject.isVisible = true
+                btnAccept.isVisible = true
+                btnReject.isVisible = true
+
+                btnAccept.setOnClickListener(null)
+                btnReject.setOnClickListener(null)
+
+                btnAccept.setOnClickListener { onAcceptGroup(invite.inviteId) }
+                btnReject.setOnClickListener { onRejectGroup(invite.inviteId) }
+            } else {
+                // Enviada
+                tvSubtitle.text = "Invitación enviada"
+                tvSubtitle.isVisible = true
+
+                btnAccept.isVisible = false
+                btnReject.isVisible = true
+
+                btnAccept.setOnClickListener(null)
+                btnReject.setOnClickListener(null)
+
+                // Rechazar aquí = CANCELAR
+                btnReject.setOnClickListener { onCancelGroup(invite.inviteId) }
+            }
 
             btnEdit?.isVisible = false
             btnDelete?.isVisible = false
-
-            btnAccept.setOnClickListener(null)
-            btnReject.setOnClickListener(null)
-
-            btnAccept.setOnClickListener { onAcceptGroup(invite.inviteId) }
-            btnReject.setOnClickListener { onRejectGroup(invite.inviteId) }
 
             itemView.setOnClickListener(null)
         }

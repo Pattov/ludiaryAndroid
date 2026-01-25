@@ -39,6 +39,10 @@ class GroupsRepositoryImpl(
         val me = auth.currentUser ?: return flowOf(emptyList())
         return groupDao.observePendingInvites(me.uid)
     }
+    override fun observeOutgoingPendingInvites(): Flow<List<GroupInviteEntity>> {
+        val me = auth.currentUser ?: return flowOf(emptyList())
+        return groupDao.observeOutgoingPendingInvites(me.uid)
+    }
 
     override fun startRemoteSync() {
         val me = auth.currentUser ?: return

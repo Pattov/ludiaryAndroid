@@ -34,7 +34,7 @@ sealed class FriendsUiEvent {
 sealed class FriendRowUi {
     data class Header(val title: String) : FriendRowUi()
     data class FriendItem(val friend: FriendEntity) : FriendRowUi()
-    data class GroupItem(val invite: GroupInviteEntity) : FriendRowUi()
+    data class GroupItem(val invite: GroupInviteEntity, val isOutgoing: Boolean) : FriendRowUi()
 }
 
 class FriendsViewModel(
@@ -286,8 +286,9 @@ class FriendsViewModel(
                 combine(
                     friendsRepo.observeIncomingRequests(q),
                     friendsRepo.observeOutgoingRequests(q),
-                    groupsRepo.observePendingInvites()
-                ) { fin, fout, invites ->
+                    groupsRepo.observePendingInvites(),
+                    groupsRepo.observeOutgoingPendingInvites()
+                ) { fin, fout, ginAll, goutAll ->
 
                     val rows = mutableListOf<FriendRowUi>()
 
@@ -301,15 +302,24 @@ class FriendsViewModel(
                         rows += fout.map { FriendRowUi.FriendItem(it) }
                     }
 
-                    // Grupos: en MVP solo tenemos "pending invites" (recibidas)
                     val ql = q.trim().lowercase()
-                    val gin = if (ql.isBlank()) invites else invites.filter {
+
+                    val gin = if (ql.isBlank()) ginAll else ginAll.filter {
+                        it.groupNameSnapshot.lowercase().contains(ql)
+                    }
+
+                    val gout = if (ql.isBlank()) goutAll else goutAll.filter {
                         it.groupNameSnapshot.lowercase().contains(ql)
                     }
 
                     if (gin.isNotEmpty()) {
                         rows += FriendRowUi.Header("Grupos · Recibidas")
-                        rows += gin.map { FriendRowUi.GroupItem(it) }
+                        rows += gin.map { FriendRowUi.GroupItem(it, isOutgoing = false) }
+                    }
+
+                    if (gout.isNotEmpty()) {
+                        rows += FriendRowUi.Header("Grupos · Enviadas")
+                        rows += gout.map { FriendRowUi.GroupItem(it, isOutgoing = true) }
                     }
 
                     rows
