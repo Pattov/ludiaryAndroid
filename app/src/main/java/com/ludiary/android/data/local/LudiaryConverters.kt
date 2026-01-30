@@ -52,8 +52,8 @@ class LudiaryConverters {
 
     //Friend
     /** Convierte un [FriendStatus] en una cadena para su almacenamiento en Room. */
-    @TypeConverter fun fromStatus(value: FriendStatus): String = value.name
+    @TypeConverter fun fromFriendStatus(value: FriendStatus?): String? = value?.name
 
     /** Convierte un String en [FriendStatus] */
-    @TypeConverter fun toStatus(value: String): FriendStatus = FriendStatus.valueOf(value)
+    @TypeConverter fun toFriendStatus(value: String?): FriendStatus? =  value?.let(FriendStatus::valueOf)
 }

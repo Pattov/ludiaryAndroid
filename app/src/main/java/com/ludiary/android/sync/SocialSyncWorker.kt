@@ -16,47 +16,50 @@ import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import com.ludiary.android.data.repository.GroupsRepository
 import com.ludiary.android.data.repository.GroupsRepositoryImpl
 
-class FriendsGroupsSyncWorker(
+/**
+ * Worker de WorkManager para sincronizar operaciones pendientes (offline-first) relacionadas con Amigos y Grupos.
+ * @property appContext Contexto de la aplicación.
+ * @property params Parámetros del worker.
+ */
+class SocialSyncWorker(
     appContext: Context,
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
         val auth = FirebaseAuth.getInstance()
-        val me = auth.currentUser ?: return Result.success()
+
+        // Sin sesión: no hay nada que sincronizar.
+        auth.currentUser ?: return Result.success()
 
         return try {
             val db = LudiaryDatabase.getInstance(applicationContext)
             val fs = FirebaseFirestore.getInstance()
 
-            // Friends repo (igual que en UI)
-            val friendsLocal = LocalFriendsDataSource(db.friendDao())
-            val friendsRemote = FirestoreFriendsRepository(fs)
+            // Friends: Room + Firestore
             val friendsRepo: FriendsRepository = FriendsRepositoryImpl(
-                local = friendsLocal,
-                remote = friendsRemote,
+                local = LocalFriendsDataSource(db.friendDao()),
+                remote = FirestoreFriendsRepository(fs),
                 auth = auth
             )
 
-            // Groups repo (refactor: local + remote)
-            val groupsLocal = LocalGroupsDataSource(db.groupDao())
-            val groupsRemote = FirestoreGroupsRepository(fs)
+            // Groups: Room + Firestore
             val groupsRepo: GroupsRepository = GroupsRepositoryImpl(
-                local = groupsLocal,
-                remote = groupsRemote,
+                local = LocalGroupsDataSource(db.groupDao()),
+                remote = FirestoreGroupsRepository(fs),
                 auth = auth
             )
 
-            // 1) flush pendientes
+            // 1) Flush de operaciones pendientes (offline-first)
             friendsRepo.flushOfflineInvites()
             groupsRepo.flushPendingInvites()
 
-            // 2) marcar “última sync ok”
+            // 2) Marcar "última sync OK"
             SyncStatusPrefs(applicationContext).setLastSyncMillis(System.currentTimeMillis())
 
             Result.success()
         } catch (e: Exception) {
-            Log.w("LUDIARY_SYNC_FG", "Retry", e)
+            Log.w("LUDIARY_SYNC_FG", "SocialSyncWorker failed -> retry", e)
             Result.retry()
         }
     }

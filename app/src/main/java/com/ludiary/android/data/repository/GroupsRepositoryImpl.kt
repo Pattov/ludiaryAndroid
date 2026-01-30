@@ -2,10 +2,12 @@ package com.ludiary.android.data.repository
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.local.entity.GroupEntity
 import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.local.entity.GroupMemberEntity
+import com.ludiary.android.data.local.entity.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -13,6 +15,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Implementación de [GroupsRepository].
+ * @param local Fuente de datos local (Room).
+ * @param remote Fuente de datos remota (Firestore).
+ * @param auth FirebaseAuth para obtener el usuario actual.
+ */
 class GroupsRepositoryImpl(
     private val local: LocalGroupsDataSource,
     private val remote: FirestoreGroupsRepository,
@@ -23,52 +31,59 @@ class GroupsRepositoryImpl(
     private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val groupDocJobs = mutableMapOf<String, Job>()
 
+    /**
+     * Observa la lista de grupos del usuario, con filtrado por texto.
+     * @param query Texto de búsqueda. Puede ser vacío para devolver todos los grupos.
+     * @return Flow reactivo con la lista de [GroupEntity].
+     */
     override fun observeGroups(query: String) = local.observeGroups(query)
-    override fun observeMembers(groupId: String) = local.observeMembers(groupId)
-
-    override fun observePendingInvites() =
-        local.observePendingInvites(auth.currentUser?.uid)
-
-    override fun observeOutgoingPendingInvites() =
-        local.observeOutgoingPendingInvites(auth.currentUser?.uid)
 
     /**
-     * Realtime Firestore -> Room
-     * Firebase manda: lo remoto pisa lo local (como en Friends).
+     * Observa la lista de miembros de un grupo.
+     * @param groupId Identificador del grupo.
+     * @return Flow reactivo con la lista de [GroupMemberEntity].
+     */
+    override fun observeMembers(groupId: String) = local.observeMembers(groupId)
+
+    /**
+     * Observa invitaciones entrantes pendientes (pendientes de aceptar).
+     * @return Flow reactivo con la lista de [GroupInviteEntity] entrantes.
+     */
+    override fun observeIncomingPendingInvites() = local.observePendingInvites(auth.currentUser?.uid)
+
+    /**
+     * Observa invitaciones salientes pendientes creadas por el usuario.
+     * @return Flow reactivo con la lista de [GroupInviteEntity] salientes.
+     */
+    override fun observeOutgoingPendingInvites() = local.observeOutgoingPendingInvites(auth.currentUser?.uid)
+
+    /**
+     * Inicia la sincronización remota (realtime) con Firestore.
      */
     override fun startRemoteSync() {
         val me = auth.currentUser ?: return
 
-        Log.d("LUDIARY_GROUPS_DEBUG", "startRemoteSync uid=${me.uid}")
-
-        // evitar duplicados
+        // Evitar listeners duplicados
         remoteSyncJob?.cancel()
 
         remoteSyncJob = repoScope.launch {
+
             // 1) Índice users/{uid}/groups
             launch {
                 remote.observeUserGroupsIndex(me.uid).collect { remoteGroups ->
 
-                    // 1) upsert básico (nombre, fechas)
-                    val items = remoteGroups.map {
-                        GroupEntity(
-                            groupId = it.groupId,
-                            nameSnapshot = it.nameSnapshot,
-                            createdAt = it.joinedAt,
-                            updatedAt = it.updatedAt
-                        )
-                    }
-                    local.upsertGroups(items)
+                    // Upsert básico (nombre y fechas)
+                    local.upsertGroups(remoteGroups.map { it.toEntity() })
 
-                    // 2) 👇 AQUÍ VA EL CÓDIGO QUE PREGUNTABAS
+                    // Gestionar jobs por groupId: arrancar/parar observers del doc de grupo
                     val groupIds = remoteGroups.map { it.groupId }.toSet()
 
-                    // parar jobs de grupos que ya no están
+                    // Parar jobs de grupos que ya no están
                     (groupDocJobs.keys - groupIds).forEach { gid ->
                         groupDocJobs.remove(gid)?.cancel()
                     }
 
-                    // arrancar jobs nuevos
+                    // Arrancar jobs nuevos
                     (groupIds - groupDocJobs.keys).forEach { gid ->
                         groupDocJobs[gid] = repoScope.launch {
                             remote.observeGroupDoc(gid).collect { (count, updatedAt) ->
@@ -93,65 +108,42 @@ class GroupsRepositoryImpl(
             // 2) Invitaciones RECIBIDAS (pending)
             launch {
                 remote.observeIncomingPendingInvites(me.uid).collect { remoteInvites ->
-                    val items = remoteInvites.map {
-                        GroupInviteEntity(
-                            inviteId = it.inviteId,
-                            groupId = it.groupId,
-                            groupNameSnapshot = it.groupNameSnapshot,
-                            fromUid = it.fromUid,
-                            toUid = it.toUid,
-                            status = it.status,
-                            createdAt = it.createdAt,
-                            respondedAt = it.respondedAt
-                        )
-                    }
+                    val items = remoteInvites.map { it.toEntity() }
 
                     local.upsertInvites(items)
 
-                    // limpieza incoming
+                    // Limpieza incoming: si ya no están en remoto, se eliminan en local
                     val remoteIds = items.map { it.inviteId }
                     if (remoteIds.isEmpty()) {
                         local.deleteAllIncomingPendingInvites(me.uid)
                     } else {
                         local.deleteMissingIncomingInvites(me.uid, remoteIds)
                     }
-
-                    Log.d("LUDIARY_GROUPS_DEBUG", "incoming pending=${items.size}")
                 }
             }
 
             // 3) Invitaciones ENVIADAS por mí (pending)
             launch {
                 remote.observeOutgoingPendingInvites(me.uid).collect { remoteInvites ->
-                    val items = remoteInvites.map {
-                        GroupInviteEntity(
-                            inviteId = it.inviteId,
-                            groupId = it.groupId,
-                            groupNameSnapshot = it.groupNameSnapshot,
-                            fromUid = it.fromUid,
-                            toUid = it.toUid,
-                            status = it.status,
-                            createdAt = it.createdAt,
-                            respondedAt = it.respondedAt
-                        )
-                    }
+                    val items = remoteInvites.map { it.toEntity() }
 
                     local.upsertInvites(items)
 
-                    // limpieza outgoing
+                    // Limpieza outgoing: si ya no están en remoto, se eliminan en local
                     val remoteIds = items.map { it.inviteId }
                     if (remoteIds.isEmpty()) {
                         local.deleteAllOutgoingPendingInvites(me.uid)
                     } else {
                         local.deleteMissingOutgoingInvites(me.uid, remoteIds)
                     }
-
-                    Log.d("LUDIARY_GROUPS_DEBUG", "outgoing pending=${items.size}")
                 }
             }
         }
     }
 
+    /**
+     * Detiene listeners realtime y jobs por grupo.
+     */
     override fun stopRemoteSync() {
         remoteSyncJob?.cancel()
         remoteSyncJob = null
@@ -159,37 +151,45 @@ class GroupsRepositoryImpl(
         groupDocJobs.clear()
     }
 
+    /**
+     * Crea un grupo remoto y hace cache local inmediata.
+     * @param name Nombre del grupo.
+     * @return Result<Unit>
+     *     Éxito si se crea y se guarda en local;
+     *     failure si no hay sesión o falla remoto.
+     */
     override suspend fun createGroup(name: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val me = auth.currentUser ?: error("No hay sesión")
+                val me = auth.currentUser ?: error(R.string.groups_error_no_session)
 
                 val created = remote.createGroup(me.uid, name)
 
-                // cache local inmediata
-                local.upsertGroup(
-                    GroupEntity(
-                        groupId = created.groupId,
-                        nameSnapshot = created.name,
-                        createdAt = created.now,
-                        updatedAt = created.now
-                    )
-                )
-                local.upsertMember(GroupMemberEntity(created.groupId, me.uid, created.now))
+                // Cache local inmediata (mappers)
+                local.upsertGroup(created.toEntity())
+                local.upsertMember(groupMemberEntity(created.groupId, me.uid, created.now))
             }
         }
 
+    /**
+     * Envía una invitación a un grupo (offline-first).
+     * @param groupId ID del grupo.
+     * @param groupNameSnapshot Nombre del grupo (snapshot).
+     * @param toUid UID del destinatario.
+     * @return Result<Unit>
+     *     Éxito si se registra;
+     *     failure si no hay sesión o falla el remoto.
+     */
     override suspend fun inviteToGroup(
         groupId: String,
         groupNameSnapshot: String,
         toUid: String
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
-            val me = auth.currentUser ?: error("No hay sesión")
+            val me = auth.currentUser ?: error(R.string.groups_error_no_session)
             val now = System.currentTimeMillis()
             val inviteId = "${groupId}_${toUid}"
 
-            // 1) Local first
             local.upsertInvite(
                 GroupInviteEntity(
                     inviteId = inviteId,
@@ -203,7 +203,6 @@ class GroupsRepositoryImpl(
                 )
             )
 
-            // 2) Remoto
             try {
                 remote.createInvite(
                     inviteId = inviteId,
@@ -220,6 +219,12 @@ class GroupsRepositoryImpl(
         }
     }
 
+    /**
+     * Reintenta sincronizar invitaciones salientes pendientes guardadas en local.
+     * @return Result<Unit>
+     *     Éxito si procesa la cola sin error fatal.
+     *     failure si algo revienta.
+     */
     override suspend fun flushPendingInvites(): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -247,75 +252,91 @@ class GroupsRepositoryImpl(
             }
         }
 
+    /**
+     * Acepta una invitación entrante.
+     * @param inviteId ID de la invitación.
+     * @return Result<Unit> Éxito si se acepta; failure si no hay sesión o falla remoto.
+     */
     override suspend fun acceptInvite(inviteId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val me = auth.currentUser ?: error("No hay sesión")
+                val me = auth.currentUser ?: error(R.string.groups_error_no_session)
 
                 val accepted = remote.acceptInvite(me.uid, inviteId)
 
-                // local
+                // Local
                 val now = accepted.respondedAt ?: System.currentTimeMillis()
-                local.upsertGroup(GroupEntity(accepted.groupId, accepted.groupNameSnapshot, now, now))
-                local.upsertMember(GroupMemberEntity(accepted.groupId, me.uid, now))
-                local.upsertInvite(
-                    GroupInviteEntity(
-                        inviteId = accepted.inviteId,
+
+                local.upsertGroup(
+                    GroupEntity(
                         groupId = accepted.groupId,
-                        groupNameSnapshot = accepted.groupNameSnapshot,
-                        fromUid = accepted.fromUid,
-                        toUid = accepted.toUid,
-                        status = accepted.status,
-                        createdAt = accepted.createdAt,
-                        respondedAt = accepted.respondedAt
+                        nameSnapshot = accepted.groupNameSnapshot,
+                        createdAt = now,
+                        updatedAt = now
                     )
                 )
+                local.upsertMember(groupMemberEntity(accepted.groupId, me.uid, now))
+                local.upsertInvite(accepted.toEntity())
             }
         }
 
+    /**
+     * Cancela una invitación (saliente o por cualquiera de las partes según reglas remotas).
+     * @param inviteId ID de la invitación.
+     * @return Result<Unit>
+     *     Éxito si se cancela.
+     *     Si no existe en remoto, no hace nada.
+     */
     override suspend fun cancelInvite(inviteId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val me = auth.currentUser ?: error("No hay sesión")
+                val me = auth.currentUser ?: error(R.string.groups_error_no_session)
 
                 val cancelled = remote.cancelInvite(me.uid, inviteId) ?: return@runCatching
 
-                local.upsertInvite(
-                    GroupInviteEntity(
-                        inviteId = cancelled.inviteId,
-                        groupId = cancelled.groupId,
-                        groupNameSnapshot = cancelled.groupNameSnapshot,
-                        fromUid = cancelled.fromUid,
-                        toUid = cancelled.toUid,
-                        status = cancelled.status,
-                        createdAt = cancelled.createdAt,
-                        respondedAt = cancelled.respondedAt
-                    )
-                )
+                local.upsertInvite(cancelled.toEntity())
             }
         }
 
+    /**
+     * Rechaza una invitación entrante.
+     * @param inviteId ID de la invitación.
+     * @return Result<Unit>
+     *     Éxito si se rechaza;
+     *     failure si no hay sesión o falla remoto.
+     */
     override suspend fun rejectInvite(inviteId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val me = auth.currentUser ?: error("No hay sesión")
+                val me = auth.currentUser ?: error(R.string.groups_error_no_session)
                 remote.rejectInvite(me.uid, inviteId)
                 local.deleteInvite(inviteId)
             }
         }
 
+    /**
+     * Devuelve invitaciones salientes pendientes asociadas a un grupo.
+     * @param groupId ID del grupo.
+     * @return Lista de invitaciones pendientes para ese grupo.
+     */
     override suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity> =
         withContext(Dispatchers.IO) {
             val me = auth.currentUser ?: return@withContext emptyList()
             local.pendingOutgoingInvitesForGroup(groupId, me.uid)
         }
 
+    /**
+     * Abandona un grupo.
+     * @param groupId ID del grupo.
+     * @return Result<Unit>
+     *     Éxito si se abandona;
+     *     failure si no hay sesión o falla remoto.
+     */
     override suspend fun leaveGroup(groupId: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val me = auth.currentUser ?: error("No hay sesión")
+                val me = auth.currentUser ?: error(R.string.groups_error_no_session)
 
-                // remoto (incluye borrado si queda vacío)
                 try {
                     remote.leaveGroup(me.uid, groupId)
                 } catch (e: Exception) {
@@ -323,7 +344,6 @@ class GroupsRepositoryImpl(
                     throw e
                 }
 
-                // local
                 local.leaveGroupLocal(groupId, me.uid)
             }
         }

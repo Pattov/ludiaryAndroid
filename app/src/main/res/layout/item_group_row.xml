@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_friend"
                 app:iconTint="?attr/colorPrimary"
-                android:contentDescription="@string/profile_friends_add_friend" />
+                android:contentDescription="@string/action_invite" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
@@ -73,13 +73,12 @@
                 app:icon="@drawable/ic_close"
                 app:iconTint="?attr/colorError"
                 android:contentDescription="@string/action_delete" />
-
         </LinearLayout>
 
         <!-- Título -->
         <TextView
             android:id="@+id/tvGroupTitle"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/space_none"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_m"
             android:ellipsize="end"
@@ -93,7 +92,7 @@
         <!-- Subtítulo -->
         <TextView
             android:id="@+id/tvGroupSubtitle"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/space_none"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_m"
             android:ellipsize="end"

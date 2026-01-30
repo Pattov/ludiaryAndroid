@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_editProfileFragment,
                 R.id.nav_preferencesFragment,
                 R.id.nav_syncFragment,
-                R.id.nav_friendsFragment -> R.id.nav_profile
+                R.id.nav_socialFragment -> R.id.nav_profile
                 else -> null
             }
 

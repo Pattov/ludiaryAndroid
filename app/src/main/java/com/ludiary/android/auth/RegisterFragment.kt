@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
+import com.ludiary.android.R
 import com.ludiary.android.databinding.FragmentRegisterBinding
 import com.ludiary.android.viewmodel.RegisterViewModel
 import com.ludiary.android.viewmodel.RegisterViewModelFactory
@@ -94,14 +95,24 @@ class RegisterFragment : Fragment() {
                     binding.tilConfirm.error = null
 
                     // Gestión de errores nuevos
-                    st.error?.let { msg ->
-                        when {
-                            msg.contains("correo", true) -> binding.tilEmail.error = msg
-                            msg.contains("contraseña", true) && !msg.contains("coinciden", true) -> binding.tilPassword.error = msg
-                            msg.contains("coinciden", true) -> binding.tilConfirm.error = msg
-                            else -> Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+                    // Gestión de errores nuevos (por resId)
+                    st.errorResId?.let { resId ->
+                        val msg = if (st.errorArgs.isEmpty()) {
+                            getString(resId)
+                        } else {
+                            getString(resId, *st.errorArgs.toTypedArray())
                         }
 
+                        when (resId) {
+                            R.string.register_error_email_required,
+                            R.string.register_error_email_invalid -> binding.tilEmail.error = msg
+
+                            R.string.register_error_password_min -> binding.tilPassword.error = msg
+
+                            R.string.register_error_password_mismatch -> binding.tilConfirm.error = msg
+
+                            else -> Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+                        }
                     }
 
                     // Si el registro fue existoso, navegar al Dashboard.

@@ -1,4 +1,4 @@
-package com.ludiary.android.ui.profile.friends
+package com.ludiary.android.ui.profile.social
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -37,55 +37,23 @@ import com.ludiary.android.data.repository.FriendsRepositoryImpl
 import com.ludiary.android.data.repository.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsUiEvent
 import com.ludiary.android.viewmodel.FriendsViewModel
-import com.ludiary.android.viewmodel.FriendsViewModelFactory
+import com.ludiary.android.viewmodel.SocialViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class FriendsFragment : Fragment(R.layout.form_friends_profile) {
+/**
+ * Pantalla de Amigos/Grupos/Solicitudes dentro del perfil.
+ */
+class FriendsFragment : Fragment(R.layout.form_social_profile) {
 
     private lateinit var vm: FriendsViewModel
 
+    /**
+     * Muestra un diálogo para introducir un código de amigo y enviar invitación.
+     */
     private fun showAddFriendDialog() {
         val til = TextInputLayout(requireContext()).apply {
-            hint = "Friend code"
-            isHintEnabled = true
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        val input = TextInputEditText(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        // ✅ Importante: TextInputLayout internamente espera LayoutParams tipo LinearLayout
-        til.addView(input)
-
-        val container = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 16, 48, 0) // opcional, para que el dialog no quede pegado
-            addView(til)
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Añadir amigo")
-            .setMessage("Introduce el código de amigo (10–12 caracteres).")
-            .setView(container)
-            .setPositiveButton("Enviar") { _, _ ->
-                val code = input.text?.toString().orEmpty().trim().uppercase()
-                vm.sendInviteByCode(code)
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
-    private fun showAddGroupDialog() {
-        val til = TextInputLayout(requireContext()).apply {
-            hint = "Nombre del grupo"
+            hint = getString(R.string.profile_my_code) // si no te cuadra, crea un string específico
             isHintEnabled = true
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -109,19 +77,66 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Crear grupo")
+            .setTitle(getString(R.string.profile_friends_add_friend))
+            .setMessage(getString(R.string.profile_friend_message))
             .setView(container)
-            .setPositiveButton("Crear") { _, _ ->
-                val name = input.text?.toString().orEmpty().trim()
-                vm.createGroup(name)
+            .setPositiveButton(getString(R.string.action_ok)) { _, _ ->
+                val code = input.text?.toString().orEmpty().trim().uppercase()
+                vm.sendInviteByCode(code)
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.action_cancel), null)
             .show()
     }
 
+    /**
+     * Muestra un diálogo para crear un grupo.
+     * Delegará la acción en [FriendsViewModel.createGroup].
+     */
+    private fun showAddGroupDialog() {
+        val til = TextInputLayout(requireContext()).apply {
+            hint = getString(R.string.profile_friends_add_group)
+            isHintEnabled = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val input = TextInputEditText(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        til.addView(input)
+
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+            addView(til)
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.profile_friends_add_group))
+            .setView(container)
+            .setPositiveButton(getString(R.string.action_ok)) { _, _ ->
+                val name = input.text?.toString().orEmpty().trim()
+                vm.createGroup(name)
+            }
+            .setNegativeButton(getString(R.string.action_cancel), null)
+            .show()
+    }
+
+    /**
+     * Muestra un diálogo para editar/añadir el nickname (alias) de un amigo.
+     *
+     * @param friendId ID local (Room) del amigo.
+     * @param currentNickname Nickname actual (puede ser null).
+     */
     private fun showEditNicknameDialog(friendId: Long, currentNickname: String?) {
         val til = TextInputLayout(requireContext()).apply {
-            hint = "Apodo"
+            hint = getString(R.string.friend_nickname_hint)
             val padH = (16 * resources.displayMetrics.density).toInt()
             val padTop = (8 * resources.displayMetrics.density).toInt()
             setPadding(padH, padTop, padH, 0)
@@ -139,20 +154,28 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         til.addView(input)
 
         val hasNickname = !currentNickname.isNullOrBlank()
-        val dialogTitle = if (hasNickname) "Editar apodo" else "Añadir apodo"
-
+        val dialogTitle = if (hasNickname) {
+            getString(R.string.action_edit)
+        } else {
+            getString(R.string.action_add)
+        }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(dialogTitle)
             .setView(til)
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Aceptar") { _, _ ->
+            .setNegativeButton(getString(R.string.action_cancel), null)
+            .setPositiveButton(getString(R.string.action_ok)) { _, _ ->
                 val nickname = input.text?.toString()?.trim().orEmpty()
                 vm.saveNickname(friendId, nickname)
             }
             .show()
     }
 
+    /**
+     * Inicializa UI, ViewModel y listeners.
+     * @param view Vista del fragmento
+     * @param savedInstanceState Estado de la instancia
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -165,10 +188,11 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
 
         val groupsLocal = LocalGroupsDataSource(db.groupDao())
         val groupsRemote = FirestoreGroupsRepository(FirebaseFirestore.getInstance())
-        val groupsRepo = GroupsRepositoryImpl( groupsLocal, groupsRemote, FirebaseAuth.getInstance())
+        val groupsRepo = GroupsRepositoryImpl(groupsLocal, groupsRemote, FirebaseAuth.getInstance())
+
         vm = ViewModelProvider(
             this,
-            FriendsViewModelFactory(friendsRepo, groupsRepo)
+            SocialViewModelFactory(friendsRepo, groupsRepo)
         )[FriendsViewModel::class.java]
 
         val topAppBar: MaterialToolbar = view.findViewById(R.id.topAppBar)
@@ -181,9 +205,7 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
         val btnCopy: View = view.findViewById(R.id.btnCopyCode)
         val btnShare: View = view.findViewById(R.id.btnShareCode)
 
-        topAppBar.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
+        topAppBar.setNavigationOnClickListener { findNavController().popBackStack() }
 
         pager.adapter = FriendsPagerAdapter(this)
 
@@ -206,30 +228,21 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                 )
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
+            override fun onTabUnselected(tab: TabLayout.Tab) = Unit
+            override fun onTabReselected(tab: TabLayout.Tab) = Unit
         })
 
-        search.addTextChangedListener {
-            vm.onQueryChanged(it?.toString().orEmpty())
-        }
+        search.addTextChangedListener { vm.onQueryChanged(it?.toString().orEmpty()) }
 
         btnPrimary.setOnClickListener {
-            if (vm.uiState.value.tab == FriendsTab.GROUPS &&
-                !vm.uiState.value.hasFriends
-            ) {
-                Snackbar.make(
-                    view,
-                    R.string.profile_friends_empty_friends,
-                    Snackbar.LENGTH_SHORT
-                ).show()
+            // Regla UX actual: no puedes crear grupos si no tienes amigos
+            if (vm.uiState.value.tab == FriendsTab.GROUPS && !vm.uiState.value.hasFriends) {
+                Snackbar.make(view, R.string.profile_friends_empty_friends, Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             vm.onPrimaryActionClicked()
         }
 
-        // UI state: friendCode + botón primary
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.collectLatest { state ->
                 tvMyFriendCode.text = state.myFriendCode ?: "—"
@@ -238,274 +251,17 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                     FriendsTab.FRIENDS -> {
                         btnPrimary.visibility = View.VISIBLE
                         btnPrimary.text = getString(R.string.profile_friends_add_friend)
-
                         btnPrimary.isEnabled = true
                         btnPrimary.alpha = 1f
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                     }
+
                     FriendsTab.GROUPS -> {
                         btnPrimary.visibility = View.VISIBLE
                         btnPrimary.text = getString(R.string.profile_friends_add_group)
-
                         btnPrimary.isEnabled = state.hasFriends
                         btnPrimary.alpha = if (state.hasFriends) 1f else 0.5f
                     }
+
                     FriendsTab.REQUESTS -> {
                         btnPrimary.visibility = View.GONE
                     }
@@ -513,30 +269,40 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
             }
         }
 
-        // Copiar código
+        // --- Copy friend code ---
         btnCopy.setOnClickListener {
             val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
             val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             cm.setPrimaryClip(ClipData.newPlainText("Ludiary friend code", code))
-            Snackbar.make(view, "Código copiado", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(view, R.string.friends_code_copied, Snackbar.LENGTH_SHORT).show()
         }
 
-        // Compartir código
+        // --- Share friend code ---
         btnShare.setOnClickListener {
             val code = vm.uiState.value.myFriendCode ?: return@setOnClickListener
+            val shareText = getString(R.string.friends_share_code, code)
+
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, "Añádeme en Ludiary con este código: $code")
+                putExtra(Intent.EXTRA_TEXT, shareText)
             }
-            startActivity(Intent.createChooser(shareIntent, "Compartir código"))
+
+            startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    getString(R.string.friends_share_chooser)
+                )
+            )
+
         }
 
-        // Eventos
         viewLifecycleOwner.lifecycleScope.launch {
             vm.events.collectLatest { e ->
                 when (e) {
-                    is FriendsUiEvent.ShowSnack ->
-                        Snackbar.make(view, e.message, Snackbar.LENGTH_SHORT).show()
+                    is FriendsUiEvent.ShowSnack -> {
+                        val msg = getString(e.messageRes)
+                        Snackbar.make(view, msg, Snackbar.LENGTH_SHORT).show()
+                    }
 
                     FriendsUiEvent.OpenAddFriend ->
                         showAddFriendDialog()
@@ -544,26 +310,39 @@ class FriendsFragment : Fragment(R.layout.form_friends_profile) {
                     FriendsUiEvent.OpenAddGroup ->
                         showAddGroupDialog()
 
-                    is FriendsUiEvent.OpenEditNickname -> {
+                    is FriendsUiEvent.OpenEditNickname ->
                         showEditNicknameDialog(e.friendId, e.currentNickname)
-                    }
                 }
             }
         }
     }
 
+    /**
+     * Inicia listeners/sincronización (delegado al ViewModel).
+     */
     override fun onStart() {
         super.onStart()
         vm.start()
     }
 
+    /**
+     * Detiene listeners/sincronización (delegado al ViewModel).
+     */
     override fun onStop() {
         vm.stop()
         super.onStop()
     }
 
-    private inner class FriendsPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    /**
+     * Adaptador de pestañas:
+     * - FRIENDS
+     * - GROUPS
+     * - REQUESTS
+     */
+    private class FriendsPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+
         override fun getItemCount(): Int = 3
+
         override fun createFragment(position: Int): Fragment {
             val tab = when (position) {
                 0 -> FriendsTab.FRIENDS

@@ -119,35 +119,45 @@ class FirestoreAuthRepository(
     }
 
     /**
-     * Registra un nuevo usuario con correo y contraseña en Firebase.
-     *
-     * Crea también su documento en la colección Users de Firestore si no existía.
-     *
-     * @param email Correo electrónico del usuario
-     * @param password Contraseña del usuario
-     * [AuthResult.Success] con los datos del usuario o [AuthResult.Error] con el mensaje de error
+     * Registra un nuevo usuario con correo y contraseña en Firebase Auth.
+     * @param email Correo electrónico del usuario.
+     * @param password Contraseña del usuario.
+     * @return [AuthResult.Success] con el perfil del usuario, o [AuthResult.Error] con un mensaje localizado.
      */
     override suspend fun register(email: String, password: String): AuthResult {
+        val emailTrimmed = email.trim()
+
         return try {
-            val result = auth.createUserWithEmailAndPassword(email.trim(), password).await()
-            val u = result.user ?: return AuthResult.Error(
-                resources.getString(R.string.auth_error_user_not_found_after_register)
+            val result = auth.createUserWithEmailAndPassword(emailTrimmed, password).await()
+            val firebaseUser = result.user
+                ?: return AuthResult.Error(
+                    resources.getString(R.string.auth_error_user_not_found_after_register)
+                )
+
+            // Firestore: asegurar doc de usuario + friendCode
+            ensureUserDoc(
+                uid = firebaseUser.uid,
+                email = firebaseUser.email,
+                displayName = firebaseUser.displayName,
+                isAnonymous = firebaseUser.isAnonymous
             )
+            ensureFriendCode(firebaseUser.uid)
 
-            // Creamos el documento de usuario en Firestore (docId = uid)
-            ensureUserDoc(u.uid, u.email, u.displayName, u.isAnonymous)
-            ensureFriendCode(u.uid)
-
-            // Leemos el perfil desde Firestore y lo guardamos en local
-            val profile = fetchUserFromFirestoreOrFallback(u)
+            // Perfil final + persistencia local
+            val profile = fetchUserFromFirestoreOrFallback(firebaseUser)
             localUser.saveLocalUser(profile)
 
             AuthResult.Success(profile)
         } catch (e: Exception) {
             val msg = when (e) {
-                is FirebaseAuthUserCollisionException -> resources.getString(R.string.auth_error_collision)
-                is FirebaseNetworkException -> resources.getString(R.string.auth_error_network)
-                else -> resources.getString(R.string.auth_error_generic_register)
+                is FirebaseAuthUserCollisionException ->
+                    resources.getString(R.string.auth_error_collision)
+
+                is FirebaseNetworkException ->
+                    resources.getString(R.string.auth_error_network)
+
+                else ->
+                    resources.getString(R.string.auth_error_generic_register)
             }
 
             Log.e("LUDIARY_AUTH_REPO", "Error al registrar usuario", e)

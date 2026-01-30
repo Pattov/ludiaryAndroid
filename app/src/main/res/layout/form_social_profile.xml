@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/friendsRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,23 +21,24 @@
             android:layout_height="wrap_content"
             app:title="@string/profile_friends"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:contentInsetStartWithNavigation="@dimen/space_none"
-            tools:title="Amigos" />
+            app:contentInsetStartWithNavigation="@dimen/space_none" />
 
         <!-- Buscador -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputSearchFriends"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/profile_padding_horizontal"
             android:layout_marginEnd="@dimen/profile_padding_horizontal"
             android:layout_marginTop="@dimen/space_s"
             android:layout_marginBottom="@dimen/space_s"
             android:hint="@string/friends_search_hint"
+            android:maxWidth="600dp"
+            android:layout_gravity="center_horizontal"
             app:startIconDrawable="@drawable/ic_search">
 
-            <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textSearchFriends"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="—"
+                        android:text="@string/friends_code_placeholder"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
                     <com.google.android.material.button.MaterialButton
@@ -114,6 +114,7 @@
             android:id="@+id/tabFriends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/profile_friends_tabs_cd"
             app:tabIndicatorFullWidth="false"
             app:tabMode="fixed"
             app:tabGravity="fill" />
@@ -129,17 +130,14 @@
         app:layout_constraintBottom_toTopOf="@id/btnPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <!-- BOTÓN ABAJO (cambia según tab) -->
+
+    <!-- BOTÓN ABAJO -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnPrimary"
-        style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="@dimen/space_none"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/profile_padding_horizontal"
-        android:layout_marginEnd="@dimen/profile_padding_horizontal"
-        android:layout_marginBottom="@dimen/space_m"
         android:text="@string/profile_friends_add_friend"
-        android:textAllCaps="false"
         app:icon="@drawable/ic_add"
         app:iconGravity="textStart"
         app:layout_constraintBottom_toBottomOf="parent"

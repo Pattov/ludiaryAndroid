@@ -1,4 +1,4 @@
-package com.ludiary.android.ui.profile.friends
+package com.ludiary.android.ui.profile.social
 
 import android.os.Bundle
 import android.view.View
@@ -17,16 +17,29 @@ import com.ludiary.android.viewmodel.FriendsViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment de lista para el módulo de Amigos.
+ * Este fragment obtiene el [FriendsViewModel] desde el fragment padre (normalmente [FriendsFragment]) para compartir estado y acciones entre pestañas.
+ */
 class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
 
     private val tab: FriendsTab by lazy {
         FriendsTab.valueOf(requireArguments().getString(ARG_TAB) ?: FriendsTab.FRIENDS.name)
     }
 
+    /**
+     * ViewModel compartido con el fragment padre.
+     * Se usa [requireParentFragment] para que las 3 listas (tabs) compartan el mismo VM.
+     */
     private val vm: FriendsViewModel by lazy {
         ViewModelProvider(requireParentFragment())[FriendsViewModel::class.java]
     }
 
+    /**
+     * Configura el RecyclerView y conecta el adapter adecuado según [tab].
+     * @param view Vista del fragmento
+     * @param savedInstanceState Estado de la instancia
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -84,12 +97,12 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                     onDelete = { row ->
                         val group = row.group
                         MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Salir del grupo")
-                            .setMessage("¿Quieres salir de “${group.nameSnapshot}”?")
-                            .setPositiveButton("Salir") { _, _ ->
+                            .setTitle(R.string.groups_leave_title)
+                            .setMessage(getString(R.string.groups_leave_message, group.nameSnapshot))
+                            .setPositiveButton(R.string.action_leave_confirm) { _, _ ->
                                 vm.leaveGroup(group.groupId)
                             }
-                            .setNegativeButton("Cancelar", null)
+                            .setNegativeButton(R.string.action_cancel, null)
                             .show()
                     }
                 )
@@ -129,6 +142,10 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
     companion object {
         private const val ARG_TAB = "tab"
 
+        /**
+         * Crea una instancia del fragment configurada para una pestaña concreta.
+         * @param tab Pestaña que se quiere renderizar.
+         */
         fun newInstance(tab: FriendsTab) = FriendsListFragment().apply {
             arguments = bundleOf(ARG_TAB to tab.name)
         }

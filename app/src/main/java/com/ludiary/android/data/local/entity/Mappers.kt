@@ -2,6 +2,7 @@ package com.ludiary.android.data.local.entity
 
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.model.*
+import com.ludiary.android.data.repository.FirestoreFriendsRepository
 import java.time.Instant
 import java.util.Locale
 
@@ -318,3 +319,113 @@ fun Session.toPlayerEntities(): List<SessionPlayerEntity> =
         )
     }
 
+// Groups
+
+/**
+ * Convierte un índice remoto `users/{uid}/groups/{groupId}` a entidad Room [GroupEntity].
+ */
+fun RemoteUserGroupIndex.toEntity(): GroupEntity =
+    GroupEntity(
+        groupId = groupId,
+        nameSnapshot = nameSnapshot,
+        createdAt = joinedAt,
+        updatedAt = updatedAt
+    )
+
+/**
+ * Convierte una invitación remota `group_invites/{inviteId}` a entidad Room [GroupInviteEntity].
+ */
+fun RemoteInvite.toEntity(): GroupInviteEntity =
+    GroupInviteEntity(
+        inviteId = inviteId,
+        groupId = groupId,
+        groupNameSnapshot = groupNameSnapshot,
+        fromUid = fromUid,
+        toUid = toUid,
+        status = status,
+        createdAt = createdAt,
+        respondedAt = respondedAt
+    )
+
+/**
+ * Convierte el resultado de aceptar/cancelar invitación a entidad Room [GroupInviteEntity].
+ */
+fun InviteSnapshot.toEntity(): GroupInviteEntity =
+    GroupInviteEntity(
+        inviteId = inviteId,
+        groupId = groupId,
+        groupNameSnapshot = groupNameSnapshot,
+        fromUid = fromUid,
+        toUid = toUid,
+        status = status,
+        createdAt = createdAt,
+        respondedAt = respondedAt
+    )
+
+/**
+ * Convierte el resultado de crear grupo a entidad Room [GroupEntity].
+ * Nota: en este proyecto `createdAt` se usa como "joinedAt" (momento en que el usuario entra al grupo).
+ */
+fun CreatedGroup.toEntity(): GroupEntity =
+    GroupEntity(
+        groupId = groupId,
+        nameSnapshot = name,
+        createdAt = now,
+        updatedAt = now
+    )
+
+/**
+ * Helper para construir un miembro de grupo en Room.
+ * @param groupId ID del grupo.
+ * @param uid UID del miembro.
+ * @param joinedAt Momento (epoch millis) en el que se unió.
+ */
+fun groupMemberEntity(
+    groupId: String,
+    uid: String,
+    joinedAt: Long
+): GroupMemberEntity =
+    GroupMemberEntity(
+        groupId = groupId,
+        uid = uid,
+        joinedAt = joinedAt
+    )
+
+// Friends (Firestore <-> Room)
+
+/**
+ * Convierte un modelo remoto [FirestoreFriendsRepository.RemoteFriend] a entidad Room [FriendEntity].
+ * @param fallbackNow Timestamp (epoch millis) usado si falta createdAt/updatedAt.
+ */
+fun FirestoreFriendsRepository.RemoteFriend.toEntity(fallbackNow: Long = System.currentTimeMillis()): FriendEntity {
+    val parsedStatus = runCatching { FriendStatus.valueOf(status) }
+        .getOrElse { FriendStatus.ACCEPTED } // fallback seguro
+
+    return FriendEntity(
+        id = 0L,
+        friendUid = friendUid,
+        friendCode = friendCode,
+        displayName = displayName,
+        nickname = nickname,
+        status = parsedStatus,
+        createdAt = createdAt ?: fallbackNow,
+        updatedAt = updatedAt ?: fallbackNow,
+        syncStatus = SyncStatus.CLEAN
+    )
+}
+
+/**
+ * Convierte una entidad Room [FriendEntity] a modelo remoto [FirestoreFriendsRepository.RemoteFriend].
+ *
+ * Útil para hacer `upsert()` en Firestore.
+ */
+fun FriendEntity.toRemoteFriend(): FirestoreFriendsRepository.RemoteFriend =
+    FirestoreFriendsRepository.RemoteFriend(
+        friendUid = friendUid.orEmpty(),
+        friendCode = friendCode,
+        displayName = displayName,
+        nickname = nickname,
+        status = status.name,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )

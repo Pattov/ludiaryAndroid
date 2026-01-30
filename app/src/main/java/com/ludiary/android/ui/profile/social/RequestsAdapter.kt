@@ -1,4 +1,4 @@
-package com.ludiary.android.ui.profile.friends
+package com.ludiary.android.ui.profile.social
 
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +14,18 @@ import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.viewmodel.FriendRowUi
 
+/**
+ * Adapter para la pestaña de "Solicitudes".
+ *
+ * Reutiliza el layout `item_friend_row` para los ítems y un layout específico para cabeceras (`item_requests_header`).
+ *
+ * @param onFriendClick Callback al pulsar sobre una solicitud de amigo (opcional para abrir perfil, etc.).
+ * @param onAcceptFriend Callback para aceptar una solicitud entrante de amistad (recibe id local Room).
+ * @param onRejectFriend Callback para rechazar una solicitud entrante o cancelar una solicitud saliente (id local Room).
+ * @param onAcceptGroup Callback para aceptar una invitación entrante de grupo (inviteId remoto).
+ * @param onRejectGroup Callback para rechazar una invitación entrante de grupo (inviteId remoto).
+ * @param onCancelGroup Callback para cancelar una invitación saliente de grupo (inviteId remoto).
+ */
 class RequestsAdapter(
     private val onFriendClick: (FriendEntity) -> Unit,
     private val onAcceptFriend: (Long) -> Unit,
@@ -23,9 +35,11 @@ class RequestsAdapter(
     private val onCancelGroup: (String) -> Unit
 ) : ListAdapter<FriendRowUi, RecyclerView.ViewHolder>(Diff) {
 
-    companion object {
+    private companion object {
         private const val TYPE_HEADER = 0
         private const val TYPE_ITEM = 1
+        private const val GROUP_SUFFIX_LEN = 5
+        private const val FRIEND_CODE_SUFFIX_LEN = 5
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -60,7 +74,7 @@ class RequestsAdapter(
     class HeaderVH(view: View) : RecyclerView.ViewHolder(view) {
         private val tv: TextView = view.findViewById(R.id.tvHeader)
         fun bind(h: FriendRowUi.Header) {
-            tv.text = h.title
+            tv.setText(h.titleRes)
         }
     }
 
@@ -77,30 +91,38 @@ class RequestsAdapter(
         private val btnDelete: View? = view.findViewById(R.id.btnDelete)
 
         fun bindFriend(item: FriendEntity) {
+            val ctx = itemView.context
+
             val baseName = item.nickname?.takeIf { it.isNotBlank() }
                 ?: item.displayName?.takeIf { it.isNotBlank() }
                 ?: item.friendCode?.takeIf { it.isNotBlank() }
-                ?: "Amigo"
+                ?: ctx.getString(R.string.friends_default_title)
 
             val codeShort = item.friendCode
                 ?.takeIf { it.isNotBlank() }
-                ?.let { "#…${it.trim().takeLast(5)}" }
+                ?.trim()
+                ?.takeLast(FRIEND_CODE_SUFFIX_LEN)
+                ?.let { ctx.getString(R.string.friends_code_suffix_format, it) }
                 .orEmpty()
 
-            tvTitle.text = if (codeShort.isBlank()) baseName else "$baseName · $codeShort"
+            tvTitle.text =
+                if (codeShort.isBlank()) baseName else "$baseName · $codeShort"
 
             val isIncoming = item.status == FriendStatus.PENDING_INCOMING
             val isOutgoing = item.status == FriendStatus.PENDING_OUTGOING ||
                     item.status == FriendStatus.PENDING_OUTGOING_LOCAL
 
-            val subtitle = when {
-                isIncoming -> "Quiere ser tu amigo"
-                isOutgoing -> "Solicitud enviada"
-                else -> ""
+            when {
+                isIncoming -> {
+                    tvSubtitle.setText(R.string.requests_friend_incoming)
+                    tvSubtitle.isVisible = true
+                }
+                isOutgoing -> {
+                    tvSubtitle.setText(R.string.requests_friend_outgoing)
+                    tvSubtitle.isVisible = true
+                }
+                else -> tvSubtitle.isVisible = false
             }
-
-            tvSubtitle.text = subtitle
-            tvSubtitle.isVisible = subtitle.isNotBlank()
 
             btnAccept.isVisible = isIncoming
             btnReject.isVisible = isIncoming || isOutgoing
@@ -113,22 +135,31 @@ class RequestsAdapter(
 
             if (isIncoming) {
                 btnAccept.setOnClickListener { onAcceptFriend(item.id) }
-                btnReject.setOnClickListener { onRejectFriend(item.id) } // rechazar
+                btnReject.setOnClickListener { onRejectFriend(item.id) }
             } else if (isOutgoing) {
-                btnReject.setOnClickListener { onRejectFriend(item.id) } // cancelar
+                btnReject.setOnClickListener { onRejectFriend(item.id) }
             }
 
             itemView.setOnClickListener { onFriendClick(item) }
         }
 
         fun bindGroupInvite(invite: GroupInviteEntity, isOutgoing: Boolean) {
-            val name = invite.groupNameSnapshot.ifBlank { "Grupo" }
-            val suffix = invite.groupId.takeLast(5)
-            tvTitle.text = "$name · #…$suffix"
+            val ctx = itemView.context
+
+            val name = invite.groupNameSnapshot.ifBlank {
+                ctx.getString(R.string.groups_default_name)
+            }
+            val suffix = invite.groupId.takeLast(GROUP_SUFFIX_LEN)
+
+            tvTitle.text = ctx.getString(
+                R.string.groups_code_suffix_format,
+                name,
+                suffix
+            )
 
             if (!isOutgoing) {
                 // Recibida
-                tvSubtitle.text = "Te han invitado al grupo"
+                tvSubtitle.setText(R.string.requests_group_incoming)
                 tvSubtitle.isVisible = true
 
                 btnAccept.isVisible = true
@@ -141,7 +172,7 @@ class RequestsAdapter(
                 btnReject.setOnClickListener { onRejectGroup(invite.inviteId) }
             } else {
                 // Enviada
-                tvSubtitle.text = "Invitación enviada"
+                tvSubtitle.setText(R.string.requests_group_outgoing)
                 tvSubtitle.isVisible = true
 
                 btnAccept.isVisible = false
@@ -150,7 +181,7 @@ class RequestsAdapter(
                 btnAccept.setOnClickListener(null)
                 btnReject.setOnClickListener(null)
 
-                // Rechazar aquí = CANCELAR
+                // Cancelar invitación
                 btnReject.setOnClickListener { onCancelGroup(invite.inviteId) }
             }
 
@@ -164,17 +195,10 @@ class RequestsAdapter(
 
     private object Diff : DiffUtil.ItemCallback<FriendRowUi>() {
         override fun areItemsTheSame(oldItem: FriendRowUi, newItem: FriendRowUi): Boolean {
-            return when {
-                oldItem is FriendRowUi.Header && newItem is FriendRowUi.Header ->
-                    oldItem.title == newItem.title
-
-                oldItem is FriendRowUi.FriendItem && newItem is FriendRowUi.FriendItem ->
-                    oldItem.friend.id == newItem.friend.id
-
-                oldItem is FriendRowUi.GroupItem && newItem is FriendRowUi.GroupItem ->
-                    oldItem.invite.inviteId == newItem.invite.inviteId
-
-                else -> false
+            return when (oldItem) {
+                is FriendRowUi.Header -> newItem is FriendRowUi.Header && oldItem.titleRes == newItem.titleRes
+                is FriendRowUi.FriendItem -> newItem is FriendRowUi.FriendItem && oldItem.friend.id == newItem.friend.id
+                is FriendRowUi.GroupItem -> newItem is FriendRowUi.GroupItem && oldItem.invite.inviteId == newItem.invite.inviteId
             }
         }
 

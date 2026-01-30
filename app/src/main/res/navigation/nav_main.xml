@@ -52,18 +52,18 @@
 
         <action
             android:id="@+id/action_nav_profile_to_friendsFragment"
-            app:destination="@id/nav_friendsFragment" />
+            app:destination="@id/nav_socialFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_friendsFragment"
-        android:name="com.ludiary.android.ui.profile.friends.FriendsFragment"
+        android:id="@+id/nav_socialFragment"
+        android:name="com.ludiary.android.ui.profile.social.FriendsFragment"
         android:label="@string/profile_friends"
-        tools:layout="@layout/form_friends_profile" />
+        tools:layout="@layout/form_social_profile" />
 
     <fragment
         android:id="@+id/nav_groupDetailFragment"
-        android:name="com.ludiary.android.ui.profile.friends.GroupDetailFragment"
+        android:name="com.ludiary.android.ui.profile.social.GroupDetailFragment"
         android:label="Detalle grupo"
         tools:layout="@layout/fragment_group_detail">
 

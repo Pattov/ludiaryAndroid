@@ -3,39 +3,34 @@ package com.ludiary.android.data.repository
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ludiary.android.R
+import com.ludiary.android.data.model.CreatedGroup
+import com.ludiary.android.data.model.InviteSnapshot
+import com.ludiary.android.data.model.RemoteInvite
+import com.ludiary.android.data.model.RemoteUserGroupIndex
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
+/**
+ * Repositorio remoto para la gestión de grupos y sus invitaciones en Firestore.
+ * @param db Instancia de [FirebaseFirestore].
+ */
 class FirestoreGroupsRepository(
-    private val firestore: FirebaseFirestore
+    private val db: FirebaseFirestore
 ) {
-    data class RemoteUserGroupIndex(
-        val groupId: String,
-        val nameSnapshot: String,
-        val joinedAt: Long,
-        val updatedAt: Long
-    )
 
-    data class RemoteInvite(
-        val inviteId: String,
-        val groupId: String,
-        val groupNameSnapshot: String,
-        val fromUid: String,
-        val toUid: String,
-        val status: String,
-        val createdAt: Long,
-        val respondedAt: Long?
-    )
-
-    // ---------------------------
-    // Observers (realtime)
-    // ---------------------------
-
+    /**
+     * Observa en tiempo real los metadatos principales de un grupo.
+     * @param groupId Identificador del grupo.
+     * @return Flow que emite un par
+     *      first: número de miembros del grupo
+     *      second: timestamp (epoch millis) de la última actualización
+     */
     fun observeGroupDoc(groupId: String): Flow<Pair<Int, Long>> = callbackFlow {
-        val reg = firestore.collection("groups")
+        val reg = db.collection("groups")
             .document(groupId)
             .addSnapshotListener { snap, err ->
                 if (err != null) { close(err); return@addSnapshotListener }
@@ -49,8 +44,53 @@ class FirestoreGroupsRepository(
         awaitClose { reg.remove() }
     }
 
+    /**
+     * Observa invitaciones entrantes en estado PENDING para un usuario.
+     * @param uid UID del usuario.
+     * @return Flow con la lista de invitaciones entrantes pendientes.
+     */
+    fun observeIncomingPendingInvites(uid: String): Flow<List<RemoteInvite>> = callbackFlow {
+        val reg = db.collection("group_invites")
+            .whereEqualTo("toUid", uid)
+            .whereEqualTo("status", "PENDING")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    close(err); return@addSnapshotListener
+                }
+                val now = System.currentTimeMillis()
+                val items = snap?.documents?.mapNotNull { it.toRemoteInviteOrNull(now) }.orEmpty()
+                trySend(items)
+            }
+        awaitClose { reg.remove() }
+    }
+
+    /**
+     * Observa invitaciones salientes en estado PENDING para un usuario.
+     * @param uid UID del usuario.
+     * @return Flow con la lista de invitaciones salientes pendientes.
+     */
+    fun observeOutgoingPendingInvites(uid: String): Flow<List<RemoteInvite>> = callbackFlow {
+        val reg = db.collection("group_invites")
+            .whereEqualTo("fromUid", uid)
+            .whereEqualTo("status", "PENDING")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    close(err); return@addSnapshotListener
+                }
+                val now = System.currentTimeMillis()
+                val items = snap?.documents?.mapNotNull { it.toRemoteInviteOrNull(now) }.orEmpty()
+                trySend(items)
+            }
+        awaitClose { reg.remove() }
+    }
+
+    /**
+     * Observa en tiempo real el índice de grupos del usuario.
+     * @param uid UID del usuario.
+     * @return Flow con la lista de [RemoteUserGroupIndex].
+     */
     fun observeUserGroupsIndex(uid: String): Flow<List<RemoteUserGroupIndex>> = callbackFlow {
-        val reg = firestore.collection("users")
+        val reg = db.collection("users")
             .document(uid)
             .collection("groups")
             .addSnapshotListener { snap, err ->
@@ -73,152 +113,31 @@ class FirestoreGroupsRepository(
         awaitClose { reg.remove() }
     }
 
-    fun observeIncomingPendingInvites(uid: String): Flow<List<RemoteInvite>> = callbackFlow {
-        val reg = firestore.collection("group_invites")
-            .whereEqualTo("toUid", uid)
-            .whereEqualTo("status", "PENDING")
-            .addSnapshotListener { snap, err ->
-                if (err != null) {
-                    close(err); return@addSnapshotListener
-                }
-                val now = System.currentTimeMillis()
-                val items = snap?.documents?.mapNotNull { it.toRemoteInviteOrNull(now) }.orEmpty()
-                trySend(items)
-            }
-        awaitClose { reg.remove() }
-    }
-
-    fun observeOutgoingPendingInvites(uid: String): Flow<List<RemoteInvite>> = callbackFlow {
-        val reg = firestore.collection("group_invites")
-            .whereEqualTo("fromUid", uid)
-            .whereEqualTo("status", "PENDING")
-            .addSnapshotListener { snap, err ->
-                if (err != null) {
-                    close(err); return@addSnapshotListener
-                }
-                val now = System.currentTimeMillis()
-                val items = snap?.documents?.mapNotNull { it.toRemoteInviteOrNull(now) }.orEmpty()
-                trySend(items)
-            }
-        awaitClose { reg.remove() }
-    }
-
-    // ---------------------------
-    // Commands
-    // ---------------------------
-
-    data class CreatedGroup(
-        val groupId: String,
-        val name: String,
-        val now: Long
-    )
-
-    suspend fun createGroup(myUid: String, name: String): CreatedGroup {
-        val now = System.currentTimeMillis()
-        val groupId = UUID.randomUUID().toString()
-
-        val groupRef = firestore.collection("groups").document(groupId)
-        val memberRef = groupRef.collection("members").document(myUid)
-        val idxRef = firestore.collection("users").document(myUid).collection("groups").document(groupId)
-
-        firestore.runBatch { b ->
-            b.set(groupRef, mapOf("name" to name, "createdAt" to now, "updatedAt" to now, "membersCount" to 1L))
-            b.set(memberRef, mapOf("uid" to myUid, "joinedAt" to now))
-            b.set(
-                idxRef,
-                mapOf(
-                    "groupId" to groupId,
-                    "nameSnapshot" to name,
-                    "joinedAt" to now,
-                    "updatedAt" to now
-                )
-            )
-        }.await()
-
-        return CreatedGroup(groupId = groupId, name = name, now = now)
-    }
-
-    suspend fun createInvite(
-        inviteId: String,
-        groupId: String,
-        groupNameSnapshot: String,
-        fromUid: String,
-        toUid: String,
-        createdAt: Long
-    ) {
-        firestore.collection("group_invites").document(inviteId)
-            .set(
-                mapOf(
-                    "groupId" to groupId,
-                    "groupNameSnapshot" to groupNameSnapshot,
-                    "fromUid" to fromUid,
-                    "toUid" to toUid,
-                    "status" to "PENDING",
-                    "createdAt" to createdAt
-                )
-            )
-            .await()
-    }
-
-    suspend fun inviteExists(inviteId: String): Boolean =
-        firestore.collection("group_invites").document(inviteId).get().await().exists()
-
-    data class InviteSnapshot(
-        val inviteId: String,
-        val groupId: String,
-        val groupNameSnapshot: String,
-        val fromUid: String,
-        val toUid: String,
-        val status: String,
-        val createdAt: Long,
-        val respondedAt: Long?
-    )
-
-    suspend fun getInvite(inviteId: String): InviteSnapshot? {
-        val snap = firestore.collection("group_invites").document(inviteId).get().await()
-        if (!snap.exists()) return null
-
-        val now = System.currentTimeMillis()
-
-        val groupId = snap.getString("groupId") ?: return null
-        val groupName = snap.getString("groupNameSnapshot") ?: "Grupo"
-        val fromUid = snap.getString("fromUid") ?: ""
-        val toUid = snap.getString("toUid") ?: ""
-        val status = snap.getString("status") ?: "PENDING"
-        val createdAt = snap.getLong("createdAt") ?: now
-        val respondedAt = snap.getLong("respondedAt")
-
-        return InviteSnapshot(
-            inviteId = inviteId,
-            groupId = groupId,
-            groupNameSnapshot = groupName,
-            fromUid = fromUid,
-            toUid = toUid,
-            status = status,
-            createdAt = createdAt,
-            respondedAt = respondedAt
-        )
-    }
-
+    /**
+     * Acepta una invitación a un grupo.
+     * @param myUid UID del usuario que acepta.
+     * @param inviteId ID de la invitación.
+     * @return [InviteSnapshot] con el estado resultante.
+     */
     suspend fun acceptInvite(myUid: String, inviteId: String): InviteSnapshot {
         val now = System.currentTimeMillis()
 
-        val inviteRef = firestore.collection("group_invites").document(inviteId)
+        val inviteRef = db.collection("group_invites").document(inviteId)
         val snap = inviteRef.get().await()
-        if (!snap.exists()) error("Invitación no existe")
+        if (!snap.exists()) error(R.string.groups_error_invite_not_found)
 
         val toUid = snap.getString("toUid") ?: error("toUid missing")
-        if (toUid != myUid) error("No autorizado")
+        if (toUid != myUid) error(R.string.groups_error_not_authorized)
 
         val groupId = snap.getString("groupId") ?: error("groupId missing")
         val groupName = snap.getString("groupNameSnapshot") ?: "Grupo"
         val fromUid = snap.getString("fromUid") ?: ""
 
-        val groupRef = firestore.collection("groups").document(groupId)
+        val groupRef = db.collection("groups").document(groupId)
         val memberRef = groupRef.collection("members").document(myUid)
-        val idxRef = firestore.collection("users").document(myUid).collection("groups").document(groupId)
+        val idxRef = db.collection("users").document(myUid).collection("groups").document(groupId)
 
-        firestore.runBatch { b ->
+        db.runBatch { b ->
             b.update(inviteRef, mapOf("status" to "ACCEPTED", "respondedAt" to now))
             b.set(memberRef, mapOf("uid" to myUid, "joinedAt" to now))
             b.set(
@@ -245,16 +164,22 @@ class FirestoreGroupsRepository(
         )
     }
 
+    /**
+     * Cancela una invitación.
+     * @param myUid UID del usuario que cancela.
+     * @param inviteId ID de la invitación.
+     * @return [InviteSnapshot] si existía, o null si no existe.
+     */
     suspend fun cancelInvite(myUid: String, inviteId: String): InviteSnapshot? {
         val now = System.currentTimeMillis()
 
-        val inviteRef = firestore.collection("group_invites").document(inviteId)
+        val inviteRef = db.collection("group_invites").document(inviteId)
         val snap = inviteRef.get().await()
         if (!snap.exists()) return null
 
         val fromUid = snap.getString("fromUid") ?: ""
         val toUid = snap.getString("toUid") ?: ""
-        if (myUid != fromUid && myUid != toUid) error("No autorizado")
+        if (myUid != fromUid && myUid != toUid) error(R.string.groups_error_not_authorized)
 
         inviteRef.update(mapOf("status" to "CANCELLED", "respondedAt" to now)).await()
 
@@ -270,26 +195,90 @@ class FirestoreGroupsRepository(
         )
     }
 
-    suspend fun rejectInvite(myUid: String, inviteId: String) {
-        val inviteRef = firestore.collection("group_invites").document(inviteId)
-        val snap = inviteRef.get().await()
-        if (!snap.exists()) return
+    /**
+     * Crea un grupo y añade al usuario como primer miembro.
+     * @param myUid UID del creador del grupo.
+     * @param name Nombre del grupo.
+     * @return [CreatedGroup] con el ID creado y el timestamp usado.
+     */
+    suspend fun createGroup(myUid: String, name: String): CreatedGroup {
+        val now = System.currentTimeMillis()
+        val groupId = UUID.randomUUID().toString()
 
-        val toUid = snap.getString("toUid") ?: ""
-        if (toUid != myUid) error("No autorizado")
+        val groupRef = db.collection("groups").document(groupId)
+        val memberRef = groupRef.collection("members").document(myUid)
+        val idxRef = db.collection("users").document(myUid).collection("groups").document(groupId)
 
-        // Rechazar = borrar (mantengo tu decisión actual)
-        inviteRef.delete().await()
+        db.runBatch { b ->
+            b.set(groupRef, mapOf("name" to name, "createdAt" to now, "updatedAt" to now, "membersCount" to 1L))
+            b.set(memberRef, mapOf("uid" to myUid, "joinedAt" to now))
+            b.set(
+                idxRef,
+                mapOf(
+                    "groupId" to groupId,
+                    "nameSnapshot" to name,
+                    "joinedAt" to now,
+                    "updatedAt" to now
+                )
+            )
+        }.await()
+
+        return CreatedGroup(groupId = groupId, name = name, now = now)
     }
 
+    /**
+     * Crea una invitación a un grupo en la colección `group_invites`.
+     * @param inviteId ID del documento de invitación.
+     * @param groupId ID del grupo.
+     * @param groupNameSnapshot Nombre del grupo en el momento de invitar.
+     * @param fromUid UID del emisor.
+     * @param toUid UID del receptor.
+     * @param createdAt Timestamp (epoch millis) de creación.
+     */
+    suspend fun createInvite(
+        inviteId: String,
+        groupId: String,
+        groupNameSnapshot: String,
+        fromUid: String,
+        toUid: String,
+        createdAt: Long
+    ) {
+        db.collection("group_invites").document(inviteId)
+            .set(
+                mapOf(
+                    "groupId" to groupId,
+                    "groupNameSnapshot" to groupNameSnapshot,
+                    "fromUid" to fromUid,
+                    "toUid" to toUid,
+                    "status" to "PENDING",
+                    "createdAt" to createdAt
+                    // respondedAt se añade al aceptar/cancelar
+                )
+            )
+            .await()
+    }
+
+    /**
+     * Comprueba si existe una invitación por ID.
+     * @param inviteId ID de la invitación.
+     * @return true si existe el documento `group_invites/{inviteId}`.
+     */
+    suspend fun inviteExists(inviteId: String): Boolean =
+        db.collection("group_invites").document(inviteId).get().await().exists()
+
+    /**
+     * Abandona un grupo.
+     * @param myUid UID del usuario que abandona.
+     * @param groupId ID del grupo.
+     */
     suspend fun leaveGroup(myUid: String, groupId: String) {
         val now = System.currentTimeMillis()
 
-        val groupRef = firestore.collection("groups").document(groupId)
+        val groupRef = db.collection("groups").document(groupId)
         val memberRef = groupRef.collection("members").document(myUid)
-        val idxRef = firestore.collection("users").document(myUid).collection("groups").document(groupId)
+        val idxRef = db.collection("users").document(myUid).collection("groups").document(groupId)
 
-        firestore.runBatch { b ->
+        db.runBatch { b ->
             b.delete(memberRef)
             b.delete(idxRef)
             b.update(groupRef, mapOf("updatedAt" to now, "membersCount" to FieldValue.increment(-1)))
@@ -302,6 +291,27 @@ class FirestoreGroupsRepository(
         }
     }
 
+    /**
+     * Rechaza una invitación entrante.
+     * @param myUid UID del usuario receptor.
+     * @param inviteId ID de la invitación.
+     */
+    suspend fun rejectInvite(myUid: String, inviteId: String) {
+        val inviteRef = db.collection("group_invites").document(inviteId)
+        val snap = inviteRef.get().await()
+        if (!snap.exists()) return
+
+        val toUid = snap.getString("toUid") ?: ""
+        if (toUid != myUid) error(R.string.groups_error_not_authorized)
+
+        inviteRef.delete().await()
+    }
+
+    /**
+     * Convierte un [DocumentSnapshot] a [RemoteInvite] si contiene los campos mínimos.
+     * @param nowFallback Timestamp usado como fallback cuando faltan campos.
+     * @return RemoteInvite o null si falta `groupId`.
+     */
     private fun DocumentSnapshot.toRemoteInviteOrNull(nowFallback: Long): RemoteInvite? {
         val groupId = getString("groupId") ?: return null
         return RemoteInvite(

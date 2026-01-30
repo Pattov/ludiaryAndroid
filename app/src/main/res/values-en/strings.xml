@@ -68,7 +68,68 @@
     <string name="profile_friends_empty_requests">No pending requests</string>
     <string name="profile_friend_message">If the user exists, you will receive your request.</string>
     <string name="profile_my_code">My code</string>
+    <string name="profile_friend_hint">Enter the friend code (10–12 characters).</string>
+    <string name="profile_friends_tabs_cd">Friends\' Tabs</string>
     <string name="friend_nickname_hint">Nickname</string>
+    <string name="friends_code_placeholder">—</string>
+    <string name="friends_error_no_session">You need to sign in.</string>
+    <string name="friends_error_friend_not_synced">This friend has not been synchronized yet.</string>
+    <string name="friends_error_friend_code_not_found">No user was found with this code.</string>
+    <string name="friends_error_generic">An unexpected error occurred.</string>
+    <string name="friends_label_default_user">User</string>
+    <string name="friends_default_title">Friend</string>
+    <string name="friends_code_format">#%1$s</string>
+    <string name="friends_code_suffix_format">#…%1$s</string>
+    <string name="friends_code_copied">Code copied</string>
+    <string name="friends_share_code">Add me on Ludiary with this code: %1$s</string>
+    <string name="friends_share_chooser">Share code</string>
+    <string name="friends_snack_nickname_updated">Nickname updated</string>
+    <string name="friends_snack_nickname_update_failed">Couldn’t update nickname</string>
+    <string name="friends_snack_request_accepted">Request accepted</string>
+    <string name="friends_snack_request_rejected">Request rejected</string>
+    <string name="friends_snack_removed">Friend removed</string>
+    <string name="friends_snack_remove_failed">Couldn’t remove friend</string>
+    <string name="groups_error_no_session">You need to sign in.</string>
+    <string name="groups_error_invite_not_found">The invitation no longer exists.</string>
+    <string name="groups_error_not_authorized">You are not authorized to perform this action.</string>
+    <string name="groups_error_invite_not_pending">The invitation is no longer pending.</string>
+    <string name="groups_error_generic">An error occurred with the group.</string>
+    <string name="groups_default_name">Group</string>
+    <string name="groups_code_suffix_format">%1$s · #…%2$s</string>
+    <string name="groups_leave_title">Leave the group</string>
+    <string name="groups_leave_message">Do you want to leave “%1$s”?</string>
+    <string name="group_member_friend">Friend</string>
+    <string name="group_member_not_friend">No, friend.</string>
+    <string name="groups_member_left_snack">You have left the group</string>
+    <string name="groups_empty_members">There are no members yet</string>
+    <string name="groups_snack_invite_accepted">Group invitation accepted</string>
+    <string name="groups_snack_invite_rejected">Group invitation rejected</string>
+    <string name="groups_snack_invite_sent">Invitation sent</string>
+    <string name="groups_snack_invite_pending_offline">Invitation pending (offline)</string>
+    <string name="groups_snack_invite_cancelled">Invitation cancelled</string>
+    <string name="groups_snack_created">Group created</string>
+    <string name="groups_snack_create_failed">Couldn’t create group</string>
+    <string name="groups_snack_name_required">Enter a group name</string>
+    <string name="groups_snack_left">You left the group</string>
+    <string name="requests_header_friends_incoming">Friends · Incoming</string>
+    <string name="requests_header_friends_outgoing">Friends · Outgoing</string>
+    <string name="requests_header_groups_incoming">Groups · Incoming</string>
+    <string name="requests_header_groups_outgoing">Groups · Outgoing</string>
+    <string name="requests_friend_incoming">He wants to be your friend</string>
+    <string name="requests_friend_outgoing">Application sent</string>
+    <string name="requests_group_incoming">You have been invited to the group</string>
+    <string name="requests_group_outgoing">Invitation sent</string>
+    <string name="invite_friend_state_member">He is already a member</string>
+    <string name="invite_friend_state_pending">Invitation pending</string>
+    <string name="invite_friend_missing_uid">This friend doesn\'t have a UID yet.</string>
+    <string name="invite_friend_sent">Invitation sent</string>
+    <string name="invite_friend_cancel_missing_invite_id">Cancellation failed</string>
+    <string name="invite_friend_cancelled">Invitation cancelled</string>
+    <string name="invite_group_title">Invite the group</string>
+    <string name="register_error_email_required">Enter your email address.</string>
+    <string name="register_error_email_invalid">Invalid email.</string>
+    <string name="register_error_password_min">The password must have at least %1$d characters.</string>
+    <string name="register_error_password_mismatch">The passwords do not match.</string>
 
     <string name="library_title">Library</string>
     <string name="library_hint_search">Search game&#8230;</string>
@@ -142,6 +203,11 @@
     <string name="dashboard_ten">10</string>
     <string name="dashboard_hours_format">%1$d h</string>
 
+    <string name="error_permission">You don’t have permission for this action</string>
+    <string name="error_offline_retry">Offline. Will retry automatically</string>
+    <string name="error_not_found_or_handled">It no longer exists or was already handled</string>
+    <string name="error_generic">Error</string>
+
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
@@ -151,6 +217,9 @@
     <string name="action_accept">Accept</string>
     <string name="action_share">Share</string>
     <string name="action_copy">Copy</string>
+    <string name="action_add">Add</string>
+    <string name="action_invite">Invite</string>
+    <string name="action_leave_confirm">Go out</string>
 
     <string name="action_close">Close</string>
     <string name="action_ok">OK</string>
@@ -179,4 +248,9 @@
         <item>es</item>
         <item>en</item>
     </string-array>
+
+    <plurals name="groups_members_count">
+        <item quantity="one">%d member</item>
+        <item quantity="other">%d members</item>
+    </plurals>
 </resources>

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/space_l"/>
+        android:paddingBottom="@dimen/space_l" />
 
     <TextView
         android:id="@+id/tvEmptyFriends"
@@ -21,6 +21,8 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:text="@string/profile_friends_empty_friends"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:visibility="gone" />
 
 </FrameLayout>

@@ -66,7 +66,7 @@ object SyncScheduler {
     fun enableAutoSyncFriendsGroups(context: Context) {
         val constraints = connectedConstraints()
 
-        val request = PeriodicWorkRequestBuilder<FriendsGroupsSyncWorker>(6, TimeUnit.HOURS)
+        val request = PeriodicWorkRequestBuilder<SocialSyncWorker>(6, TimeUnit.HOURS)
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
             .build()
@@ -139,7 +139,7 @@ object SyncScheduler {
     fun enqueueOneTimeFriendsGroupsSync(context: Context) {
         val constraints = connectedConstraints()
 
-        val request = OneTimeWorkRequestBuilder<FriendsGroupsSyncWorker>()
+        val request = OneTimeWorkRequestBuilder<SocialSyncWorker>()
             .setConstraints(constraints)
             .build()
 
