@@ -413,19 +413,3 @@ fun FirestoreFriendsRepository.RemoteFriend.toEntity(fallbackNow: Long = System.
         syncStatus = SyncStatus.CLEAN
     )
 }
-
-/**
- * Convierte una entidad Room [FriendEntity] a modelo remoto [FirestoreFriendsRepository.RemoteFriend].
- *
- * Útil para hacer `upsert()` en Firestore.
- */
-fun FriendEntity.toRemoteFriend(): FirestoreFriendsRepository.RemoteFriend =
-    FirestoreFriendsRepository.RemoteFriend(
-        friendUid = friendUid.orEmpty(),
-        friendCode = friendCode,
-        displayName = displayName,
-        nickname = nickname,
-        status = status.name,
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )

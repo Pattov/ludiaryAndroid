@@ -74,7 +74,7 @@ class RegisterFragment : Fragment() {
         //Navegar al inicio de sesión.
         binding.tvGoLogin.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(com.ludiary.android.R.id.authContainer, LoginFragment())
+                .replace(R.id.authContainer, LoginFragment())
                 .addToBackStack(null)
                 .commit()
         }
