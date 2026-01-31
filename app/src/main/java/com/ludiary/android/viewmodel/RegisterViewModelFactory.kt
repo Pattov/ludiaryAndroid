@@ -7,8 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.AuthRepository
-import com.ludiary.android.data.repository.FirestoreAuthRepository
+import com.ludiary.android.data.repository.auth.AuthRepository
+import com.ludiary.android.data.repository.auth.FirestoreAuthRepository
 import com.ludiary.android.util.ResourceProvider
 
 /**

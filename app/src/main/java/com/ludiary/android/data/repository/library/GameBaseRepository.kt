@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.library
 
 import com.ludiary.android.data.model.GameBase
 import kotlinx.coroutines.flow.Flow

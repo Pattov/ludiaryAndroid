@@ -5,7 +5,7 @@ import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.local.entity.toEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.data.model.SyncStatus
-import com.ludiary.android.data.repository.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 

@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.library
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot

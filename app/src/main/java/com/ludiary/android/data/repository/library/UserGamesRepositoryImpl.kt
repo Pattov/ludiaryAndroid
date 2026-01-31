@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.library
 
 import android.util.Log
 import com.ludiary.android.data.local.LocalUserGamesDataSource

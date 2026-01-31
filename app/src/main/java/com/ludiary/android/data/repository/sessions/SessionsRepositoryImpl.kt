@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.sessions
 
 import com.ludiary.android.data.local.LocalSessionsDataSource
 import com.ludiary.android.data.model.SyncStatus

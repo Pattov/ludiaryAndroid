@@ -1,5 +1,6 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.sessions
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -314,7 +315,7 @@ class FirestoreSessionsRepository(
  * Espera a que se complete una tarea de Firebase y devuelve el resultado.
  * @return El resultado de la tarea.
  */
-private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
+private suspend fun <T> Task<T>.await(): T =
     suspendCancellableCoroutine { cont ->
         addOnSuccessListener { cont.resume(it) }
         addOnFailureListener { cont.resumeWithException(it) }

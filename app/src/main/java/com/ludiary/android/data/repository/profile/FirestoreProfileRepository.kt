@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.profile
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +12,8 @@ import com.ludiary.android.data.model.UserPreferences
 import kotlinx.coroutines.tasks.await
 import java.security.SecureRandom
 import java.util.Locale
+import kotlin.collections.get
+
 /**
  * Implementación de [ProfileRepository] que utiliza Firestore para obtener y actualizar el perfil del usuario.
  * @property auth Instancia de [FirebaseAuth] para autenticación de Firebase.

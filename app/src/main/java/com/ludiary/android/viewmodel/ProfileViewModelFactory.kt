@@ -9,11 +9,11 @@ import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreProfileRepository
-import com.ludiary.android.data.repository.FirestoreUserGamesRepository
-import com.ludiary.android.data.repository.ProfileRepository
-import com.ludiary.android.data.repository.UserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.profile.FirestoreProfileRepository
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.profile.ProfileRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 
 class ProfileViewModelFactory (
     context: Context

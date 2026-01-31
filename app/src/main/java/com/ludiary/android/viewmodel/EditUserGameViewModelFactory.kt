@@ -2,7 +2,7 @@ package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
 
 /**
  * Factory para crear [EditUserGameViewModel].

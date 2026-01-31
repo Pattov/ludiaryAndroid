@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.profile
 
 import com.ludiary.android.data.local.entity.GroupEntity
 import com.ludiary.android.data.local.entity.GroupInviteEntity

@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.auth
 
 import com.ludiary.android.data.model.User
 import kotlinx.coroutines.flow.Flow

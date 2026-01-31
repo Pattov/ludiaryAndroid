@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
 import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.sync.SyncStatusPrefs
 import kotlinx.coroutines.flow.MutableSharedFlow

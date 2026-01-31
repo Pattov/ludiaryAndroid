@@ -2,8 +2,8 @@ package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ludiary.android.data.repository.UserGamesRepository
-import com.ludiary.android.data.repository.GameBaseRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.data.repository.library.GameBaseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

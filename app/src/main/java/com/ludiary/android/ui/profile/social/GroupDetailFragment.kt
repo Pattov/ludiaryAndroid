@@ -18,10 +18,10 @@ import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.local.entity.FriendEntity
-import com.ludiary.android.data.repository.FirestoreFriendsRepository
-import com.ludiary.android.data.repository.FirestoreGroupsRepository
-import com.ludiary.android.data.repository.FriendsRepositoryImpl
-import com.ludiary.android.data.repository.GroupsRepositoryImpl
+import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
+import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.SocialViewModelFactory
 import kotlinx.coroutines.flow.collectLatest

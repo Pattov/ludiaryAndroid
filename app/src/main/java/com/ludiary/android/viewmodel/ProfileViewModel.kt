@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.model.User
-import com.ludiary.android.data.repository.ProfileRepository
-import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.profile.ProfileRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
 import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

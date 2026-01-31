@@ -15,16 +15,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreUserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.launch
 import com.ludiary.android.data.local.LocalGameBaseDataSource
-import com.ludiary.android.data.repository.GameBaseRepository
-import com.ludiary.android.data.repository.GameBaseRepositoryImpl
-import com.ludiary.android.data.repository.FirestoreGameBaseRepositoryImpl
+import com.ludiary.android.data.repository.library.GameBaseRepository
+import com.ludiary.android.data.repository.library.GameBaseRepositoryImpl
+import com.ludiary.android.data.repository.library.FirestoreGameBaseRepositoryImpl
 
 /**
  * Pantalla principal del módulo de Ludoteca.

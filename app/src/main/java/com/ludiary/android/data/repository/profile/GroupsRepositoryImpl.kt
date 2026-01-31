@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.profile
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth

@@ -3,7 +3,7 @@ package com.ludiary.android.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.model.UserGame
-import com.ludiary.android.data.repository.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow

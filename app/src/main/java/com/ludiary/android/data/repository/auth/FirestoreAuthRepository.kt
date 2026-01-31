@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.auth
 
 import android.util.Log
 import com.google.firebase.FirebaseNetworkException
@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.security.SecureRandom
 import java.util.Locale
+import kotlin.collections.get
 
 /**
  * Implementación de AuthRepository que utiliza Firebase Authentication para autenticación.

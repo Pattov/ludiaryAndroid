@@ -9,8 +9,8 @@ import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.local.entity.GroupEntity
 import com.ludiary.android.data.local.entity.GroupInviteEntity
 import com.ludiary.android.data.model.FriendsTab
-import com.ludiary.android.data.repository.FriendsRepository
-import com.ludiary.android.data.repository.GroupsRepository
+import com.ludiary.android.data.repository.profile.FriendsRepository
+import com.ludiary.android.data.repository.profile.GroupsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

@@ -15,9 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreUserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.EditUserGameEvent
 import com.ludiary.android.viewmodel.EditUserGameViewModel
 import com.ludiary.android.viewmodel.EditUserGameViewModelFactory

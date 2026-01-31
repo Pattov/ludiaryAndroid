@@ -8,8 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalUserGamesDataSource
-import com.ludiary.android.data.repository.FirestoreUserGamesRepository
-import com.ludiary.android.data.repository.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 
 /**
  * Worker para sincronizar juegos del usuario con Firestore.

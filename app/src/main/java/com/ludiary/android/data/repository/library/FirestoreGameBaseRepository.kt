@@ -1,11 +1,13 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.library
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.model.GameBase
+import com.ludiary.android.data.model.GameType
 import kotlinx.coroutines.tasks.await
 import java.time.Instant
+import java.util.Date
 
 /**
  * Repositorio de juegos base.
@@ -106,8 +108,8 @@ class FirestoreGameBaseRepositoryImpl(
             defaultLanguage = getString("defaultLanguage"),
             type = runCatching {
                 val typeStr = getString("type") ?: "FISICO"
-                com.ludiary.android.data.model.GameType.valueOf(typeStr.uppercase())
-            }.getOrDefault(com.ludiary.android.data.model.GameType.FISICO),
+                GameType.valueOf(typeStr.uppercase())
+            }.getOrDefault(GameType.FISICO),
             baseGameId = getString("baseGameId"),
             imageUrl = getString("imageUrl"),
             approved = getBoolean("approved") ?: true,
@@ -127,7 +129,7 @@ class FirestoreGameBaseRepositoryImpl(
 
         return when (value) {
             is Timestamp -> value.toDate().toInstant()
-            is java.util.Date -> value.toInstant()
+            is Date -> value.toInstant()
             is Number -> Instant.ofEpochMilli(value.toLong())
             is String -> {
                 runCatching { Instant.parse(value) }.getOrNull()

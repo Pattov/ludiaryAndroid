@@ -2,8 +2,8 @@ package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.ludiary.android.data.repository.FriendsRepository
-import com.ludiary.android.data.repository.GroupsRepository
+import com.ludiary.android.data.repository.profile.FriendsRepository
+import com.ludiary.android.data.repository.profile.GroupsRepository
 
 /**
  * Factory para instanciar [FriendsViewModel] con sus dependencias.

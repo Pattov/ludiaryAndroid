@@ -8,10 +8,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LocalSessionsDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.FirestoreSessionsRepository
-import com.ludiary.android.data.repository.GroupIdProvider
-import com.ludiary.android.data.repository.SessionsRepository
-import com.ludiary.android.data.repository.SessionsRepositoryImpl
+import com.ludiary.android.data.repository.sessions.FirestoreSessionsRepository
+import com.ludiary.android.data.repository.sessions.GroupIdProvider
+import com.ludiary.android.data.repository.sessions.SessionsRepository
+import com.ludiary.android.data.repository.sessions.SessionsRepositoryImpl
 
 /**
  * Worker para sincronizar sesiones.

@@ -1,4 +1,4 @@
-package com.ludiary.android.data.repository
+package com.ludiary.android.data.repository.sessions
 
 /**
  * Clase de datos que representa el resultado de la sincronización de sesiones.

@@ -2,8 +2,8 @@ package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ludiary.android.data.repository.AuthRepository
-import com.ludiary.android.data.repository.AuthResult
+import com.ludiary.android.data.repository.auth.AuthRepository
+import com.ludiary.android.data.repository.auth.AuthResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

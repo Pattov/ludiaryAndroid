@@ -2,7 +2,7 @@ package com.ludiary.android.data.local.entity
 
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.model.*
-import com.ludiary.android.data.repository.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import java.time.Instant
 import java.util.Locale
 

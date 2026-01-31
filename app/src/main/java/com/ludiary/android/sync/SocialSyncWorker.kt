@@ -9,12 +9,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalGroupsDataSource
-import com.ludiary.android.data.repository.FirestoreFriendsRepository
-import com.ludiary.android.data.repository.FirestoreGroupsRepository
-import com.ludiary.android.data.repository.FriendsRepository
-import com.ludiary.android.data.repository.FriendsRepositoryImpl
-import com.ludiary.android.data.repository.GroupsRepository
-import com.ludiary.android.data.repository.GroupsRepositoryImpl
+import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
+import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
+import com.ludiary.android.data.repository.profile.FriendsRepository
+import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.profile.GroupsRepository
+import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
 
 /**
  * Worker de WorkManager para sincronizar operaciones pendientes (offline-first) relacionadas con Amigos y Grupos.
