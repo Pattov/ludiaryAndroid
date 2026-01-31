@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
@@ -34,6 +35,7 @@ import com.ludiary.android.data.model.FriendsTab
 import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
 import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.profile.FunctionsSocialRepository
 import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsUiEvent
 import com.ludiary.android.viewmodel.FriendsViewModel
@@ -179,16 +181,25 @@ class FriendsFragment : Fragment(R.layout.form_social_profile) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val ctx = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(ctx)
+        val auth = FirebaseAuth.getInstance()
+        val fs = FirebaseFirestore.getInstance()
+        val db = LudiaryDatabase.getInstance(requireContext())
 
-        val friendsLocal = LocalFriendsDataSource(db.friendDao())
-        val friendsRemote = FirestoreFriendsRepository(FirebaseFirestore.getInstance())
-        val friendsRepo = FriendsRepositoryImpl(friendsLocal, friendsRemote, FirebaseAuth.getInstance())
+        val function = FunctionsSocialRepository(FirebaseFunctions.getInstance())
 
-        val groupsLocal = LocalGroupsDataSource(db.groupDao())
-        val groupsRemote = FirestoreGroupsRepository(FirebaseFirestore.getInstance())
-        val groupsRepo = GroupsRepositoryImpl(groupsLocal, groupsRemote, FirebaseAuth.getInstance())
+        val friendsRepo = FriendsRepositoryImpl(
+            local = LocalFriendsDataSource(db.friendDao()),
+            remote = FirestoreFriendsRepository(fs),
+            function = function,
+            auth = auth
+        )
+
+        val groupsRepo = GroupsRepositoryImpl(
+            local = LocalGroupsDataSource(db.groupDao()),
+            remote = FirestoreGroupsRepository(fs),
+            function = function,
+            auth = auth
+        )
 
         vm = ViewModelProvider(
             this,

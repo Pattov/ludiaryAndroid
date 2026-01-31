@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
@@ -20,6 +21,7 @@ import com.ludiary.android.data.local.entity.FriendEntity
 import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
 import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
+import com.ludiary.android.data.repository.profile.FunctionsSocialRepository
 import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
 import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.SocialViewModelFactory
@@ -34,20 +36,23 @@ class InviteFriendsBottomSheet : BottomSheetDialogFragment() {
      * ViewModel compartido con el host (Activity).
      */
     private val vm: FriendsViewModel by activityViewModels {
-        val ctx = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(ctx)
-        val fs = FirebaseFirestore.getInstance()
         val auth = FirebaseAuth.getInstance()
+        val fs = FirebaseFirestore.getInstance()
+        val db = LudiaryDatabase.getInstance(requireContext())
+
+        val function = FunctionsSocialRepository(FirebaseFunctions.getInstance())
 
         val friendsRepo = FriendsRepositoryImpl(
             local = LocalFriendsDataSource(db.friendDao()),
             remote = FirestoreFriendsRepository(fs),
+            function = function,
             auth = auth
         )
 
         val groupsRepo = GroupsRepositoryImpl(
             local = LocalGroupsDataSource(db.groupDao()),
             remote = FirestoreGroupsRepository(fs),
+            function = function,
             auth = auth
         )
 
