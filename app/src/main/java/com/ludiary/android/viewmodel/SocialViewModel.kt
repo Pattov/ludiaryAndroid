@@ -296,7 +296,10 @@ class FriendsViewModel(
     fun removeFriend(friendId: Long) = viewModelScope.launch {
         friendsRepo.removeFriend(friendId)
             .onSuccess { _events.emit(FriendsUiEvent.ShowSnack(R.string.friends_snack_removed)) }
-            .onFailure { _events.emit(FriendsUiEvent.ShowSnack(R.string.friends_snack_remove_failed)) }
+            .onFailure { e ->
+                e.printStackTrace()
+                _events.emit(FriendsUiEvent.ShowSnack(R.string.friends_snack_remove_failed))
+            }
     }
 
     /**

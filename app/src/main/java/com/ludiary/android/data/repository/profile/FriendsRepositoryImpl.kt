@@ -204,13 +204,17 @@ class FriendsRepositoryImpl(
     override suspend fun removeFriend(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.friends_error_no_session)
-            val entity = local.getById(friendId) ?: return@runCatching
-            val friendUid = entity.friendUid ?: error(R.string.friends_error_friend_code_not_found)
+
+            val entity = local.getById(friendId) ?: error(R.string.friends_error_friend_code_not_found)
+            val friendUid = entity.friendUid ?: error(R.string.friends_error_friend_not_synced)
 
             function.removeFriend(friendUid)
             local.deleteById(friendId)
+
+            Unit
         }
     }
+
 
 
     override suspend fun updateNickname(friendId: Long, nickname: String): Result<Unit> = withContext(Dispatchers.IO) {

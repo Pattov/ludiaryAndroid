@@ -203,6 +203,7 @@
     <string name="dashboard_ten">10</string>
     <string name="dashboard_hours_format">%1$d h</string>
 
+    <string name="notifications">Notifications</string>
     <string name="error_permission">You don’t have permission for this action</string>
     <string name="error_offline_retry">Offline. Will retry automatically</string>
     <string name="error_not_found_or_handled">It no longer exists or was already handled</string>
