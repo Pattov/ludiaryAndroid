@@ -24,6 +24,7 @@ import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
 import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
 import com.ludiary.android.data.repository.profile.FunctionsSocialRepository
 import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
+import com.ludiary.android.util.FirebaseProviders
 import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.SocialViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -121,7 +122,7 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
         val fs = FirebaseFirestore.getInstance()
         val db = LudiaryDatabase.getInstance(requireContext())
 
-        val function = FunctionsSocialRepository(FirebaseFunctions.getInstance())
+        val function = FunctionsSocialRepository(FirebaseProviders.functions)
 
         val friendsRepo = FriendsRepositoryImpl(
             local = LocalFriendsDataSource(db.friendDao()),

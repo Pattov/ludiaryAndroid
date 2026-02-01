@@ -19,6 +19,7 @@ import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.util.LocaleManager
 import com.ludiary.android.util.ThemeManager
 import com.ludiary.android.data.repository.notification.NotificationsRepository
+import com.ludiary.android.util.FirebaseProviders
 import com.ludiary.android.viewmodel.NotificationsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         val firestore = FirebaseFirestore.getInstance()
 
         val remote = FirestoreNotificationsRepository(firestore)
-        val functions = FunctionsNotificationsRepository(FirebaseFunctions.getInstance())
+        val functions = FunctionsNotificationsRepository(FirebaseProviders.functions)
 
         val repo = NotificationsRepository(
             auth = auth,
