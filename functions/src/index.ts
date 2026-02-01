@@ -168,15 +168,14 @@ export const friendsReject = onCall(async (request) => {
 
 export const friendsRemove = onCall(async (request) => {
   const myUid = requireAuth(request);
-  const friendUid = asNonEmptyString(request.data?.friendUid, "friendUid");
+  const friendUid = asNonEmptyString(request.data?.friendUid);
 
-  const myDoc = db.collection("users").doc(myUid).collection("friends").doc(friendUid);
-  const theirDoc = db.collection("users").doc(friendUid).collection("friends").doc(myUid);
+  const batch = db.batch();
 
-  await db.runTransaction(async (tx) => {
-    tx.delete(myDoc);
-    tx.delete(theirDoc);
-  });
+  batch.delete(db.doc(`users/${myUid}/friends/${friendUid}`));
+  batch.delete(db.doc(`users/${friendUid}/friends/${myUid}`));
+
+  await batch.commit();
 
   return { ok: true };
 });
