@@ -3,15 +3,24 @@ package com.ludiary.android.ui.main
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
+import com.ludiary.android.data.repository.notification.FirestoreNotificationsRepository
+import com.ludiary.android.data.repository.notification.FunctionsNotificationsRepository
 import com.ludiary.android.sync.SyncPrefs
 import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.util.LocaleManager
 import com.ludiary.android.util.ThemeManager
+import com.ludiary.android.data.repository.notification.NotificationsRepository
+import com.ludiary.android.viewmodel.NotificationsViewModel
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -35,9 +44,25 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController()
         val bottomNav = findViewById<BottomNavigationView>(R.id.bnvMain)
 
+        val socialBadge = bottomNav.getOrCreateBadge(R.id.nav_profile)
+        socialBadge.isVisible = false
+        socialBadge.maxCharacterCount = 3
+
         setupBottomNavigation(bottomNav, navController)
         setupDestinationFixes(bottomNav, navController)
         setupSyncScheduling()
+
+        lifecycleScope.launch {
+            notificationsViewModel.unreadCount.collect { count ->
+                if (count > 0) {
+                    socialBadge.isVisible = true
+                    socialBadge.number = count
+                } else {
+                    socialBadge.isVisible = false
+                    socialBadge.clearNumber()
+                }
+            }
+        }
     }
 
     /**
@@ -55,6 +80,23 @@ class MainActivity : AppCompatActivity() {
     private fun findNavController(): NavController {
         val navHost = supportFragmentManager.findFragmentById(R.id.navHostMain) as NavHostFragment
         return navHost.navController
+    }
+
+    private val notificationsViewModel by lazy {
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
+
+        val remote = FirestoreNotificationsRepository(firestore)
+        val functions = FunctionsNotificationsRepository(FirebaseFunctions.getInstance())
+
+        val repo = NotificationsRepository(
+            auth = auth,
+            remote = remote,
+            functions = functions,
+            firestore = firestore
+        )
+
+        NotificationsViewModel(repo)
     }
 
     /**
