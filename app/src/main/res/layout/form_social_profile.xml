@@ -25,20 +25,16 @@
 
         <!-- Buscador -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputSearchFriends"
+            android:id="@+id/inputSearch"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/profile_padding_horizontal"
             android:layout_marginEnd="@dimen/profile_padding_horizontal"
-            android:layout_marginTop="@dimen/space_s"
-            android:layout_marginBottom="@dimen/space_s"
-            android:hint="@string/friends_search_hint"
-            android:maxWidth="600dp"
-            android:layout_gravity="center_horizontal"
-            app:startIconDrawable="@drawable/ic_search">
+            android:layout_marginTop="@dimen/space_m"
+            android:hint="@string/friends_search_hint">
 
-        <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textSearchFriends"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

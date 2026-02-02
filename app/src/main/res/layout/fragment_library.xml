@@ -12,7 +12,7 @@
     <!-- Título -->
     <TextView
         android:id="@+id/titleLibrary"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/space_none"
         android:layout_height="wrap_content"
         android:text="@string/library_title"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
@@ -27,9 +27,9 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputSearch"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/space_none"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_s"
+        android:layout_marginTop="@dimen/space_m"
         android:hint="@string/library_hint_search"
         app:layout_constrainedWidth="true"
         app:layout_constraintWidth_max="@dimen/form_max_width"
@@ -48,8 +48,8 @@
     <!-- Lista -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerLibrary"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="@dimen/space_none"
+        android:layout_height="@dimen/space_none"
         android:clipToPadding="false"
         android:paddingTop="@dimen/space_m"
         android:paddingBottom="@dimen/library_list_bottom_padding"
