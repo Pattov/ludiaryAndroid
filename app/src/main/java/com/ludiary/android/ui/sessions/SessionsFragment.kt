@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -13,9 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.viewmodel.SessionsViewModel
 import com.ludiary.android.viewmodel.SessionsViewModelFactory
@@ -36,11 +39,15 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
     private lateinit var progress: ProgressBar
     private lateinit var textEmpty: TextView
     private lateinit var textError: TextView
+    private lateinit var textSearch: TextInputEditText
+
+    private var currentQuery: String = ""
+    private var lastSessions: List<SessionEntity> = emptyList()
+    private var lastLoading: Boolean = false
+    private var lastErrorRes: Int? = null
 
     /**
-     * Instancia cuando se crea la vista del fragmento.
-     * @param view Vista del fragmento.
-     * @param savedInstanceState Estado de la instancia.
+     * Inicializa vistas, recycler, viewmodel, listeners y observación de estado.
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,6 +71,7 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
         progress = view.findViewById(R.id.progressLoading)
         textEmpty = view.findViewById(R.id.textEmpty)
         textError = view.findViewById(R.id.textError)
+        textSearch = view.findViewById(R.id.textSearch)
     }
 
     /**
@@ -85,8 +93,7 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
      * Crea el ViewModel.
      */
     private fun setupViewModel() {
-        val appContext = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(appContext)
+        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
         val auth = FirebaseAuth.getInstance()
 
         val factory = SessionsViewModelFactory(db, auth)
@@ -98,21 +105,58 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
      */
     private fun setupListeners() {
         fab.setOnClickListener { navigateToCreate() }
+
+        textSearch.doAfterTextChanged { editable ->
+            currentQuery = editable?.toString().orEmpty()
+            applyFilterAndRender()
+        }
     }
 
     /**
-     * Observa el estado del ViewModel y actualiza la UI.
+     * Observa el estado del ViewModel y actualiza UI.
      */
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.collectLatest { state ->
-                renderState(
-                    isLoading = state.loading,
-                    isEmpty = state.sessions.isEmpty(),
-                    errorRes = state.errorRes
-                )
-                adapter.submitList(state.sessions)
+                lastLoading = state.loading
+                lastErrorRes = state.errorRes
+                lastSessions = state.sessions
+
+                applyFilterAndRender()
             }
+        }
+    }
+
+    /**
+     * Aplica el filtro de búsqueda sobre el último listado recibido y renderiza estado + lista.
+     */
+    private fun applyFilterAndRender() {
+        val filtered = filterSessions(lastSessions, currentQuery)
+
+        renderState(
+            isLoading = lastLoading,
+            isEmpty = filtered.isEmpty(),
+            errorRes = lastErrorRes
+        )
+
+        adapter.submitList(filtered)
+    }
+
+    /**
+     * Filtrado simple de sesiones por título del juego.
+     * @param sessions Lista base sin filtrar.
+     * @param query Texto de búsqueda.
+     * @return Lista filtrada.
+     */
+    private fun filterSessions(
+        sessions: List<SessionEntity>,
+        query: String
+    ): List<SessionEntity> {
+        val q = query.trim()
+        if (q.isEmpty()) return sessions
+
+        return sessions.filter { s ->
+            s.gameTitle.contains(q, ignoreCase = true)
         }
     }
 
@@ -128,16 +172,31 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
 
         progress.visibility = if (isLoading) View.VISIBLE else View.GONE
         recycler.visibility = if (!isLoading && !hasError) View.VISIBLE else View.INVISIBLE
-        textEmpty.visibility = if (!isLoading && !hasError && isEmpty) View.VISIBLE else View.GONE
         textError.visibility = if (hasError) View.VISIBLE else View.GONE
 
-        errorRes?.let {
-            textError.setText(it)
+        if (!isLoading && !hasError && isEmpty) {
+            textEmpty.visibility = View.VISIBLE
+
+            textEmpty.text = if (currentQuery.isNotBlank()) {
+                getString(
+                    R.string.search_no_results,
+                    currentQuery
+                )
+            } else {
+                getString(R.string.sessions_empty)
+            }
+        } else {
+            textEmpty.visibility = View.GONE
         }
+
+        errorRes?.let { textError.setText(it) }
     }
 
     /**
-     * Confirma el borrado de una partida.
+     * Muestra confirmación antes de borrar una sesión.
+     *
+     * @param sessionId ID de la sesión a borrar.
+     * @param title Título del juego (para mostrar en el mensaje).
      */
     private fun confirmDelete(sessionId: String, title: String) {
         AlertDialog.Builder(requireContext())
@@ -146,7 +205,7 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
             .setPositiveButton(getString(R.string.action_delete)) { _: DialogInterface, _: Int ->
                 vm.deleteSession(sessionId)
             }
-            .setNegativeButton(getString(R.string.action_cancel)) { dialog: DialogInterface, _: Int ->
+            .setNegativeButton(getString(R.string.action_cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()

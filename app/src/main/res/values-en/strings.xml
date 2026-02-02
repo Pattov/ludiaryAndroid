@@ -202,6 +202,9 @@
     <string name="dashboard_L">L</string>
     <string name="dashboard_ten">10</string>
     <string name="dashboard_hours_format">%1$d h</string>
+    <string name="search_no_results">There are no matches with “%1$s”</string>
+    <string name="sessions_empty">There are no registered games yet</string>
+    <string name="library_empty">You don\'t have any games in your game library yet.</string>
 
     <string name="notifications">Notifications</string>
     <string name="error_permission">You don’t have permission for this action</string>

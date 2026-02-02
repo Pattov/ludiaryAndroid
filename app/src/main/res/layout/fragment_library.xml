@@ -60,6 +60,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Estado vacío -->
+    <TextView
+        android:id="@+id/textEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/space_m"
+        android:text="@string/library_empty"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:visibility="gone"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintWidth_max="@dimen/form_max_width"
+        app:layout_constraintTop_toTopOf="@id/recyclerLibrary"
+        app:layout_constraintBottom_toBottomOf="@id/recyclerLibrary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Botón flotante añadir -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddGame"
