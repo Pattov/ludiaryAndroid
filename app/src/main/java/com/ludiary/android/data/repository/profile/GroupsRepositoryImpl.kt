@@ -16,9 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Implementación de [GroupsRepository].
+ * Implementación de [GroupsRepository] (módulo social: grupos e invitaciones).
  * @param local Fuente de datos local (Room).
  * @param remote Fuente de datos remota (Firestore).
+ * @param function Repositorio de Cloud Functions (acciones seguras).
  * @param auth FirebaseAuth para obtener el usuario actual.
  */
 class GroupsRepositoryImpl(
@@ -33,7 +34,7 @@ class GroupsRepositoryImpl(
     private val groupDocJobs = mutableMapOf<String, Job>()
 
     /**
-     * Observa la lista de grupos del usuario, con filtrado por texto.
+     * Observa la lista de grupos del usuario, aplicando filtrado por texto.
      * @param query Texto de búsqueda. Puede ser vacío para devolver todos los grupos.
      * @return Flow reactivo con la lista de [GroupEntity].
      */
@@ -48,15 +49,19 @@ class GroupsRepositoryImpl(
 
     /**
      * Observa invitaciones entrantes pendientes (pendientes de aceptar).
-     * @return Flow reactivo con la lista de [GroupInviteEntity] entrantes.
+     * @return Flow reactivo con la lista de [GroupInviteEntity] entrantes (status pending).
      */
-    override fun observeIncomingPendingInvites() = local.observePendingInvites(auth.currentUser?.uid)
+    override fun observeIncomingPendingInvites() =
+        local.observePendingInvites(auth.currentUser?.uid)
 
     /**
-     * Observa invitaciones salientes pendientes creadas por el usuario.
+     * Observa invitaciones salientes pendientes creadas por el usuario (status pending).
      * @return Flow reactivo con la lista de [GroupInviteEntity] salientes.
      */
-    override fun observeOutgoingPendingInvites() = local.observeOutgoingPendingInvites(auth.currentUser?.uid)
+    override fun observeOutgoingPendingInvites() =
+        local.observeOutgoingPendingInvites(auth.currentUser?.uid)
+
+    // ------------------------- SYNC (FIRESTORE → ROOM) -------------------------
 
     /**
      * Inicia la sincronización remota (realtime) con Firestore.
@@ -91,6 +96,7 @@ class GroupsRepositoryImpl(
 
                                 val meta = remoteGroups.firstOrNull { it.groupId == gid }
 
+                                // Upsert “completo” del grupo con membersCount actualizado
                                 local.upsertGroup(
                                     GroupEntity(
                                         groupId = gid,
@@ -152,6 +158,11 @@ class GroupsRepositoryImpl(
         groupDocJobs.clear()
     }
 
+    /**
+     * Crea un grupo mediante Cloud Functions y actualiza inmediatamente la caché local.
+     * @param name Nombre del grupo.
+     * @return `Result.success(Unit)` si se crea correctamente; `failure` si no hay sesión o falla backend/local.
+     */
     override suspend fun createGroup(name: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.groups_error_no_session)
@@ -174,6 +185,12 @@ class GroupsRepositoryImpl(
         }
     }
 
+    /**
+     * Invita a un usuario a unirse a un grupo.
+     * @param groupId ID del grupo.
+     * @param groupNameSnapshot Nombre del grupo (snapshot) para UI consistente.
+     * @param toUid UID del usuario invitado.
+     */
     override suspend fun inviteToGroup(
         groupId: String,
         groupNameSnapshot: String,
@@ -183,8 +200,11 @@ class GroupsRepositoryImpl(
             val me = auth.currentUser ?: error(R.string.groups_error_no_session)
 
             val now = System.currentTimeMillis()
+
+            // Se genera un inviteId determinista para evitar duplicados locales (ej: groupId_toUid).
             val inviteId = "${groupId}_${toUid}"
 
+            // Cache local inmediata para mostrar en UI.
             local.upsertInvite(
                 GroupInviteEntity(
                     inviteId = inviteId,
@@ -218,6 +238,10 @@ class GroupsRepositoryImpl(
         }
     }
 
+    /**
+     * Reintenta enviar invitaciones salientes pendientes.
+     * @return `Result.success(Unit)` si el proceso no lanza excepción; `failure` si falla alguna llamada.
+     */
     override suspend fun flushPendingInvites(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: return@runCatching
@@ -234,14 +258,21 @@ class GroupsRepositoryImpl(
         }
     }
 
+    /**
+     * Acepta una invitación de grupo (entrante).
+     * @param inviteId ID de invitación.
+     */
     override suspend fun acceptInvite(inviteId: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.groups_error_no_session)
-
             function.acceptGroupInvite(inviteId)
         }
     }
 
+    /**
+     * Cancela una invitación enviada (normalmente por el emisor).
+     * @param inviteId ID de invitación.
+     */
     override suspend fun cancelInvite(inviteId: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.groups_error_no_session)
@@ -249,6 +280,10 @@ class GroupsRepositoryImpl(
         }
     }
 
+    /**
+     * Rechaza una invitación recibida (entrante) y limpia el registro local.
+     * @param inviteId ID de invitación.
+     */
     override suspend fun rejectInvite(inviteId: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.groups_error_no_session)
@@ -260,7 +295,7 @@ class GroupsRepositoryImpl(
     /**
      * Devuelve invitaciones salientes pendientes asociadas a un grupo.
      * @param groupId ID del grupo.
-     * @return Lista de invitaciones pendientes para ese grupo.
+     * @return Lista de invitaciones pendientes para ese grupo, filtradas por el UID del usuario actual.
      */
     override suspend fun pendingOutgoingInvitesForGroup(groupId: String): List<GroupInviteEntity> =
         withContext(Dispatchers.IO) {
@@ -268,6 +303,10 @@ class GroupsRepositoryImpl(
             local.pendingOutgoingInvitesForGroup(groupId, me.uid)
         }
 
+    /**
+     * Abandona un grupo.
+     * @param groupId ID del grupo.
+     */
     override suspend fun leaveGroup(groupId: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val me = auth.currentUser ?: error(R.string.groups_error_no_session)

@@ -23,7 +23,6 @@ import kotlinx.coroutines.tasks.await
 import java.security.SecureRandom
 import java.util.Locale
 import kotlin.collections.get
-import com.google.firebase.firestore.FieldValue.serverTimestamp
 
 /**
  * Implementación de AuthRepository que utiliza Firebase Authentication para autenticación.
@@ -55,9 +54,7 @@ class FirestoreAuthRepository(
 
     /**
      * Flujo reactivo que emite el estado de autenticación del usuario.
-     *
      * Cada vez que cambia la sesión, se emite el nuevo usuario autenticado o null si no hay ninguno
-     *
      * @return Flujo reactivo de User
      */
     override fun authState(): Flow<User?> = callbackFlow {
@@ -394,31 +391,6 @@ class FirestoreAuthRepository(
             displayName = firebaseUser.displayName,
             isAnonymous = firebaseUser.isAnonymous
         )
-    }
-
-    suspend fun upsertToken(uid: String, token: String) {
-        val ref = db.collection("users")
-            .document(uid)
-            .collection("fcmTokens")
-            .document(token)
-
-        ref.set(
-            mapOf(
-                "token" to token,
-                "platform" to "android",
-                "updatedAt" to serverTimestamp()
-            ),
-            SetOptions.merge()
-        ).await()
-    }
-
-    suspend fun deleteToken(uid: String, token: String) {
-        db.collection("users")
-            .document(uid)
-            .collection("fcmTokens")
-            .document(token)
-            .delete()
-            .await()
     }
 
     /**

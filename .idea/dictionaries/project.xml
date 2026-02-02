@@ -48,10 +48,12 @@
       <w>administradores</w>
       <w>adoptadas</w>
       <w>afectadas</w>
+      <w>agregadas</w>
       <w>ahora</w>
       <w>ajustes</w>
       <w>alcance</w>
       <w>aleatorio</w>
+      <w>alguna</w>
       <w>almacena</w>
       <w>almacenada</w>
       <w>almacenadas</w>
@@ -167,6 +169,7 @@
       <w>catan</w>
       <w>catálogo</w>
       <w>centralizada</w>
+      <w>centralizado</w>
       <w>cerrar</w>
       <w>certificados</w>
       <w>choca</w>
@@ -174,13 +177,17 @@
       <w>clase</w>
       <w>clic</w>
       <w>clicada</w>
+      <w>coherencia</w>
       <w>coincidan</w>
       <w>coinciden</w>
+      <w>colaborativo</w>
       <w>colección</w>
+      <w>colisiones</w>
       <w>colores</w>
       <w>combina</w>
       <w>combinando</w>
       <w>compara</w>
+      <w>comparar</w>
       <w>compartan</w>
       <w>compartidas</w>
       <w>compartido</w>
@@ -192,6 +199,7 @@
       <w>comprobar</w>
       <w>comprueba</w>
       <w>comunicarse</w>
+      <w>concedido</w>
       <w>concreto</w>
       <w>concretos</w>
       <w>condicionado</w>
@@ -210,6 +218,7 @@
       <w>conflicto</w>
       <w>conflictos</w>
       <w>considera</w>
+      <w>consistente</w>
       <w>construido</w>
       <w>construir</w>
       <w>construye</w>
@@ -225,6 +234,7 @@
       <w>contrario</w>
       <w>contraseña</w>
       <w>contraseñas</w>
+      <w>contrato</w>
       <w>contruye</w>
       <w>conversores</w>
       <w>convertir</w>
@@ -233,6 +243,7 @@
       <w>copia</w>
       <w>copiado</w>
       <w>copiar</w>
+      <w>correcta</w>
       <w>correctamente</w>
       <w>correcto</w>
       <w>correctos</w>
@@ -300,8 +311,11 @@
       <w>destruido</w>
       <w>destruye</w>
       <w>detalle</w>
+      <w>detener</w>
+      <w>determinista</w>
       <w>detiene</w>
       <w>devolvemos</w>
+      <w>devuelto</w>
       <w>devuelve</w>
       <w>diferida</w>
       <w>dinámicamente</w>
@@ -309,6 +323,7 @@
       <w>dirección</w>
       <w>directamente</w>
       <w>disponible</w>
+      <w>dispositivo</w>
       <w>dividir</w>
       <w>diálogo</w>
       <w>diálogos</w>
@@ -319,6 +334,7 @@
       <w>dominio</w>
       <w>dueño</w>
       <w>duplicados</w>
+      <w>duplicar</w>
       <w>duración</w>
       <w>edad</w>
       <w>edición</w>
@@ -327,6 +343,7 @@
       <w>editoriales</w>
       <w>eeeee</w>
       <w>efecto</w>
+      <w>efectos</w>
       <w>eficientes</w>
       <w>ejecución</w>
       <w>ejecuta</w>
@@ -382,6 +399,7 @@
       <w>específica</w>
       <w>específico</w>
       <w>espera</w>
+      <w>esperado</w>
       <w>esperar</w>
       <w>esquinas</w>
       <w>establece</w>
@@ -406,12 +424,14 @@
       <w>existen</w>
       <w>existente</w>
       <w>existiendo</w>
+      <w>existir</w>
       <w>existoso</w>
       <w>existía</w>
       <w>exitosa</w>
       <w>exitoso</w>
       <w>explicativo</w>
       <w>expone</w>
+      <w>exponer</w>
       <w>exponiendo</w>
       <w>expuesto</w>
       <w>falla</w>
@@ -422,7 +442,9 @@
       <w>fechas</w>
       <w>fija</w>
       <w>filas</w>
+      <w>filtradas</w>
       <w>filtrado</w>
+      <w>filtrados</w>
       <w>filtrando</w>
       <w>filtrar</w>
       <w>filtro</w>
@@ -475,6 +497,7 @@
       <w>hacia</w>
       <w>hago</w>
       <w>hemos</w>
+      <w>heterogéneos</w>
       <w>hijos</w>
       <w>hubo</w>
       <w>icono</w>
@@ -490,6 +513,7 @@
       <w>importe</w>
       <w>inactivo</w>
       <w>incluir</w>
+      <w>incluso</w>
       <w>incluye</w>
       <w>incorporación</w>
       <w>incorrectas</w>
@@ -499,6 +523,7 @@
       <w>inesperado</w>
       <w>inflada</w>
       <w>inflando</w>
+      <w>inflar</w>
       <w>información</w>
       <w>informativo</w>
       <w>inglés</w>
@@ -513,6 +538,7 @@
       <w>iniciar</w>
       <w>inicio</w>
       <w>inmediata</w>
+      <w>inmediatamente</w>
       <w>inmediato</w>
       <w>inmutable</w>
       <w>inserta</w>
@@ -563,6 +589,8 @@
       <w>lecturas</w>
       <w>leemos</w>
       <w>letra</w>
+      <w>leídas</w>
+      <w>liberando</w>
       <w>librerías</w>
       <w>limpia</w>
       <w>limpiamos</w>
@@ -573,13 +601,16 @@
       <w>listas</w>
       <w>llamada</w>
       <w>llamadas</w>
+      <w>llamado</w>
       <w>llamar</w>
       <w>llegue</w>
       <w>localizado</w>
       <w>localmente</w>
+      <w>logueado</w>
       <w>longitud</w>
       <w>ludoteca</w>
       <w>lógica</w>
+      <w>lógico</w>
       <w>lúdica</w>
       <w>machacar</w>
       <w>manejadores</w>
@@ -591,6 +622,7 @@
       <w>manualmente</w>
       <w>mapa</w>
       <w>mapeo</w>
+      <w>marcado</w>
       <w>marcados</w>
       <w>marcamos</w>
       <w>marcar</w>
@@ -636,8 +668,11 @@
       <w>ninguno</w>
       <w>ningún</w>
       <w>nombre</w>
+      <w>nombres</w>
       <w>normalmente</w>
       <w>notas</w>
+      <w>notificaciones</w>
+      <w>notificación</w>
       <w>nuestra</w>
       <w>nueva</w>
       <w>nuevas</w>
@@ -651,6 +686,7 @@
       <w>observa</w>
       <w>observación</w>
       <w>observador</w>
+      <w>observan</w>
       <w>observar</w>
       <w>observarlo</w>
       <w>obtener</w>
@@ -700,6 +736,7 @@
       <w>permite</w>
       <w>permitimos</w>
       <w>permitir</w>
+      <w>persiste</w>
       <w>persistencia</w>
       <w>persistido</w>
       <w>persistir</w>
@@ -763,6 +800,7 @@
       <w>puntuales</w>
       <w>queda</w>
       <w>quiere</w>
+      <w>quieren</w>
       <w>quieres</w>
       <w>quisieras</w>
       <w>quitar</w>
@@ -787,8 +825,10 @@
       <w>recibe</w>
       <w>recibida</w>
       <w>recibidas</w>
+      <w>recibido</w>
       <w>recibir</w>
       <w>recibirá</w>
+      <w>reciclado</w>
       <w>reciente</w>
       <w>recientes</w>
       <w>recoge</w>
@@ -864,6 +904,7 @@
       <w>resultante</w>
       <w>resumen</w>
       <w>reutiliza</w>
+      <w>reutilizable</w>
       <w>revienta</w>
       <w>revisa</w>
       <w>revisó</w>
@@ -874,6 +915,7 @@
       <w>secciones</w>
       <w>sección</w>
       <w>secundario</w>
+      <w>seguras</w>
       <w>seguridad</w>
       <w>seguro</w>
       <w>según</w>
@@ -885,6 +927,9 @@
       <w>sencillo</w>
       <w>separada</w>
       <w>separador</w>
+      <w>servicio</w>
+      <w>servicios</w>
+      <w>servidor</w>
       <w>sesiones</w>
       <w>sesión</w>
       <w>sido</w>
@@ -909,6 +954,7 @@
       <w>snackbar</w>
       <w>snackbars</w>
       <w>sobre</w>
+      <w>sociales</w>
       <w>solape</w>
       <w>solicita</w>
       <w>solicitada</w>
@@ -950,6 +996,7 @@
       <w>todas</w>
       <w>todavía</w>
       <w>trabajo</w>
+      <w>transaccionales</w>
       <w>transacción</w>
       <w>transportar</w>
       <w>tras</w>
@@ -958,6 +1005,7 @@
       <w>ubicación</w>
       <w>udiary</w>
       <w>unicamente</w>
+      <w>unirse</w>
       <w>usada</w>
       <w>usado</w>
       <w>usados</w>
@@ -968,6 +1016,7 @@
       <w>usuarios</w>
       <w>utilidad</w>
       <w>utiliza</w>
+      <w>utilizadas</w>
       <w>utilizado</w>
       <w>utilizando</w>
       <w>utilizar</w>
@@ -978,7 +1027,9 @@
       <w>validar</w>
       <w>valoración</w>
       <w>valores</w>
+      <w>varias</w>
       <w>varios</w>
+      <w>veces</w>
       <w>venimos</w>
       <w>verifica</w>
       <w>viceversa</w>

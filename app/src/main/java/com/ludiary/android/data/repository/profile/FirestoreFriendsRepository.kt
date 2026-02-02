@@ -37,16 +37,6 @@ class FirestoreFriendsRepository(
     )
 
     /**
-     * Modelo remoto mínimo de usuario para resolver invitaciones
-     * @property uid UID del usuario
-     * @property displayName Nombre visible (si existe)
-     */
-    data class RemoteUser(
-        val uid: String,
-        val displayName: String?
-    )
-
-    /**
      * Referencia a la colección `users/{uid}/friends`
      * @param uid UID del usuario dueño de la subcolección
      */
@@ -99,63 +89,6 @@ class FirestoreFriendsRepository(
     suspend fun getMyFriendCode(uid: String): String? {
         val doc = db.collection("users").document(uid).get().await()
         return doc.getString("friendCode")
-    }
-
-    /**
-     * Obtiene el `displayName` del usuario desde `users/{uid}`
-     * @param uid UID del usuario
-     * @return El displayName o null si no existe
-     */
-    suspend fun getUserDisplayName(uid: String): String? {
-        val doc = db.collection("users").document(uid).get().await()
-        return doc.getString("displayName")
-    }
-
-    /**
-     * Resuelve el `friendCode` de un usuario a partir de su UID usando el índice `friend_code_index`.
-     * @param uid UID del usuario.
-     * @return friendCode (ID del doc) o null si no se encuentra.
-     */
-    suspend fun findFriendCodeByUid(uid: String): String? {
-        val snap = db.collection("friend_code_index")
-            .whereEqualTo("uid", uid)
-            .limit(1)
-            .get()
-            .await()
-
-        return snap.documents.firstOrNull()?.id
-    }
-
-    /**
-     * Resuelve un usuario a partir de un código de amigo usando `friend_code_index/{CODE}`
-     * @param codeRaw Código introducido por el usuario
-     * @return RemoteUser si existe, o null si el código no existe o faltan datos
-     */
-    suspend fun findUserByFriendCode(codeRaw: String): RemoteUser? {
-        val code = codeRaw.trim().uppercase()
-
-        val idx = db.collection("friend_code_index")
-            .document(code)
-            .get()
-            .await()
-
-        if (!idx.exists()) {
-            return null
-        }
-
-        val uid = idx.getString("uid") ?: return null
-
-        val userDoc = db.collection("users")
-            .document(uid)
-            .get()
-            .await()
-
-        if (!userDoc.exists()) return null
-
-        return RemoteUser(
-            uid = uid,
-            displayName = userDoc.getString("displayName")
-        )
     }
 
     /**

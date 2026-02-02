@@ -5,8 +5,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Build
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,26 +20,45 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ludiary.android.R
 import com.ludiary.android.data.repository.notification.FcmTokensRepository
-import com.ludiary.android.data.repository.notification.FirestoreNotificationsRepository
-import com.ludiary.android.data.repository.notification.FunctionsNotificationsRepository
 import com.ludiary.android.sync.SyncPrefs
 import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.util.LocaleManager
 import com.ludiary.android.util.ThemeManager
 import com.ludiary.android.data.repository.notification.NotificationsRepository
 import com.ludiary.android.data.repository.notification.FirestoreFcmTokensRepository
-import com.ludiary.android.util.FirebaseProviders
 import com.ludiary.android.viewmodel.NotificationsViewModel
+import com.ludiary.android.viewmodel.NotificationsViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    private val CHANNEL_SOCIAL = "social"
+    /**
+     * Repositorio para registrar tokens FCM por usuario (multi-dispositivo).
+     * Se inicializa con Firestore singleton.
+     */
     private val fcmTokensRepo by lazy {
         FirestoreFcmTokensRepository(FirebaseFirestore.getInstance())
     }
 
+    /**
+     * Aplica el idioma antes de inflar recursos (strings/layouts).
+     */
+    private val notificationsViewModel: NotificationsViewModel by viewModels {
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
+
+        NotificationsViewModelFactory(
+            NotificationsRepository(
+                auth = auth,
+                firestore = firestore
+            )
+        )
+    }
+
+    /**
+     * Aplica el idioma antes de inflar recursos (strings/layouts).
+     */
     override fun attachBaseContext(newBase: Context?) {
         if (newBase == null) {
             super.attachBaseContext(null)
@@ -50,21 +69,32 @@ class MainActivity : AppCompatActivity() {
         super.attachBaseContext(LocaleManager.applyLanguage(newBase, langToUse))
     }
 
+    /**
+     * Inicializa UI y servicios principales:
+     * - tema + layout
+     * - navegación
+     * - sync scheduling
+     * - notificaciones (canal + permiso)
+     * - token FCM
+     * - badge de no leídas
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         applyAppTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val navController = findNavController()
-        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bnvMain)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bnvMain)
 
         setupBottomNavigation(bottomNav, navController)
         setupDestinationFixes(bottomNav, navController)
         setupSyncScheduling()
 
+        // Notificaciones del sistema: canal + permiso
         ensureNotificationChannel()
         requestPostNotificationsIfNeeded()
 
+        // Push notifications: registrar token solo si hay sesión
         registerFcmTokenIfLoggedIn(FirebaseAuth.getInstance(), fcmTokensRepo)
 
         bottomNav.post {
@@ -88,6 +118,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Registra el token FCM del dispositivo en backend (Firestore) si hay usuario autenticado.
+     * @param auth FirebaseAuth para obtener el usuario actual.
+     * @param repo Repositorio que persiste el token (por ejemplo en `/users/{uid}/fcmTokens/{token}`).
+     */
     private fun registerFcmTokenIfLoggedIn(
         auth: FirebaseAuth,
         repo: FcmTokensRepository
@@ -102,29 +137,29 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Solicita el permiso POST_NOTIFICATIONS si no está concedido.
+     */
     private fun requestPostNotificationsIfNeeded() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (checkSelfPermission(POST_NOTIFICATIONS) !=
-                PERMISSION_GRANTED
-            ) {
-                requestPermissions(arrayOf(POST_NOTIFICATIONS), 1001)
-            }
+        if (checkSelfPermission(POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(POST_NOTIFICATIONS), 1001)
         }
     }
 
+    /**
+     * Crea (si no existe) el canal de notificaciones sociales.
+     */
     private fun ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_SOCIAL,
-                "Social",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Invitaciones y avisos sociales"
-            }
-
-            val nm = getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_SOCIAL,
+            "Social",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Invitaciones y avisos sociales"
         }
+
+        val nm = getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(channel)
     }
 
     /**
@@ -142,23 +177,6 @@ class MainActivity : AppCompatActivity() {
     private fun findNavController(): NavController {
         val navHost = supportFragmentManager.findFragmentById(R.id.navHostMain) as NavHostFragment
         return navHost.navController
-    }
-
-    private val notificationsViewModel by lazy {
-        val auth = FirebaseAuth.getInstance()
-        val firestore = FirebaseFirestore.getInstance()
-
-        val remote = FirestoreNotificationsRepository(firestore)
-        val functions = FunctionsNotificationsRepository(FirebaseProviders.functions)
-
-        val repo = NotificationsRepository(
-            auth = auth,
-            remote = remote,
-            functions = functions,
-            firestore = firestore
-        )
-
-        NotificationsViewModel(repo)
     }
 
     /**
@@ -230,6 +248,7 @@ class MainActivity : AppCompatActivity() {
         const val KEY_APP_LANGUAGE = "app_language"
         const val KEY_APP_THEME = "app_theme"
         const val DEFAULT_THEME = "system"
+        const val CHANNEL_SOCIAL = "social"
     }
 
 }

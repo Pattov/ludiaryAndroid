@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
  * Implementación del repositorio de amigos.
  * @param local Fuente de datos local
  * @param remote Fuente de datos remota
+ * @param function Repositorio de Cloud Functions para operaciones transaccionales/seguras.
  * @param auth FirebaseAuth
  */
 class FriendsRepositoryImpl(
@@ -33,14 +34,16 @@ class FriendsRepositoryImpl(
     private var remoteSyncJob: Job? = null
 
     /**
-     * Observa la lista de amigos aceptados aplicando filtrado por texto
-     * @param query Texto de búsqueda
+     * Observa la lista de amigos aceptados aplicando filtrado por texto.
+     * @param query Texto de búsqueda (puede ser vacío).
+     * @return Flujo de amigos (Room emite cambios automáticamente).
      */
     override fun observeFriends(query: String): Flow<List<FriendEntity>> = local.observeFriends(query)
 
     /**
-     * Observa la lista de grupos
-     * @param query Texto de búsqueda. Puede ser vacío.
+     * Observa la lista de “grupos” (si en tu tabla FriendEntity se reutiliza para grupos).
+     * @param query Texto de búsqueda (puede ser vacío).
+     * @return Flujo con los elementos filtrados.
      */
     override fun observeGroups(query: String): Flow<List<FriendEntity>> = local.observeGroups(query)
 
@@ -73,7 +76,6 @@ class FriendsRepositoryImpl(
         remoteSyncJob?.cancel()
 
         remoteSyncJob = repoScope.launch {
-
             remote.observeAll(me.uid).collect { remoteList ->
                 for (rf in remoteList) {
                     local.upsertRemote(rf)
@@ -119,6 +121,10 @@ class FriendsRepositoryImpl(
         }
     }
 
+    /**
+     * Intenta enviar todas las invitaciones creadas offline (pendientes) mediante Cloud Functions.
+     * @return `Result.success(Unit)` incluso si alguna falla, pero el fallo queda logueado.
+     */
     override suspend fun flushOfflineInvites(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: return@runCatching
@@ -144,14 +150,23 @@ class FriendsRepositoryImpl(
                         syncStatus = SyncStatus.CLEAN
                     )
                 } else {
+                    // Si backend no devuelve un UID válido, eliminamos el registro local para evitar “basura”.
                     local.deleteById(localId)
                 }
             }
         }.onFailure { e ->
-            Log.w("LUDIARY_FRIENDS_SYNC", "flushOfflineInvites failed: ${e::class.simpleName} - ${e.message}")
+            Log.w(
+                "LUDIARY_FRIENDS_SYNC",
+                "flushOfflineInvites failed: ${e::class.simpleName} - ${e.message}"
+            )
         }
     }
 
+    /**
+     * Acepta una solicitud entrante de amistad.
+     * @param friendId ID local (Room) de la solicitud.
+     * @return `Result.success(Unit)` si se acepta correctamente; `failure` si falta sesión/datos o falla backend.
+     */
     override suspend fun acceptRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.friends_error_no_session)
@@ -185,6 +200,10 @@ class FriendsRepositoryImpl(
         }
     }
 
+    /**
+     * Rechaza una solicitud entrante de amistad.
+     * @param friendId ID local (Room) de la solicitud.
+     */
     override suspend fun rejectRequest(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.friends_error_no_session)
@@ -200,6 +219,10 @@ class FriendsRepositoryImpl(
         }
     }
 
+    /**
+     * Elimina una amistad existente.
+     * @param friendId ID local (Room) de la amistad.
+     */
     override suspend fun removeFriend(friendId: Long): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.friends_error_no_session)
@@ -214,8 +237,11 @@ class FriendsRepositoryImpl(
         }
     }
 
-
-
+    /**
+     * Actualiza el apodo (nickname) asignado a un amigo.
+     * @param friendId ID local del amigo.
+     * @param nickname Nuevo apodo.
+     */
     override suspend fun updateNickname(friendId: Long, nickname: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             auth.currentUser ?: error(R.string.friends_error_no_session)

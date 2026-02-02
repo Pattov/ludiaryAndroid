@@ -6,15 +6,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Repositorio de notificaciones.
+ * @param auth FirebaseAuth para obtener el usuario actual.
+ * @param firestore Instancia de FirebaseFirestore.
+ */
 class NotificationsRepository(
     private val auth: FirebaseAuth,
-    private val remote: FirestoreNotificationsRepository,
-    private val functions: FunctionsNotificationsRepository,
     private val firestore: FirebaseFirestore
 ) {
     private val unreadCountFlow = MutableStateFlow(0)
     private var unreadListener: ListenerRegistration? = null
 
+    /**
+     * Observa el número de notificaciones no leídas del usuario actual.
+     * @return `Flow<Int>` con el número actual de notificaciones no leídas.
+     */
     fun observeUnreadCount(): Flow<Int> {
         val uid = auth.currentUser?.uid
         if (uid == null) {
@@ -39,6 +46,10 @@ class NotificationsRepository(
         return unreadCountFlow.asStateFlow()
     }
 
+
+    /**
+     * Detiene el listener de Firestore asociado al contador de notificaciones.
+     */
     fun stopUnreadCountListener() {
         unreadListener?.remove()
         unreadListener = null

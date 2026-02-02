@@ -69,3 +69,40 @@ data class RemoteUserGroupIndex(
     val joinedAt: Long,
     val updatedAt: Long
 )
+
+/**
+ * Resultado devuelto al invitar a un usuario a un grupo.
+ *
+ * @property inviteId ID de la invitación (documento/registro).
+ * @property groupId ID del grupo.
+ * @property groupNameSnapshot Nombre del grupo en el momento de la invitación (snapshot).
+ * @property fromUid UID del usuario que envía la invitación.
+ * @property toUid UID del usuario invitado.
+ * @property status Estado de la invitación (ej: "pending", "accepted", "rejected", etc.).
+ * @property createdAt Timestamp (ms) de creación.
+ * @property respondedAt Timestamp (ms) de respuesta si ya fue aceptada/rechazada.
+ */
+data class GroupInviteResult(
+    val inviteId: String,
+    val groupId: String,
+    val groupNameSnapshot: String,
+    val fromUid: String,
+    val toUid: String,
+    val status: String,
+    val createdAt: Long,
+    val respondedAt: Long?
+)
+
+/**
+ * Resultado devuelto al crear un grupo.
+ * @property groupId ID del grupo creado.
+ * @property name Nombre final.
+ * @property now Timestamp de servidor (ms) para coherencia temporal.
+ * @property membersCount Miembros iniciales del grupo.
+ */
+data class CreateGroupResult(
+    val groupId: String,
+    val name: String,
+    val now: Long,
+    val membersCount: Int
+)
