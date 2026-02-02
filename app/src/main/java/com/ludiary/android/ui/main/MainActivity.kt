@@ -1,6 +1,11 @@
 package com.ludiary.android.ui.main
 
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -12,7 +17,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.ludiary.android.R
+import com.ludiary.android.data.repository.notification.FcmTokensRepository
 import com.ludiary.android.data.repository.notification.FirestoreNotificationsRepository
 import com.ludiary.android.data.repository.notification.FunctionsNotificationsRepository
 import com.ludiary.android.sync.SyncPrefs
@@ -20,12 +27,18 @@ import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.util.LocaleManager
 import com.ludiary.android.util.ThemeManager
 import com.ludiary.android.data.repository.notification.NotificationsRepository
+import com.ludiary.android.data.repository.notification.FirestoreFcmTokensRepository
 import com.ludiary.android.util.FirebaseProviders
 import com.ludiary.android.viewmodel.NotificationsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+
+    private val CHANNEL_SOCIAL = "social"
+    private val fcmTokensRepo by lazy {
+        FirestoreFcmTokensRepository(FirebaseFirestore.getInstance())
+    }
 
     override fun attachBaseContext(newBase: Context?) {
         if (newBase == null) {
@@ -43,31 +56,74 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val navController = findNavController()
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bnvMain)
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bnvMain)
 
         setupBottomNavigation(bottomNav, navController)
         setupDestinationFixes(bottomNav, navController)
         setupSyncScheduling()
 
+        ensureNotificationChannel()
+        requestPostNotificationsIfNeeded()
+
+        registerFcmTokenIfLoggedIn(FirebaseAuth.getInstance(), fcmTokensRepo)
+
         bottomNav.post {
-            val badge = bottomNav.getOrCreateBadge(R.id.nav_profile).apply {
+            val socialBadge = bottomNav.getOrCreateBadge(R.id.nav_profile).apply {
                 maxCharacterCount = 3
-                isVisible = false
             }
 
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     notificationsViewModel.unreadCount.collect { count ->
                         if (count > 0) {
-                            badge.number = count
-                            badge.isVisible = true
+                            socialBadge.isVisible = true
+                            socialBadge.number = count
                         } else {
-                            badge.isVisible = false
-                            badge.clearNumber()
+                            socialBadge.isVisible = false
+                            socialBadge.clearNumber()
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun registerFcmTokenIfLoggedIn(
+        auth: FirebaseAuth,
+        repo: FcmTokensRepository
+    ) {
+        val user = auth.currentUser ?: return
+
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                lifecycleScope.launch {
+                    runCatching { repo.upsertToken(user.uid, token) }
+                }
+            }
+    }
+
+    private fun requestPostNotificationsIfNeeded() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission(POST_NOTIFICATIONS) !=
+                PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(POST_NOTIFICATIONS), 1001)
+            }
+        }
+    }
+
+    private fun ensureNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_SOCIAL,
+                "Social",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Invitaciones y avisos sociales"
+            }
+
+            val nm = getSystemService(NotificationManager::class.java)
+            nm.createNotificationChannel(channel)
         }
     }
 
