@@ -28,11 +28,10 @@ function normalizeCode(codeRaw: unknown): string {
 }
 
 const FRIEND_STATUS = {
-  INCOMING: "INCOMING",
-  OUTGOING: "OUTGOING",
+  INCOMING: "PENDING_INCOMING",
+  OUTGOING: "PENDING_OUTGOING",
   ACCEPTED: "ACCEPTED",
 } as const;
-
 
 export const friendsSendInviteByCode = onCall(async (request) => {
   const myUid = requireAuth(request);

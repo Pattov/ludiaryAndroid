@@ -75,7 +75,6 @@ class FriendsRepositoryImpl(
         remoteSyncJob = repoScope.launch {
 
             remote.observeAll(me.uid).collect { remoteList ->
-
                 for (rf in remoteList) {
                     local.upsertRemote(rf)
                 }

@@ -3,14 +3,15 @@ package com.ludiary.android.ui.main
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
 import com.ludiary.android.data.repository.notification.FirestoreNotificationsRepository
 import com.ludiary.android.data.repository.notification.FunctionsNotificationsRepository
@@ -38,29 +39,33 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applyAppTheme()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val navController = findNavController()
         val bottomNav = findViewById<BottomNavigationView>(R.id.bnvMain)
 
-        val socialBadge = bottomNav.getOrCreateBadge(R.id.nav_profile)
-        socialBadge.isVisible = false
-        socialBadge.maxCharacterCount = 3
-
         setupBottomNavigation(bottomNav, navController)
         setupDestinationFixes(bottomNav, navController)
         setupSyncScheduling()
 
-        lifecycleScope.launch {
-            notificationsViewModel.unreadCount.collect { count ->
-                if (count > 0) {
-                    socialBadge.isVisible = true
-                    socialBadge.number = count
-                } else {
-                    socialBadge.isVisible = false
-                    socialBadge.clearNumber()
+        bottomNav.post {
+            val badge = bottomNav.getOrCreateBadge(R.id.nav_profile).apply {
+                maxCharacterCount = 3
+                isVisible = false
+            }
+
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    notificationsViewModel.unreadCount.collect { count ->
+                        if (count > 0) {
+                            badge.number = count
+                            badge.isVisible = true
+                        } else {
+                            badge.isVisible = false
+                            badge.clearNumber()
+                        }
+                    }
                 }
             }
         }

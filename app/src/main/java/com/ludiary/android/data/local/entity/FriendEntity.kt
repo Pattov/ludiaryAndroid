@@ -36,7 +36,7 @@ data class FriendEntity(
     val displayName: String? = null,
     val nickname: String? = null,
 
-    val status: FriendStatus = FriendStatus.ACCEPTED,
+    val status: FriendStatus = FriendStatus.PENDING_INCOMING,
 
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
