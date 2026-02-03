@@ -37,6 +37,11 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
 
     private val queryFlow = MutableStateFlow("")
 
+    /**
+     * Llamada al crear la vista del fragmento.
+     * @param view Vista inflada del fragment.
+     * @param savedInstanceState Estado guardado de la instancia (si aplica).
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -179,9 +184,10 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
     }
 
     /**
-     * Estado vacío:
-     * - si hay búsqueda -> "No existen coincidencias con “X”"
-     * - si no hay búsqueda -> texto por defecto del XML
+     * Renderiza el estado vacío del listado.
+     * @param empty TextView que muestra el mensaje de vacío.
+     * @param defaultText Texto original definido en el layout XML.
+     * @param isEmpty Indica si el listado filtrado está vacío.
      */
     private fun renderEmptyState(empty: TextView, defaultText: CharSequence, isEmpty: Boolean) {
         if (!isEmpty) {
@@ -200,8 +206,13 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
     }
 
     /**
-     * Intento “robusto” de buscar un nombre sin conocer exactamente el modelo.
-     * Busca en campos típicos: nameSnapshot, displayName, nickname, email, title, etc.
+     * Implementación “robusta” para no acoplar el filtrado a un único modelo:
+     * - Intenta leer campos comunes por reflexión: `nameSnapshot`, `displayName`, `nickname`,
+     *   `email`, `username`, `name`, `title`, etc.
+     * - Si no encuentra nada, usa `toString()` como fallback.
+     * @param item Objeto de la lista.
+     * @param query Texto a buscar.
+     * @return `true` si el texto combinado contiene `query` ignorando mayúsculas/minúsculas.
      */
     private fun matchesQuery(item: Any, query: String): Boolean {
         val haystack = buildString {
@@ -224,6 +235,15 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
         return text.contains(query, ignoreCase = true)
     }
 
+    /**
+     * Lee un campo String por reflexión de forma segura.
+     *
+     * Si el campo no existe, no es accesible, o no es String, devuelve cadena vacía.
+     *
+     * @param target Objeto sobre el que se intenta leer el campo.
+     * @param fieldName Nombre del campo a leer.
+     * @return Contenido del campo si existe y es String; en caso contrario, `""`.
+     */
     private fun readStringField(target: Any, fieldName: String): String {
         return try {
             val f = target::class.java.getDeclaredField(fieldName)

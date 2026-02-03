@@ -186,7 +186,6 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
 
     /**
      * Muestra confirmación antes de borrar un juego de la ludoteca del usuario.
-     *
      * @param game Juego (para mostrar el título y borrar por id).
      */
     private fun confirmDelete(game: UserGame) {
