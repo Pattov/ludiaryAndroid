@@ -132,7 +132,14 @@ class FriendsListFragment : Fragment(R.layout.fragment_friends_list) {
                         vm.editNickname(friendId, currentNickname)
                     },
                     onDeleteFriend = { friendId ->
-                        vm.removeFriend(friendId)
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(R.string.friends_remove_title)
+                            .setMessage(R.string.friends_remove_message)
+                            .setPositiveButton(R.string.action_delete) { _, _ ->
+                                vm.removeFriend(friendId)
+                            }
+                            .setNegativeButton(R.string.action_cancel, null)
+                            .show()
                     }
                 )
                 recycler.adapter = adapter

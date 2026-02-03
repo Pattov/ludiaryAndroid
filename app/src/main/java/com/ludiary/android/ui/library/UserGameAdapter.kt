@@ -19,7 +19,7 @@ import com.ludiary.android.data.model.UserGame
  */
 class UserGameAdapter(
     private val onEdit: (gameId: String) -> Unit,
-    private val onDelete: (gameId: String) -> Unit
+    private val onDelete: (gameId: UserGame) -> Unit
 ) : ListAdapter <UserGame, UserGameAdapter.ViewHolder>(DiffCallback()){
 
     /**
@@ -51,7 +51,7 @@ class UserGameAdapter(
 
         if (game.id.isNotBlank()) {
             holder.btnEdit.setOnClickListener { onEdit(game.id) }
-            holder.btnDelete.setOnClickListener { onDelete(game.id) }
+            holder.btnDelete.setOnClickListener { onDelete(game) }
         }
     }
 

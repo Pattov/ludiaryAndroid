@@ -1,5 +1,7 @@
 package com.ludiary.android.ui.library
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -19,6 +21,7 @@ import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalGameBaseDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.data.model.UserGame
 import com.ludiary.android.data.repository.library.FirestoreGameBaseRepositoryImpl
 import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
 import com.ludiary.android.data.repository.library.GameBaseRepository
@@ -71,7 +74,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private lateinit var textEmpty: TextView
 
     private var currentQuery: String = ""
-    private var lastGames: List<Any> = emptyList() // cambia Any por tu tipo real si quieres (recomendado)
+    private var lastGames: List<Any> = emptyList()
 
     /**
      * Inicializa vistas, recycler, búsqueda y observación de estado.
@@ -107,7 +110,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
                     bundleOf("gameId" to gameId)
                 )
             },
-            onDelete = { gameId -> viewModel.onDeleteGameClicked(gameId) }
+            onDelete = { game -> confirmDelete(game) }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -179,6 +182,24 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         } else {
             textEmpty.visibility = View.GONE
         }
+    }
+
+    /**
+     * Muestra confirmación antes de borrar un juego de la ludoteca del usuario.
+     *
+     * @param game Juego (para mostrar el título y borrar por id).
+     */
+    private fun confirmDelete(game: UserGame) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.action_delete))
+            .setMessage(getString(R.string.library_delete_confirm, game.titleSnapshot))
+            .setPositiveButton(getString(R.string.action_delete)) { _: DialogInterface, _: Int ->
+                viewModel.onDeleteGameClicked(game.id)
+            }
+            .setNegativeButton(getString(R.string.action_cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     /**

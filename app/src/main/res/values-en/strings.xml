@@ -205,6 +205,9 @@
     <string name="search_no_results">There are no matches with “%1$s”</string>
     <string name="sessions_empty">There are no registered games yet</string>
     <string name="library_empty">You don\'t have any games in your game library yet.</string>
+    <string name="library_delete_confirm">Are you sure you want to remove “%1$s” from your game library?</string>
+    <string name="friends_remove_title">Remove friend</string>
+    <string name="friends_remove_message">Are you sure you want to delete this friend?</string>
 
     <string name="notifications">Notifications</string>
     <string name="error_permission">You don’t have permission for this action</string>
