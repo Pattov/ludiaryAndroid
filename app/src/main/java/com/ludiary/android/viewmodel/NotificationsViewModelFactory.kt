@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.ludiary.android.data.repository.notification.NotificationsRepository
 
 /**
- * Factory para crear [NotificationsViewModel] con dependencias manuals (sin DI framework).
+ * Factory para crear [NotificationsViewModel] con dependencias manuales (sin DI framework).
  */
 class NotificationsViewModelFactory(
     private val repo: NotificationsRepository

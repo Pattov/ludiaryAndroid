@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 sealed class AuthResult{
     /** Estado de carga mientras se ejecuta la operación. */
     data object Loading : AuthResult()
-
     /** Estado de éxito. */
     data class Success(val user: User) : AuthResult()
     /** Estado de error. */

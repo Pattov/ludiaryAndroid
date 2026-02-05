@@ -1,3 +1,5 @@
+package com.ludiary.android.data.repository.profile
+
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
@@ -14,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Implementación de [GroupsRepositoryImpl] (módulo social: grupos e invitaciones).
+ * Implementación de [GroupsRepository] (módulo social: grupos e invitaciones).
  * @param local Fuente de datos local (Room).
  * @param remote Fuente de datos remota (Firestore).
  * @param function Repositorio de Cloud Functions (acciones seguras).
@@ -34,23 +36,27 @@ class GroupsRepositoryImpl(
     /**
      * Observa la lista de grupos del usuario, aplicando filtrado por texto.
      * @param query Texto de búsqueda. Puede ser vacío para devolver todos los grupos.
+     * @return Flow reactivo con la lista de [GroupEntity].
      */
     override fun observeGroups(query: String) = local.observeGroups(query)
 
     /**
      * Observa la lista de miembros de un grupo.
      * @param groupId Identificador del grupo.
+     * @return Flow reactivo con la lista de [GroupMemberEntity].
      */
     override fun observeMembers(groupId: String) = local.observeMembers(groupId)
 
     /**
      * Observa invitaciones entrantes pendientes (pendientes de aceptar).
+     * @return Flow reactivo con la lista de [GroupInviteEntity] entrantes (status pending).
      */
     override fun observeIncomingPendingInvites() =
         local.observePendingInvites(auth.currentUser?.uid)
 
     /**
      * Observa invitaciones salientes pendientes creadas por el usuario (status pending).
+     * @return Flow reactivo con la lista de [GroupInviteEntity] salientes.
      */
     override fun observeOutgoingPendingInvites() =
         local.observeOutgoingPendingInvites(auth.currentUser?.uid)

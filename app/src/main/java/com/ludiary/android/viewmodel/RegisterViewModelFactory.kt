@@ -3,9 +3,12 @@ package com.ludiary.android.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
+import com.ludiary.android.data.repository.auth.AuthRepository
+import com.ludiary.android.data.repository.auth.FirestoreAuthRepository
 import com.ludiary.android.util.ResourceProvider
 
 /**
@@ -28,12 +31,12 @@ class RegisterViewModelFactory(private val context: Context) : ViewModelProvider
         val dbLocal = LudiaryDatabase.getInstance(appContext)
         val localUserDataSource = LocalUserDataSource(dbLocal)
 
-        val repo = AuthRepositoryProvider.provide(
-            context = appContext,
-            localUserDataSource = localUserDataSource,
-            resourceProvider = ResourceProvider(context)
+        val repo: AuthRepository = FirestoreAuthRepository(
+            FirebaseAuth.getInstance(),
+            FirebaseFirestore.getInstance(),
+            localUserDataSource,
+            ResourceProvider(context)
         )
-
         return RegisterViewModel(repo) as T
     }
 }

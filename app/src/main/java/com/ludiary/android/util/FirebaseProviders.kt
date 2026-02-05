@@ -1,3 +1,5 @@
+package com.ludiary.android.util
+
 import com.google.firebase.functions.FirebaseFunctions
 
 /**

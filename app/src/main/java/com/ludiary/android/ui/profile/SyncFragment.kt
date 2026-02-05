@@ -8,14 +8,15 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalUserGamesDataSource
-import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
-import com.ludiary.android.data.repository.library.UserGamesRepositoryProvider
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 import com.ludiary.android.sync.SyncStatusPrefs
-import com.ludiary.android.util.ResourceProvider
 import com.ludiary.android.viewmodel.SyncViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -68,24 +69,20 @@ class SyncFragment : Fragment(R.layout.form_sync_profile) {
      */
     private fun setupViewModel() {
         val ctx = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(ctx)
+        val auth = FirebaseAuth.getInstance()
 
-        val local = LocalUserGamesDataSource(db.userGameDao())
-
-        val userGamesRepo = UserGamesRepositoryProvider.provide(
-            context = ctx,
-            local = local
-        )
+        val userGamesRepo: UserGamesRepository = run {
+            val db = LudiaryDatabase.getInstance(ctx)
+            val local = LocalUserGamesDataSource(db.userGameDao())
+            val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+            UserGamesRepositoryImpl(local, remote)
+        }
 
         val statusPrefs = SyncStatusPrefs(ctx)
 
         vm = SyncViewModel(
             appContext = ctx,
-            authRepo = AuthRepositoryProvider.provide(
-                context = ctx,
-                localUserDataSource = LocalUserDataSource(db),
-                resourceProvider = ResourceProvider(requireContext())
-            ),
+            auth = auth,
             userGamesRepo = userGamesRepo,
             statusPrefs = statusPrefs
         )

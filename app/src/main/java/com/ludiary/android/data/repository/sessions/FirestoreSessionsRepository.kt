@@ -26,7 +26,7 @@ import com.ludiary.android.data.model.Session
  */
 class FirestoreSessionsRepository(
     private val db: FirebaseFirestore
-) : RemoteSessionsRepository {
+) {
 
     /**
      * Colección de sesiones en Firestore.
@@ -38,7 +38,7 @@ class FirestoreSessionsRepository(
      * Upsert desde dominio (Session).
      * @param session Sesión a actualizar.
      */
-    override suspend fun upsertSession(session: Session) {
+    suspend fun upsertSession(session: Session) {
         val sw = SessionWithPlayers(
             session = session.toEntity(),
             players = session.toPlayerEntities()
@@ -49,7 +49,7 @@ class FirestoreSessionsRepository(
      * Actualiza una sesión en Firestore.
      * @param sw Sesión a actualizar.
      */
-    override suspend fun upsertSession(sw: SessionWithPlayers) {
+    suspend fun upsertSession(sw: SessionWithPlayers) {
         val s = sw.session
 
         val payload = FirestoreMapper.sessionWithPlayersToFirestore(sw).toMutableMap()
@@ -63,7 +63,7 @@ class FirestoreSessionsRepository(
      * Elimina una sesión en Firestore.
      * @param sessionId Identificador único de la sesión.
      */
-    override suspend fun softDeleteSession(sessionId: String) {
+    suspend fun softDeleteSession(sessionId: String) {
         val updates = mapOf(
             "isDeleted" to true,
             "deletedAt" to FieldValue.serverTimestamp(),
@@ -80,7 +80,7 @@ class FirestoreSessionsRepository(
      * @param sinceMillis Fecha desde la cual se obtuvieron las sesiones.
      * @return Lista de sesiones modificadas.
      */
-    override suspend fun fetchPersonalChangedSince(uid: String, sinceMillis: Long): List<RemoteAppliedSession> {
+    suspend fun fetchPersonalChangedSince(uid: String, sinceMillis: Long): List<RemoteAppliedSession> {
         val sinceTs = Timestamp(Date(sinceMillis))
         val snap = sessionsCol
             .whereEqualTo("scope", "personal")
@@ -101,7 +101,7 @@ class FirestoreSessionsRepository(
      * @param sinceMillis Fecha desde la cual se obtuvieron las sesiones.
      * @return Lista de sesiones modificadas.
      */
-    override suspend fun fetchGroupChangedSince(groupId: String, sinceMillis: Long): List<RemoteAppliedSession> {
+    suspend fun fetchGroupChangedSince(groupId: String, sinceMillis: Long): List<RemoteAppliedSession> {
         val sinceTs = Timestamp(Date(sinceMillis))
         val snap = sessionsCol
             .whereEqualTo("scope", "group")

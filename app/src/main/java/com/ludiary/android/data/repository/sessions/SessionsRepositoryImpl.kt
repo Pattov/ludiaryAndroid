@@ -13,7 +13,7 @@ import com.ludiary.android.sync.SyncPrefs
  */
 class SessionsRepositoryImpl(
     private val local: LocalSessionsDataSource,
-    private val remote: RemoteSessionsRepository,
+    private val remote: FirestoreSessionsRepository,
     private val syncPrefs: SyncPrefs,
     private val groupIdProvider: GroupIdProvider
 ) : SessionsRepository {

@@ -10,14 +10,14 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
+import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
 import com.ludiary.android.data.repository.library.UserGamesRepository
-import com.ludiary.android.data.repository.library.UserGamesRepositoryLocal
-import com.ludiary.android.util.ResourceProvider
+import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
 import com.ludiary.android.viewmodel.EditUserGameEvent
 import com.ludiary.android.viewmodel.EditUserGameViewModel
 import com.ludiary.android.viewmodel.EditUserGameViewModelFactory
@@ -36,22 +36,14 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
         val db = LudiaryDatabase.getInstance(appContext)
 
         val local = LocalUserGamesDataSource(db.userGameDao())
-        val repository: UserGamesRepository =
-            UserGamesRepositoryLocal(local)
-
-        val localUser = LocalUserDataSource(db)
-        val authRepo = AuthRepositoryProvider.provide(
-            context = appContext,
-            localUserDataSource = localUser,
-            resourceProvider = ResourceProvider(requireContext())
-        )
+        val remote = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        val repository: UserGamesRepository = UserGamesRepositoryImpl(local, remote)
 
         EditUserGameViewModelFactory(
-            uid = authRepo.currentUser?.uid ?: "LOCAL_USER",
+            uid = FirebaseAuth.getInstance().currentUser!!.uid,
             repository = repository
         )
     }
-
 
     /**
      * Llamada al crear la vista del fragmento.

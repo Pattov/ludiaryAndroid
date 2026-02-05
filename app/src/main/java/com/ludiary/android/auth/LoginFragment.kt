@@ -18,8 +18,11 @@ import com.ludiary.android.viewmodel.LoginViewModelFactory
 import kotlinx.coroutines.launch
 import android.content.Intent
 import android.view.inputmethod.EditorInfo
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.ludiary.android.data.local.LudiaryDatabase
-import com.ludiary.android.notifications.PushTokenRegistrarImpl
 
 /**
  * Fragmento encargado de manejar la vista de inicio de sesión.
@@ -178,7 +181,13 @@ class LoginFragment : Fragment() {
                         // Inicializa la base de datos Room para que la estructura esté creada tras el login
                         LudiaryDatabase.getInstance(requireContext().applicationContext)
 
-                        PushTokenRegistrarImpl().registerTokenForCurrentUser()
+                        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
+                            FirebaseFirestore.getInstance()
+                                .collection("users").document(uid)
+                                .collection("fcmTokens").document(token)
+                                .set(mapOf("createdAt" to FieldValue.serverTimestamp()))
+                        }
 
                         startActivity(
                             Intent(

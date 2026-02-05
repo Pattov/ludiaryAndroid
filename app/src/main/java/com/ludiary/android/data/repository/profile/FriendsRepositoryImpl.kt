@@ -1,3 +1,5 @@
+package com.ludiary.android.data.repository.profile
+
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
@@ -76,7 +78,7 @@ class FriendsRepositoryImpl(
         remoteSyncJob = repoScope.launch {
             remote.observeAll(me.uid).collect { remoteList ->
                 for (rf in remoteList) {
-                    local.upsertRemoteEntity(rf.toEntity())
+                    local.upsertRemote(rf)
                 }
             }
         }
