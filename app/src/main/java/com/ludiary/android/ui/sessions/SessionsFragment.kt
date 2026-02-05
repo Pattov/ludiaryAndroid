@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.entity.SessionEntity
@@ -93,10 +92,7 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
      * Crea el ViewModel.
      */
     private fun setupViewModel() {
-        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
-        val auth = FirebaseAuth.getInstance()
-
-        val factory = SessionsViewModelFactory(db, auth)
+        val factory = SessionsViewModelFactory(requireContext())
         vm = ViewModelProvider(this, factory)[SessionsViewModel::class.java]
     }
 

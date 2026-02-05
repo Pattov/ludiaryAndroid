@@ -11,19 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.local.entity.FriendEntity
-import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
-import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
-import com.ludiary.android.data.repository.profile.FriendsRepositoryImpl
-import com.ludiary.android.data.repository.profile.FunctionsSocialRepository
-import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
-import com.ludiary.android.util.FirebaseProviders
+import com.ludiary.android.data.repository.profile.FriendsRepositoryProvider
+import com.ludiary.android.data.repository.profile.GroupsRepositoryProvider
 import com.ludiary.android.viewmodel.FriendsViewModel
 import com.ludiary.android.viewmodel.SocialViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -117,24 +111,17 @@ class GroupDetailFragment : Fragment(R.layout.fragment_group_detail) {
      * Inicializa el ViewModel con repositorios de Friends y Groups.
      */
     private fun initViewModel() {
-        val auth = FirebaseAuth.getInstance()
-        val fs = FirebaseFirestore.getInstance()
+        val ctx = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(requireContext())
 
-        val function = FunctionsSocialRepository(FirebaseProviders.functions)
-
-        val friendsRepo = FriendsRepositoryImpl(
-            local = LocalFriendsDataSource(db.friendDao()),
-            remote = FirestoreFriendsRepository(fs),
-            function = function,
-            auth = auth
+        val friendsRepo = FriendsRepositoryProvider.provide(
+            context = ctx,
+            local = LocalFriendsDataSource(db.friendDao())
         )
 
-        val groupsRepo = GroupsRepositoryImpl(
-            local = LocalGroupsDataSource(db.groupDao()),
-            remote = FirestoreGroupsRepository(fs),
-            function = function,
-            auth = auth
+        val groupsRepo = GroupsRepositoryProvider.provide(
+            context = ctx,
+            local = LocalGroupsDataSource(db.groupDao())
         )
 
         vm = ViewModelProvider(

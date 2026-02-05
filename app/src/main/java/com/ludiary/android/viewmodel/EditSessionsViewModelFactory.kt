@@ -1,22 +1,31 @@
 package com.ludiary.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.auth.FirebaseAuth
+import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
+import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
+import com.ludiary.android.util.ResourceProvider
 
-/**
- * Factory para crear una instancia de [EditSessionsViewModel].
- * @property db Instancia de [LudiaryDatabase].
- * @property auth Instancia de [FirebaseAuth].
- */
 class EditSessionsViewModelFactory(
-    private val db: LudiaryDatabase,
-    private val auth: FirebaseAuth
+    private val context: Context
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return EditSessionsViewModel(db, auth) as T
+        val appContext = context.applicationContext
+        val db = LudiaryDatabase.getInstance(appContext)
+
+        val localUserDataSource = LocalUserDataSource(db)
+        val resourceProvider = ResourceProvider(context)
+
+        val authRepo = AuthRepositoryProvider.provide(
+            appContext,
+            localUserDataSource,
+            resourceProvider
+        )
+
+        return EditSessionsViewModel(db, authRepo) as T
     }
 }

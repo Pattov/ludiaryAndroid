@@ -2,7 +2,6 @@ package com.ludiary.android.data.local.entity
 
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.model.*
-import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import java.time.Instant
 import java.util.Locale
 
@@ -390,26 +389,3 @@ fun groupMemberEntity(
         uid = uid,
         joinedAt = joinedAt
     )
-
-// Friends (Firestore <-> Room)
-
-/**
- * Convierte un modelo remoto [FirestoreFriendsRepository.RemoteFriend] a entidad Room [FriendEntity].
- * @param fallbackNow Timestamp (epoch millis) usado si falta createdAt/updatedAt.
- */
-fun FirestoreFriendsRepository.RemoteFriend.toEntity(fallbackNow: Long = System.currentTimeMillis()): FriendEntity {
-    val parsedStatus = runCatching { FriendStatus.valueOf(status) }
-        .getOrElse { FriendStatus.ACCEPTED } // fallback seguro
-
-    return FriendEntity(
-        id = 0L,
-        friendUid = friendUid,
-        friendCode = friendCode,
-        displayName = displayName,
-        nickname = nickname,
-        status = parsedStatus,
-        createdAt = createdAt ?: fallbackNow,
-        updatedAt = updatedAt ?: fallbackNow,
-        syncStatus = SyncStatus.CLEAN
-    )
-}

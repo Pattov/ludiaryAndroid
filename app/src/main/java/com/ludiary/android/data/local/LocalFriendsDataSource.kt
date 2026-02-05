@@ -2,10 +2,8 @@ package com.ludiary.android.data.local
 
 import com.ludiary.android.data.local.dao.FriendDao
 import com.ludiary.android.data.local.entity.FriendEntity
-import com.ludiary.android.data.local.entity.toEntity
 import com.ludiary.android.data.model.FriendStatus
 import com.ludiary.android.data.model.SyncStatus
-import com.ludiary.android.data.repository.profile.FirestoreFriendsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -126,9 +124,9 @@ class LocalFriendsDataSource(
     suspend fun clearAll() = friendDao.clearAll()
 
     /**
-     * Aplica un amigo remoto en local (pull).
+     * Aplica un amigo remoto ya mapeado a entidad Room (pull).
      */
-    suspend fun upsertRemote(remoteFriend: FirestoreFriendsRepository.RemoteFriend) {
-        friendDao.upsertByFriendUid(remoteFriend.toEntity())
+    suspend fun upsertRemoteEntity(entity: FriendEntity) {
+        friendDao.upsertByFriendUid(entity)
     }
 }

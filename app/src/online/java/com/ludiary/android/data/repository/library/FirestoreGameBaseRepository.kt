@@ -1,5 +1,3 @@
-package com.ludiary.android.data.repository.library
-
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,7 +9,6 @@ import java.util.Date
 
 /**
  * Repositorio de juegos base.
- * @return [GameBaseRepository]
  */
 interface FirestoreGameBaseRepository {
 
@@ -46,7 +43,6 @@ class FirestoreGameBaseRepositoryImpl(
     /**
      * Obtiene la lista completa de juegos base.
      * @return Lista de juegos base.
-     * @throws Exception Si ocurre un error al obtener la lista de juegos base.
      */
     override suspend fun getAllGamesBase(): List<GameBase> {
         val snapshot = collection.get().await()
@@ -59,7 +55,6 @@ class FirestoreGameBaseRepositoryImpl(
      * Obtiene la lista de juegos base actualizados desde una fecha.
      * @param lastUpdatedAt Fecha desde la que se considera actualizada.
      * @return Lista de juegos base actualizados.
-     * @throws Exception Si ocurre un error al obtener la lista de juegos base actualizados.
      */
     override suspend fun getGamesBaseUpdatedSince(lastUpdatedAt: Instant?): List<GameBase> {
         // Si no hay fecha de última actualización, hacemos sync completa
@@ -77,11 +72,6 @@ class FirestoreGameBaseRepositoryImpl(
         }
     }
 
-    /**
-     * Convierte un documento de Firestore en un objeto [GameBase].
-     * @return Objeto [GameBase] o null si la conversión falla.
-     * @throws Exception Si ocurre un error al convertir el documento.
-     */
     private fun DocumentSnapshot.toGameBaseOrNull(): GameBase? {
         val id = id // doc.id
         val title = getString("title") ?: return null
@@ -119,11 +109,6 @@ class FirestoreGameBaseRepositoryImpl(
         )
     }
 
-    /**
-     * Convierte un valor de Firestore en una instancia de [Instant].
-     * @param field Nombre del campo en Firestore.
-     * @return Instancia de [Instant] o null si el valor es nulo.
-     */
     private fun DocumentSnapshot.getInstant(field: String): Instant? {
         val value = get(field) ?: return null
 

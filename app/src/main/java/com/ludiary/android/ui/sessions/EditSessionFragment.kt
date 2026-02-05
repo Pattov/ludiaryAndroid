@@ -10,9 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.viewmodel.EditSessionsViewModel
 import com.ludiary.android.viewmodel.EditSessionsViewModelFactory
@@ -55,7 +53,6 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
         setupStaticUi(view)
         setupListeners(view)
 
-        // Si estamos editando, cargamos los datos
         sessionId?.takeIf { it.isNotBlank() }?.let { id ->
             vm.loadSession(id) { fillForm(it) }
         }
@@ -65,11 +62,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
      * Crea el ViewModel.
      */
     private fun setupViewModel() {
-        val appContext = requireContext().applicationContext
-        val db = LudiaryDatabase.getInstance(appContext)
-        val auth = FirebaseAuth.getInstance()
-
-        val factory = EditSessionsViewModelFactory(db, auth)
+        val factory = EditSessionsViewModelFactory(requireContext())
         vm = ViewModelProvider(this, factory)[EditSessionsViewModel::class.java]
     }
 

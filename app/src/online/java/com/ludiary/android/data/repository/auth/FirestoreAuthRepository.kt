@@ -1,5 +1,3 @@
-package com.ludiary.android.data.repository.auth
-
 import android.util.Log
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
@@ -80,7 +78,6 @@ class FirestoreAuthRepository(
      *
      * @param email Correo electrónico del usuario
      * @param password Contraseña del usuario
-     * @return [AuthResult.Success] con los datos del usuario o [AuthResult.Error] con el mensaje de error.
      */
     override suspend fun login(email: String, password: String): AuthResult {
         return try {
@@ -121,7 +118,6 @@ class FirestoreAuthRepository(
      * Registra un nuevo usuario con correo y contraseña en Firebase Auth.
      * @param email Correo electrónico del usuario.
      * @param password Contraseña del usuario.
-     * @return [AuthResult.Success] con el perfil del usuario, o [AuthResult.Error] con un mensaje localizado.
      */
     override suspend fun register(email: String, password: String): AuthResult {
         val emailTrimmed = email.trim()
@@ -168,8 +164,6 @@ class FirestoreAuthRepository(
      * Inicia sesión de manera anónima en Firebase.
      *
      * Crea también su documento en la colección Users de Firestore si no existía.
-     *
-     * @return [AuthResult.Success] con los datos del usuario o [AuthResult.Error] con el mensaje de error
      */
     override suspend fun loginAnonymously(): AuthResult {
         return try {
@@ -211,9 +205,7 @@ class FirestoreAuthRepository(
 
     /**
      * Envia un correo electrónico de restablecimiento de contraseña.
-     *
      * @param email Correo electrónico del usuario que solicita el restablecimiento.
-     * @return [AuthResult.Success] si el correo fue enviado o [AuthResult.Error] con el motivo de fallo.
      */
     override suspend fun sendPasswordResetEmail(email: String): AuthResult {
         return try {

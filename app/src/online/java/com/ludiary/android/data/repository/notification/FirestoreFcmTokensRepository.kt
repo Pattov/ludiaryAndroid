@@ -1,13 +1,6 @@
-package com.ludiary.android.data.repository.notification
-
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-
-/**
- * Implementación Firestore de [FcmTokensRepository].
- * @param fs Instancia de [FirebaseFirestore].
- */
 class FirestoreFcmTokensRepository(
     private val fs: FirebaseFirestore
 ) : FcmTokensRepository {

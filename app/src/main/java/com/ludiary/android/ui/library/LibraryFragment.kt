@@ -15,19 +15,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.R
-import com.ludiary.android.data.local.LocalGameBaseDataSource
+import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.model.UserGame
-import com.ludiary.android.data.repository.library.FirestoreGameBaseRepositoryImpl
-import com.ludiary.android.data.repository.library.FirestoreUserGamesRepository
+import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
 import com.ludiary.android.data.repository.library.GameBaseRepository
-import com.ludiary.android.data.repository.library.GameBaseRepositoryImpl
+import com.ludiary.android.data.repository.library.GameBaseRepositoryLocal
 import com.ludiary.android.data.repository.library.UserGamesRepository
-import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.library.UserGamesRepositoryLocal
+import com.ludiary.android.util.ResourceProvider
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -45,24 +43,23 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         val appContext = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(appContext)
 
-        // --- Repositorio de la ludoteca del usuario (userGames) ---
         val localUserGames = LocalUserGamesDataSource(db.userGameDao())
-        val remoteUserGames = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
-        val userGamesRepository: UserGamesRepository =
-            UserGamesRepositoryImpl(localUserGames, remoteUserGames)
+        val userGamesRepository: UserGamesRepository = UserGamesRepositoryLocal(localUserGames)
 
-        // --- Repositorio del catálogo oficial (games_base) ---
-        val localGameBaseDataSource = LocalGameBaseDataSource(db.gameBaseDao())
-        val firestoreGameBaseRepository = FirestoreGameBaseRepositoryImpl(FirebaseFirestore.getInstance())
+        val gameBaseRepository: GameBaseRepository = GameBaseRepositoryLocal()
 
-        val gameBaseRepository: GameBaseRepository =
-            GameBaseRepositoryImpl(local = localGameBaseDataSource, remote = firestoreGameBaseRepository)
+        val localUser = LocalUserDataSource(db)
+        val authRepo = AuthRepositoryProvider.provide(
+            context = appContext,
+            localUserDataSource = localUser,
+            resourceProvider = ResourceProvider(requireContext())
+        )
 
         LibraryViewModelFactory(
-            uid = FirebaseAuth.getInstance().currentUser!!.uid,
+            uid = authRepo.currentUser?.uid ?: "LOCAL_USER",
             userGamesRepository = userGamesRepository,
             gameBaseRepository = gameBaseRepository,
-            syncCatalogAutomatically = true
+            syncCatalogAutomatically = false
         )
     }
 

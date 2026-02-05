@@ -3,12 +3,10 @@ package com.ludiary.android.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ludiary.android.data.local.LocalUserDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.repository.auth.AuthRepository
-import com.ludiary.android.data.repository.auth.FirestoreAuthRepository
+import com.ludiary.android.data.repository.auth.AuthRepositoryProvider
 import com.ludiary.android.util.ResourceProvider
 
 /**
@@ -19,7 +17,6 @@ import com.ludiary.android.util.ResourceProvider
  *
  * Esta clase permite inicializar el ViewModel sin utilizar librerías de inyección
  * de dependencias (como Hilt o Koin), creando manualmente las instancias de
- * [FirestoreAuthRepository], [FirebaseAuth] y [FirebaseFirestore].
  */
 class LoginViewModelFactory(private val context: Context)  : ViewModelProvider.Factory {
     /**
@@ -41,12 +38,12 @@ class LoginViewModelFactory(private val context: Context)  : ViewModelProvider.F
         val resourceProvider = ResourceProvider(context)
 
         // Auth repo con Firebase + Room + Strings
-        val repo: AuthRepository = FirestoreAuthRepository(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
-            localUserDataSource,
-            resourceProvider
+        val repo = AuthRepositoryProvider.provide(
+            context = appContext,
+            localUserDataSource = localUserDataSource,
+            resourceProvider = resourceProvider
         )
+
         return LoginViewModel(repo) as T
     }
 }

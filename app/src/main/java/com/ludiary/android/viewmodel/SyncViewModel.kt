@@ -3,7 +3,7 @@ package com.ludiary.android.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.ludiary.android.data.repository.auth.AuthRepository
 import com.ludiary.android.data.repository.library.UserGamesRepository
 import com.ludiary.android.sync.SyncScheduler
 import com.ludiary.android.sync.SyncStatusPrefs
@@ -21,16 +21,9 @@ data class SyncUiState(
     val errorMessage: String? = null
 )
 
-/**
- * ViewModel para la pantalla de sincronización.
- * @param appContext Contexto de la aplicación.
- * @param auth Instancia de [FirebaseAuth].
- * @param userGamesRepo Repositorio de juegos del usuario.
- * @param statusPrefs Preferencias de estado de sincronización.
- */
 class SyncViewModel(
     private val appContext: Context,
-    private val auth: FirebaseAuth,
+    private val authRepo: AuthRepository,
     private val userGamesRepo: UserGamesRepository,
     private val statusPrefs: SyncStatusPrefs
 ) : ViewModel() {
@@ -90,7 +83,7 @@ class SyncViewModel(
     }
 
     fun onSyncNowClicked() {
-        val uid = auth.currentUser?.uid
+        val uid = authRepo.currentUser?.uid
         if (uid.isNullOrBlank()) {
             _events.tryEmit(UiEvent.Toast("Necesitas iniciar sesión para sincronizar."))
             return
@@ -107,7 +100,7 @@ class SyncViewModel(
     }
 
     private fun refreshPending() {
-        val uid = auth.currentUser?.uid
+        val uid = authRepo.currentUser?.uid
         val autoEnabled = statusPrefs.isAutoSyncEnabled()
 
         if (uid.isNullOrBlank()) {

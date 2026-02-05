@@ -23,4 +23,5 @@ class NotificationsViewModel(
         repo.stopUnreadCountListener()
         super.onCleared()
     }
+
 }

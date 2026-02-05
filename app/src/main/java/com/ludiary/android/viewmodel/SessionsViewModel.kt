@@ -1,13 +1,12 @@
 package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.data.model.SessionScope
+import com.ludiary.android.data.repository.auth.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -25,21 +24,16 @@ data class SessionsUiState(
     val errorRes: Int? = null
 )
 
-/**
- * ViewModel para la pantalla de sesiones.
- * @property db Instancia de [LudiaryDatabase].
- * @property auth Instancia de [FirebaseAuth].
- */
 class SessionsViewModel(
     private val db: LudiaryDatabase,
-    private val auth: FirebaseAuth
+    private val authRepo: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SessionsUiState())
     val uiState: StateFlow<SessionsUiState> = _uiState
 
     fun start() {
-        val uid = auth.currentUser?.uid
+        val uid = authRepo.currentUser?.uid
 
         if (uid.isNullOrBlank()) {
             _uiState.value = SessionsUiState(
@@ -79,20 +73,5 @@ class SessionsViewModel(
                 now = System.currentTimeMillis()
             )
         }
-    }
-}
-
-/**
- * Factory para crear una instancia de [SessionsViewModel].
- * @property db Instancia de [LudiaryDatabase].
- * @property auth Instancia de [FirebaseAuth].
- */
-class SessionsViewModelFactory(
-    private val db: LudiaryDatabase,
-    private val auth: FirebaseAuth
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SessionsViewModel(db, auth) as T
     }
 }

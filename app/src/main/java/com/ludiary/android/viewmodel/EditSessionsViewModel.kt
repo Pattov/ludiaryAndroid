@@ -2,7 +2,6 @@ package com.ludiary.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.SessionWithPlayers
 import com.ludiary.android.data.local.entity.SessionEntity
@@ -11,17 +10,18 @@ import com.ludiary.android.data.model.GameRefType
 import com.ludiary.android.data.model.PlayerRefType
 import com.ludiary.android.data.model.SessionScope
 import com.ludiary.android.data.model.SyncStatus
+import com.ludiary.android.data.repository.auth.AuthRepository
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
  * ViewModel para editar partidas.
  * @param db Instancia de Room.
- * @param auth Instancia de Firebase Auth.
+ * @param authRepo Instancia de Firebase Auth.
  */
 class EditSessionsViewModel(
     private val db: LudiaryDatabase,
-    private val auth: FirebaseAuth
+    private val authRepo: AuthRepository
 ) : ViewModel() {
 
     /**
@@ -41,7 +41,7 @@ class EditSessionsViewModel(
         notes: String?,
         players: List<PlayerDraft>
     ) {
-        val uid = auth.currentUser?.uid ?: return
+        val uid = authRepo.currentUser?.uid ?: return
         val now = System.currentTimeMillis()
 
         val finalSessionId = sessionId ?: UUID.randomUUID().toString()
