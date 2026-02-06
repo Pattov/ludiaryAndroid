@@ -204,7 +204,6 @@ class MainActivity : AppCompatActivity() {
         navController: NavController
     ) {
         val root = findViewById<ConstraintLayout>(R.id.rootMain)
-        val navHost = findViewById<View>(R.id.navHostMain)
 
         // Destinos que deben ir a pantalla completa (sin bottom nav)
         val fullScreenDestinations = setOf(
@@ -221,10 +220,10 @@ class MainActivity : AppCompatActivity() {
 
             val isFullScreen = destination.id in fullScreenDestinations
 
-            // 1) Mostrar/ocultar bottom nav
+            // Mostrar/ocultar bottom nav
             bottomNav.visibility = if (isFullScreen) View.GONE else View.VISIBLE
 
-            // 2) Cambiar el constraint inferior del NavHost:
+            // Cambiar el constraint inferior del NavHost:
             //    - Fullscreen: bottom del NavHost al parent
             //    - Tabs: bottom del NavHost al top del BottomNav
             val set = ConstraintSet().apply { clone(root) }

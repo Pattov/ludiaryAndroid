@@ -12,6 +12,8 @@
         android:id="@+id/bnvMain"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        app:itemPaddingBottom="0dp"
         app:backgroundTint="?attr/colorSurfaceVariant"
         app:menu="@menu/menu_main_nav"
         app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
