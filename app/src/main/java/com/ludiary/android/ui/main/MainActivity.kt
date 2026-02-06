@@ -30,6 +30,9 @@ import com.ludiary.android.viewmodel.NotificationsViewModel
 import com.ludiary.android.viewmodel.NotificationsViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.Locale
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
@@ -200,19 +203,50 @@ class MainActivity : AppCompatActivity() {
         bottomNav: BottomNavigationView,
         navController: NavController
     ) {
+        val root = findViewById<ConstraintLayout>(R.id.rootMain)
+        val navHost = findViewById<View>(R.id.navHostMain)
+
+        // Destinos que deben ir a pantalla completa (sin bottom nav)
+        val fullScreenDestinations = setOf(
+            R.id.nav_edit_session,
+            R.id.nav_edit_user_game,
+            R.id.nav_editProfileFragment,
+            R.id.nav_preferencesFragment,
+            R.id.nav_syncFragment,
+            R.id.nav_socialFragment,
+            R.id.nav_groupDetailFragment
+        )
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val itemIdToCheck = when (destination.id) {
-                R.id.nav_edit_session -> R.id.nav_sessions
-                R.id.nav_edit_user_game -> R.id.nav_library
-                R.id.nav_editProfileFragment,
-                R.id.nav_preferencesFragment,
-                R.id.nav_syncFragment,
-                R.id.nav_socialFragment -> R.id.nav_profile
-                else -> null
+
+            val isFullScreen = destination.id in fullScreenDestinations
+
+            // 1) Mostrar/ocultar bottom nav
+            bottomNav.visibility = if (isFullScreen) View.GONE else View.VISIBLE
+
+            // 2) Cambiar el constraint inferior del NavHost:
+            //    - Fullscreen: bottom del NavHost al parent
+            //    - Tabs: bottom del NavHost al top del BottomNav
+            val set = ConstraintSet().apply { clone(root) }
+
+            if (isFullScreen) {
+                set.connect(
+                    R.id.navHostMain,
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+            } else {
+                set.connect(
+                    R.id.navHostMain,
+                    ConstraintSet.BOTTOM,
+                    R.id.bnvMain,
+                    ConstraintSet.TOP
+                )
             }
 
-            itemIdToCheck?.let { bottomNav.menu.findItem(it)?.isChecked = true }
-        }
+            set.applyTo(root)
+            }
     }
 
     /**
