@@ -63,7 +63,7 @@ class EditSessionsViewModel(
     suspend fun getCurrentUserDisplay(): String? {
         val local = db.userDao().getLocalUser()
         if (!local?.displayName.isNullOrBlank()) {
-            return local!!.displayName!!
+            return local.displayName
         }
         return auth.currentUser?.displayName
     }
