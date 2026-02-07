@@ -18,7 +18,9 @@
     <dimen name="form_max_width">488dp</dimen>
     <dimen name="card_radius_m">16dp</dimen>
     <dimen name="card_elevation_s">2dp</dimen>
+    <dimen name="elevation_m">8dp</dimen>
     <dimen name="fab_margin">@dimen/space_xs</dimen>
+    <dimen name="stroke_s">1dp</dimen>
 
     <!-- Login specific -->
     <dimen name="login_padding_horizontal">@dimen/space_l</dimen>

@@ -25,6 +25,7 @@
             android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- SCORE -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayoutPlayerScore"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
