@@ -107,7 +107,7 @@ class ProfileViewModel(
 
         runCatching { localFriends.clearAll()}
             .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar friends en Room: ${it.message}")
-        }
+            }
 
         onDone()
     }
@@ -118,13 +118,13 @@ class ProfileViewModel(
      * @param language Idioma del usuario.
      * @param theme Tema del usuario.
      */
-    fun updatePreferences(language: String?, theme: String?) {
+    fun updatePreferences(language: String?, theme: String?,     mentionUserPrefix: String?, mentionGroupPrefix: String?) {
         val current = _ui.value.user
 
         viewModelScope.launch {
             _ui.value = _ui.value.copy(loading = true)
 
-            runCatching { repo.update(displayName = null, language = language, theme = theme) }
+            runCatching { repo.update(displayName = null, language = language, theme = theme, mentionUserPrefix = mentionUserPrefix, mentionGroupPrefix = mentionGroupPrefix) }
                 .onSuccess { updated -> _ui.value = ProfileUiState(loading = false, user = updated, error = null) }
                 .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current) }
         }
@@ -137,7 +137,7 @@ class ProfileViewModel(
         val current = _ui.value.user
         _ui.value = _ui.value.copy(loading = true)
 
-        runCatching { repo.update(displayName = displayName, language = null, theme = null) }
+        runCatching { repo.update(displayName = displayName, language = null, theme = null, mentionUserPrefix = null, mentionGroupPrefix = null) }
             .onSuccess { updated -> _ui.value = ProfileUiState(loading = false, user = updated, error = null) }
             .onFailure { e -> _ui.value = _ui.value.copy(loading = false, error = e.message, user = current ) }
     }

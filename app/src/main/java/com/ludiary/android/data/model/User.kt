@@ -5,10 +5,14 @@ package com.ludiary.android.data.model
  *
  * @property language Idioma del usuario.
  * @property theme Tema del usuario (claro, oscuro o sistema).
+ * @property mentionUserPrefix Prefijo para añadir amigos en sesiones.
+ * @property mentionGroupPrefix Prefijo para añadir grupos en sesiones.
  */
 data class UserPreferences(
     val language: String?,
-    val theme: String?
+    val theme: String?,
+    val mentionUserPrefix: String?,
+    val mentionGroupPrefix: String?
 )
 
 /**

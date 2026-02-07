@@ -30,6 +30,9 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
     private lateinit var spinnerTheme: Spinner
     private lateinit var languageValues: Array<String>
     private lateinit var themeValues: Array<String>
+    private lateinit var etMentionUserPrefix: com.google.android.material.textfield.TextInputEditText
+    private lateinit var etMentionGroupPrefix: com.google.android.material.textfield.TextInputEditText
+
     private lateinit var btnSave: Button
     private lateinit var topAppBar: MaterialToolbar
 
@@ -38,6 +41,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
 
         spinnerLanguage = view.findViewById(R.id.spinnerLanguage)
         spinnerTheme = view.findViewById(R.id.spinnerTheme)
+        etMentionUserPrefix = view.findViewById(R.id.etMentionUserPrefix)
+        etMentionGroupPrefix = view.findViewById(R.id.etMentionGroupPrefix)
         btnSave = view.findViewById(R.id.btnSavePreferences)
         topAppBar = view.findViewById(R.id.topAppBar)
 
@@ -77,9 +82,13 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
 
                 val lang = user.preferences?.language ?: "es"
                 val theme = user.preferences?.theme ?: "system"
+                val mentionUser = user.preferences?.mentionUserPrefix ?: "@"
+                val mentionGroup = user.preferences?.mentionGroupPrefix ?: "#"
 
                 setSpinnerSelectionByValue(spinnerLanguage, languageValues, lang)
                 setSpinnerSelectionByValue(spinnerTheme, themeValues, theme)
+                etMentionUserPrefix.setText(mentionUser)
+                etMentionGroupPrefix.setText(mentionGroup)
             }
         }
     }
@@ -100,18 +109,40 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
             val selectedLanguage = languageValues[spinnerLanguage.selectedItemPosition]
             val selectedTheme = themeValues[spinnerTheme.selectedItemPosition]
 
+            val userPrefixRaw = etMentionUserPrefix.text?.toString().orEmpty().trim()
+            val groupPrefixRaw = etMentionGroupPrefix.text?.toString().orEmpty().trim()
+
+            val userPrefix = (if (userPrefixRaw.isBlank()) "@" else userPrefixRaw)
+            val groupPrefix = (if (groupPrefixRaw.isBlank()) "#" else groupPrefixRaw)
+
+            // Validaciones mínimas
+            fun isValidPrefix(s: String) = s.length in 1..2 && !s.any { it.isWhitespace() }
+
+            if (!isValidPrefix(userPrefix) || !isValidPrefix(groupPrefix)) {
+                // aquí puedes usar Snackbar/Toast
+                // Snackbar.make(requireView(), "Prefijos inválidos (1-2 caracteres, sin espacios)", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (userPrefix == groupPrefix) {
+                // Snackbar.make(requireView(), "Los prefijos de amigos y grupos no pueden ser iguales", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             viewLifecycleOwner.lifecycleScope.launch {
                 vm.updatePreferences(
                     language = selectedLanguage,
-                    theme = selectedTheme
+                    theme = selectedTheme,
+                    mentionUserPrefix = userPrefix,
+                    mentionGroupPrefix = groupPrefix
                 )
 
-                val prefs = requireContext()
-                    .getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
-
+                val prefs = requireContext().getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
                 prefs.edit {
                     putString("app_language", selectedLanguage)
                     putString("app_theme", selectedTheme)
+                    putString("mention_user_prefix", userPrefix)
+                    putString("mention_group_prefix", groupPrefix)
                 }
 
                 ThemeManager.applyTheme(selectedTheme)

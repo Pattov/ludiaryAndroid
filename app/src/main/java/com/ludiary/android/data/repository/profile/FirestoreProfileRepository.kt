@@ -86,7 +86,12 @@ class FirestoreProfileRepository(
                 isAnonymous = false,
                 createdAt = local.createdAt,
                 updatedAt = local.updatedAt,
-                preferences = local.preferences ?: UserPreferences(Locale.getDefault().language, "system"),
+                preferences = local.preferences ?: UserPreferences(
+                    language = Locale.getDefault().language,
+                    theme = "system",
+                    mentionUserPrefix = "@",
+                    mentionGroupPrefix = "#"
+                ),
                 isAdmin = isAdminClaim
             )
 
@@ -169,7 +174,13 @@ class FirestoreProfileRepository(
     /**
      * Actualiza el perfil del usuario en Firestore con los datos proporcionados.
      */
-    override suspend fun update(displayName: String?, language: String?, theme: String?): User {
+    override suspend fun update(
+        displayName: String?,
+        language: String?,
+        theme: String?,
+        mentionUserPrefix: String?,
+        mentionGroupPrefix: String?
+    ): User {
         val firebaseUser = auth.currentUser
 
         if (firebaseUser == null) {
@@ -178,7 +189,13 @@ class FirestoreProfileRepository(
                 displayName = displayName ?: current.displayName,
                 preferences = UserPreferences(
                     language = language ?: current.preferences?.language ?: Locale.getDefault().language,
-                    theme = theme ?: current.preferences?.theme ?: "system"
+                    theme = theme ?: current.preferences?.theme ?: "system",
+                    mentionUserPrefix = mentionUserPrefix
+                        ?: current.preferences?.mentionUserPrefix
+                        ?: "@",
+                    mentionGroupPrefix = mentionGroupPrefix
+                        ?: current.preferences?.mentionGroupPrefix
+                        ?: "#"
                 )
             )
             localUser.saveLocalUser(updated)
@@ -195,6 +212,9 @@ class FirestoreProfileRepository(
         val prefUpdates = mutableMapOf<String, Any>()
         language?.let { prefUpdates["language"] = it }
         theme?.let { prefUpdates["theme"] = it }
+        mentionUserPrefix?.let { prefUpdates["mentionUserPrefix"] = it }
+        mentionGroupPrefix?.let { prefUpdates["mentionGroupPrefix"] = it }
+
         if (prefUpdates.isNotEmpty()) {
             updates["preferences"] = prefUpdates
         }
@@ -239,7 +259,9 @@ class FirestoreProfileRepository(
             "updatedAt" to updatedTs,
             "preferences" to mapOf(
                 "language" to (preferences?.language ?: Locale.getDefault().language),
-                "theme" to (preferences?.theme ?: "system")
+                "theme" to (preferences?.theme ?: "system"),
+                "mentionUserPrefix" to (preferences?.mentionUserPrefix ?: "@"),
+                "mentionGroupPrefix" to (preferences?.mentionGroupPrefix ?: "#")
             ),
             "isAdmin" to isAdmin
         )
@@ -262,6 +284,9 @@ class FirestoreProfileRepository(
             ?: legacyTheme
             ?: "system"
 
+        val mentionUser = (pref["mentionUserPrefix"] as? String) ?: "@"
+        val mentionGroup = (pref["mentionGroupPrefix"] as? String) ?: "#"
+
         val createdTs = getTimestamp("createdAt")
         val updatedTs = getTimestamp("updatedAt")
 
@@ -272,7 +297,12 @@ class FirestoreProfileRepository(
             isAnonymous = getBoolean("isAnonymous") ?: false,
             createdAt = createdTs?.toDate()?.time,
             updatedAt = updatedTs?.toDate()?.time,
-            preferences = UserPreferences(language = lang, theme = theme),
+            preferences = UserPreferences(
+                language = lang,
+                theme = theme,
+                mentionUserPrefix = mentionUser,
+                mentionGroupPrefix = mentionGroup
+            ),
             isAdmin = getBoolean("isAdmin") ?: false,
             friendCode = getString("friendCode")
         )
@@ -299,7 +329,12 @@ class FirestoreProfileRepository(
             isAnonymous = false,
             createdAt = now.toDate().time,
             updatedAt = now.toDate().time,
-            preferences = local.preferences ?: UserPreferences(defaultLang, "system"),
+            preferences = local.preferences ?: UserPreferences(
+                language = defaultLang,
+                theme = "system",
+                mentionUserPrefix = "@",
+                mentionGroupPrefix = "#"
+            ),
             isAdmin = isAdminClaim,
             friendCode = null
         )

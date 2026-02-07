@@ -25,7 +25,9 @@ interface ProfileRepository {
     suspend fun update(
         displayName: String?,
         language: String?,
-        theme: String?
+        theme: String?,
+        mentionUserPrefix: String?,
+        mentionGroupPrefix: String?
     ): User
 
     /**

@@ -34,7 +34,9 @@ class LocalUserDataSource(
             isAnonymous = true,
             preferences = UserPreferences(
                 language = Locale.getDefault().language,
-                theme = "system"
+                theme = "system",
+                mentionUserPrefix = "@",
+                mentionGroupPrefix = "#"
             )
         )
 

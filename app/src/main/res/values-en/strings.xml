@@ -70,6 +70,12 @@
     <string name="profile_my_code">My code</string>
     <string name="profile_friend_hint">Enter the friend code (10–12 characters).</string>
     <string name="profile_friends_tabs_cd">Friends\' Tabs</string>
+
+    <string name="profile_preferences_mentions">Abbreviations</string>
+    <string name="profile_preferences_mention_user_prefix">Prefix to add friends</string>
+    <string name="profile_preferences_mention_group_prefix">Prefix to add groups</string>
+    <string name="profile_preferences_mentions_help">Example: type @ana to suggest friends and #family to suggest groups when adding a person to a game.</string>
+
     <string name="friend_nickname_hint">Nickname</string>
     <string name="friends_code_placeholder">—</string>
     <string name="friends_error_no_session">You need to sign in.</string>

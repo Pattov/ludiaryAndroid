@@ -187,7 +187,9 @@ class FirestoreAuthRepository(
                 updatedAt = now,
                 preferences = UserPreferences(
                     language = Locale.getDefault().language,
-                    theme = "system"
+                    theme = "system",
+                    mentionUserPrefix = "@",
+                    mentionGroupPrefix = "#"
                 ),
                 isAdmin = false,
                 friendCode = null
@@ -405,6 +407,8 @@ class FirestoreAuthRepository(
 
         val lang = pref["language"] as? String ?: Locale.getDefault().language
         val theme = pref["theme"] as? String ?: "system"
+        val mentionUser = pref["mentionUserPrefix"] as? String ?: "@"
+        val mentionGroup = pref["mentionGroupPrefix"] as? String ?: "#"
 
         val createdTs = getTimestamp("createdAt")
         val updatedTs = getTimestamp("updatedAt")
@@ -417,7 +421,12 @@ class FirestoreAuthRepository(
             isAnonymous = getBoolean("isAnonymous") ?: firebaseUser.isAnonymous,
             createdAt = createdTs?.toDate()?.time,
             updatedAt = updatedTs?.toDate()?.time,
-            preferences = UserPreferences(language = lang, theme = theme),
+            preferences = UserPreferences(
+                language = lang,
+                theme = theme,
+                mentionUserPrefix = mentionUser,
+                mentionGroupPrefix = mentionGroup
+            ),
             isAdmin = getBoolean("isAdmin") ?: false
         )
     }

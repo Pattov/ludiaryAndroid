@@ -21,7 +21,9 @@ fun UserEntity.toModel(): User =
         updatedAt = updatedAt,
         preferences = UserPreferences(
             language = language,
-            theme = theme
+            theme = theme,
+            mentionUserPrefix = mentionUserPrefix.ifBlank { "@" },
+            mentionGroupPrefix = mentionGroupPrefix.ifBlank { "#" }
         ),
         isAdmin = isAdmin
     )
@@ -35,12 +37,13 @@ fun User.toEntity(): UserEntity =
         displayName = displayName ?: "Invitado",
         language = preferences?.language ?: Locale.getDefault().language,
         theme = preferences?.theme ?: "system",
+        mentionUserPrefix = preferences?.mentionUserPrefix ?: "@",
+        mentionGroupPrefix = preferences?.mentionGroupPrefix ?: "#",
         isAnonymous = isAnonymous,
         createdAt = createdAt,
         updatedAt = updatedAt,
         isAdmin = isAdmin
     )
-
 
 // GameBase
 /**

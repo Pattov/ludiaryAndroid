@@ -27,6 +27,8 @@ data class UserEntity(
     val displayName: String,
     val language: String,
     val theme: String,
+    val mentionUserPrefix: String,
+    val mentionGroupPrefix: String,
     val isAnonymous: Boolean,
     val createdAt: Long?,
     val updatedAt: Long?,

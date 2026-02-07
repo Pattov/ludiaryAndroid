@@ -72,6 +72,59 @@
                 android:layout_height="wrap_content"
                 android:minHeight="@dimen/profile_button_height" />
 
+
+            <!-- Abreviaturas -->
+            <TextView
+                android:id="@+id/tvMentionsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:paddingBottom="@dimen/space_s"
+                android:text="@string/profile_preferences_mentions"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintEnabled="true"
+                android:hint="@string/profile_preferences_mention_user_prefix">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMentionUserPrefix"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="2"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                app:hintEnabled="true"
+                android:hint="@string/profile_preferences_mention_group_prefix">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMentionGroupPrefix"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="2"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tvMentionsHelp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/profile_preferences_mentions_help"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+
             <!-- Acciones -->
             <LinearLayout
                 android:layout_width="match_parent"
