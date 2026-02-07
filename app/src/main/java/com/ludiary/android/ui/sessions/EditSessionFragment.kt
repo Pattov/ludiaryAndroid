@@ -41,6 +41,8 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
     private lateinit var inputGame: TextInputEditText
     private lateinit var inputDate: TextInputEditText
+    private lateinit var inputDuration: TextInputEditText
+
     private lateinit var inputRating: TextInputEditText
     private lateinit var inputNotes: TextInputEditText
     private lateinit var playersContainer: LinearLayout
@@ -142,6 +144,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
             return
         }
 
+        val durationMinutes = inputDuration.text?.toString()?.trim()?.toIntOrNull()
         val rating = inputRating.text?.toString()?.trim()?.toIntOrNull()
         val notes = inputNotes.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
 
@@ -155,6 +158,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
             sessionId = sessionId,
             gameTitle = gameTitle,
             playedAtMillis = playedAtMillis,
+            durationMinutes = durationMinutes,
             rating = rating,
             notes = notes,
             players = players
@@ -173,6 +177,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
         val s = data.session
         inputGame.setText(s.gameTitle)
         inputDate.setText(dateFormatter.format(Date(s.playedAt)))
+        inputDuration.setText(s.durationMinutes?.toString().orEmpty())
         inputRating.setText(s.overallRating?.toString().orEmpty())
         inputNotes.setText(s.notes.orEmpty())
 

@@ -196,6 +196,7 @@
     <string name="edit_session_player_winner_cd">Mark as winner</string>
     <string name="edit_session_player_remove_cd">Remove player</string>
     <string name="edit_session_date_required">The date is required.</string>
+    <string name="edit_session_duration_hint">Duration</string>
 
     <string name="dashboard_title">Dashboard</string>
 

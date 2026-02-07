@@ -23,6 +23,7 @@ class EditSessionsViewModel(
         sessionId: String?,
         gameTitle: String,
         playedAtMillis: Long,
+        durationMinutes: Int?,
         rating: Int?,
         notes: String?,
         players: List<PlayerDraft>
@@ -37,6 +38,7 @@ class EditSessionsViewModel(
             uid = uid,
             gameTitle = gameTitle,
             playedAtMillis = playedAtMillis,
+            durationMinutes = durationMinutes,
             rating = rating,
             notes = notes,
             now = now,
@@ -78,6 +80,7 @@ class EditSessionsViewModel(
         uid: String,
         gameTitle: String,
         playedAtMillis: Long,
+        durationMinutes: Int?,
         rating: Int?,
         notes: String?,
         now: Long,
@@ -94,7 +97,7 @@ class EditSessionsViewModel(
             gameRefId = "",
 
             playedAt = playedAtMillis,
-            durationMinutes = null,
+            durationMinutes = durationMinutes,
             location = null,
 
             overallRating = rating,

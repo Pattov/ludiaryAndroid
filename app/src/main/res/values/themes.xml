@@ -31,6 +31,21 @@
         <item name="android:fontFamily">@font/roboto</item>
         <item name="fontFamily">@font/roboto</item>
 
+        <!-- Diálogos -->
+        <item name="android:datePickerDialogTheme">@style/Dialog.Theme.Ludiary.DatePicker</item>
+
+    </style>
+
+    <!-- Estilo personalizado para DatePicker -->
+    <style name="Dialog.Theme.Ludiary.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
+        <item name="colorOnSecondary">@color/colorOnPrimary</item>
+        <item name="colorSecondaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnPrimaryContainer</item>
     </style>
 
     <style name="App.Custom.Indicator"
