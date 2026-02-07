@@ -286,15 +286,6 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
         btn.iconTint = ColorStateList.valueOf(color)
     }
-    /**
-     * Resuelve el color de un atributo.
-     * @return Color del atributo.
-     */
-    private fun resolveThemeColor(attrRes: Int): Int {
-        val tv = android.util.TypedValue()
-        requireContext().theme.resolveAttribute(attrRes, tv, true)
-        return tv.data
-    }
 
     /**
      * Recoge los datos de los jugadores del formulario.
