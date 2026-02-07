@@ -101,7 +101,8 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
     private fun bindViews(view: View) {
         inputGame = view.findViewById(R.id.inputGame)
         inputDate = view.findViewById(R.id.inputDate)
-        inputRating = view.findViewById(R.id.inputRating)
+        inputDuration = view.findViewById(R.id.inputDuration)
+        inputRating = view.findViewById(R.id.inputSessionRating)
         inputNotes = view.findViewById(R.id.inputNotes)
         playersContainer = view.findViewById(R.id.playersContainer)
     }

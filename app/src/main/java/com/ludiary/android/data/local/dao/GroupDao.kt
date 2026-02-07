@@ -186,4 +186,19 @@ interface GroupDao {
         deleteMembersByGroup(groupId)
         deleteGroup(groupId)
     }
+    @Transaction
+    suspend fun clearAll() {
+        queryDeleteAllMembers()
+        queryDeleteAllGroups()
+        queryDeleteAllInvites()
+    }
+
+    @Query("DELETE FROM group_members")
+    suspend fun queryDeleteAllMembers()
+
+    @Query("DELETE FROM user_groups")
+    suspend fun queryDeleteAllGroups()
+
+    @Query("DELETE FROM group_invites")
+    suspend fun queryDeleteAllInvites()
 }

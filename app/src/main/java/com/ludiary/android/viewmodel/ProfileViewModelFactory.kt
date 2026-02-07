@@ -42,7 +42,8 @@ class ProfileViewModelFactory (
             repo = profileRepo,
             userGamesRepo = userGamesRepo,
             localUserGames = localUserGames,
-            localFriends = localFriends
+            localFriends = localFriends,
+            db = db
         ) as T
     }
 }

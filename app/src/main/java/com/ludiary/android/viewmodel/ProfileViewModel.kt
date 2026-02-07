@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.LocalFriendsDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
+import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.model.User
 import com.ludiary.android.data.repository.profile.ProfileRepository
 import com.ludiary.android.data.repository.library.UserGamesRepository
@@ -41,7 +42,8 @@ class ProfileViewModel(
     private val repo: ProfileRepository,
     private val userGamesRepo: UserGamesRepository,
     private val localUserGames: LocalUserGamesDataSource,
-    private val localFriends: LocalFriendsDataSource
+    private val localFriends: LocalFriendsDataSource,
+    private val db: LudiaryDatabase
 ) : ViewModel() {
 
     /**
@@ -99,15 +101,24 @@ class ProfileViewModel(
             }
         }
 
-        runCatching { repo.signOut() }
-            .onFailure { Log.e("LUDIARY_LOGOUT", "Error en signOut: ${it.message}", it) }
-
         runCatching { localUserGames.clearUser(user.uid) }
             .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar Room: ${it.message}") }
 
         runCatching { localFriends.clearAll()}
             .onFailure { Log.w("LUDIARY_LOGOUT", "No se pudo limpiar friends en Room: ${it.message}")
             }
+
+        runCatching { db.sessionDao().clearAll() }
+            .onFailure { Log.w("LUDIARY_LOGOUT", "Error clearing sessions: ${it.message}") }
+
+        runCatching { db.groupDao().clearAll() }
+            .onFailure { Log.w("LUDIARY_LOGOUT", "Error clearing groups: ${it.message}") }
+
+        runCatching { db.gameSuggestionDao().clearAll() }
+            .onFailure { Log.w("LUDIARY_LOGOUT", "Error clearing suggestions: ${it.message}") }
+
+        runCatching { repo.signOut() }
+            .onFailure { Log.e("LUDIARY_LOGOUT", "Error en signOut: ${it.message}", it) }
 
         onDone()
     }

@@ -33,4 +33,10 @@ interface GameSuggestionDao {
      */
     @Delete
     suspend fun delete(suggestion: GameSuggestionEntity)
+
+    /**
+     * Elimina todas las sugerencias.
+     */
+    @Query("DELETE FROM game_suggestions")
+    suspend fun clearAll()
 }

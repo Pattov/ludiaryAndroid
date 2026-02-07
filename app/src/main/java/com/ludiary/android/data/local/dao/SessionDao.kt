@@ -186,6 +186,21 @@ interface SessionDao {
         }
     }
 
+    /**
+     * Elimina todas las sesiones y sus jugadores.
+     */
+    @Transaction
+    suspend fun clearAll() {
+        queryDeleteAllPlayers()
+        queryDeleteAllSessions()
+    }
+
+    @Query("DELETE FROM session_players")
+    suspend fun queryDeleteAllPlayers()
+
+    @Query("DELETE FROM sessions")
+    suspend fun queryDeleteAllSessions()
+
     // Query Dashboard
 
     /**
