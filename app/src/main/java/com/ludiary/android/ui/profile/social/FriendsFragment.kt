@@ -79,7 +79,7 @@ class FriendsFragment : Fragment(R.layout.form_social_profile) {
             addView(til)
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.profile_friends_add_friend))
             .setMessage(getString(R.string.profile_friend_message))
             .setView(container)
@@ -88,7 +88,28 @@ class FriendsFragment : Fragment(R.layout.form_social_profile) {
                 vm.sendInviteByCode(code)
             }
             .setNegativeButton(getString(R.string.action_cancel), null)
-            .show()
+            .create()
+
+        dialog.show()
+
+        val btnOk = dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+        btnOk.isEnabled = false
+
+        val myCode = vm.uiState.value.myFriendCode.orEmpty().trim().uppercase()
+
+        input.addTextChangedListener { editable ->
+            val code = editable?.toString().orEmpty().trim().uppercase()
+            val isSelf = code.isNotEmpty() && code == myCode
+            val isValid = code.isNotEmpty() && !isSelf
+
+            btnOk.isEnabled = isValid
+
+            if (isSelf) {
+                til.error = getString(R.string.error_cannot_invite_self)
+            } else {
+                til.error = null
+            }
+        }
     }
 
     /**
