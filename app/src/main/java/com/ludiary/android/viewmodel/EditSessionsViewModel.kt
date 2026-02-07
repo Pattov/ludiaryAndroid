@@ -60,6 +60,19 @@ class EditSessionsViewModel(
         }
     }
 
+    suspend fun getCurrentUserDisplay(): String? {
+        val local = db.userDao().getLocalUser()
+        if (!local?.displayName.isNullOrBlank()) {
+            return local!!.displayName!!
+        }
+        return auth.currentUser?.displayName
+    }
+
+    fun getCurrentUid(): String {
+        return auth.currentUser?.uid.orEmpty()
+    }
+
+
     private fun buildSessionEntity(
         sessionId: String,
         uid: String,

@@ -179,6 +179,8 @@
     <string name="session_error_generic">Couldn\'t load sessions.</string>
     <string name="session_delete_confirm">Are you sure you want to delete the session of %1$s?</string>
     <string name="sessions_error_login_required">You need to sign in to see your sessions.</string>
+    <string name="session_player_me_suffix">(You)</string>
+    <string name="session_player_you">You</string>
     <string name="game_meta_format">%1$s · %2$s</string>
     <string name="edit_session_nav_label">Game Session</string>
     <string name="edit_session_title_create">Record New Session</string>

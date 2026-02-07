@@ -78,6 +78,13 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
         sessionId?.takeIf { it.isNotBlank() }?.let { id ->
             vm.loadSession(id) { fillForm(it) }
+        } ?: run {
+            // Inicializar fila por defecto para el usuario actual
+            lifecycleScope.launch {
+                val myName = vm.getCurrentUserDisplay() ?: getString(R.string.session_player_you)
+                val suffix = getString(R.string.session_player_me_suffix)
+                addPlayerRow(name = "$myName $suffix", isCurrentUser = true)
+            }
         }
     }
 
@@ -206,7 +213,8 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
     private fun addPlayerRow(
         name: String = "",
         score: Int? = null,
-        isWinner: Boolean = false
+        isWinner: Boolean = false,
+        isCurrentUser: Boolean = false
     ) {
         val row = LayoutInflater.from(requireContext())
             .inflate(R.layout.item_session_player_form, playersContainer, false)
@@ -219,6 +227,13 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
         inputPlayerName.setText(name)
         inputPlayerScore.setText(score?.toString().orEmpty())
+
+        if (isCurrentUser) {
+            inputPlayerName.isEnabled = false
+            btnRemove.visibility = View.INVISIBLE
+            // Marcar que es el usuario actual para collectPlayers
+            row.tag = MentionPick(MentionPick.Kind.FRIEND, vm.getCurrentUid(), name)
+        }
 
         setWinner(btnWinner, isWinner)
 
