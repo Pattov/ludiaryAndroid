@@ -45,6 +45,7 @@ class DashboardFragment : Fragment (R.layout.fragment_dashboard) {
 
         val weekContainer = view.findViewById<LinearLayout>(R.id.weekContainer)
         weekContainer.removeAllViews()
+        weekDayKeys.clear()
 
         val locale = Locale.getDefault()
 
