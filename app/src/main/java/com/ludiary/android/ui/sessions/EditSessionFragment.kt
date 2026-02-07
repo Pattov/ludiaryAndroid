@@ -1,6 +1,7 @@
 package com.ludiary.android.ui.sessions
 
 import android.app.DatePickerDialog
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.ludiary.android.R
@@ -275,16 +277,15 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
 
         val winnerColor = requireContext().getColor(R.color.colorWinner)
 
-        if (isWinner) {
-            btn.iconTint = android.content.res.ColorStateList.valueOf(winnerColor)
-            btn.setTextColor(winnerColor)
-        } else {
-            val normal = resolveThemeColor(R.color.colorOnSurfaceVariant)
-            btn.iconTint = android.content.res.ColorStateList.valueOf(normal)
-            btn.setTextColor(normal)
-        }
-    }
+        val normalColor = MaterialColors.getColor(
+            btn,
+            com.google.android.material.R.attr.colorOnSurfaceVariant
+        )
 
+        val color = if (isWinner) winnerColor else normalColor
+
+        btn.iconTint = ColorStateList.valueOf(color)
+    }
     /**
      * Resuelve el color de un atributo.
      * @return Color del atributo.

@@ -17,6 +17,7 @@
             app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="?attr/colorOnSurface"
             app:titleTextColor="?attr/colorOnSurface"
+            android:background="?attr/colorSurface"
             app:contentInsetStartWithNavigation="@dimen/space_none" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -43,7 +44,6 @@
                 android:id="@+id/tvLanguageLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_l"
                 android:paddingBottom="@dimen/space_s"
                 android:text="@string/profile_preferences_language"
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge"

@@ -45,7 +45,7 @@
     <dimen name="dashboard_padding_horizontal">@dimen/space_l</dimen>
     <dimen name="dashboard_padding_top">@dimen/space_l</dimen>
     <dimen name="dashboard_padding_bottom">@dimen/space_xs</dimen>
-    <dimen name="dashboard_list_bottom_padding">@dimen/space_xxl</dimen>
+    <dimen name="dashboard_list_bottom_padding">@dimen/space_xs</dimen>
     <dimen name="dashboard_button_height">48dp</dimen>
 
     <!-- Session specific -->
@@ -53,14 +53,14 @@
     <dimen name="session_padding_top">@dimen/space_l</dimen>
     <dimen name="session_padding_bottom">@dimen/space_xs</dimen>
     <dimen name="session_score_field_width">96dp</dimen>
-    <dimen name="sessions_list_bottom_padding">@dimen/space_xxl</dimen>
+    <dimen name="sessions_list_bottom_padding">@dimen/space_xs</dimen>
     <dimen name="icon_button_size">48dp</dimen>
 
     <!-- Library specific -->
     <dimen name="library_padding_horizontal">@dimen/space_l</dimen>
     <dimen name="library_padding_top">@dimen/space_l</dimen>
     <dimen name="library_padding_bottom">@dimen/space_xs</dimen>
-    <dimen name="library_list_bottom_padding">@dimen/space_xxl</dimen>
+    <dimen name="library_list_bottom_padding">@dimen/space_xs</dimen>
     <dimen name="library_button_height">48dp</dimen>
 
     <!-- Profile specific -->

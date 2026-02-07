@@ -48,6 +48,7 @@
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
+        android:layout_marginStart="@dimen/space_xs"
         android:contentDescription="@string/edit_session_player_winner_cd"
         app:icon="@drawable/ic_trophy"
         app:iconTint="?attr/colorOnSurfaceVariant" />

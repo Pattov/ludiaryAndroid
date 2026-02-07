@@ -19,6 +19,7 @@
             app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="?attr/colorOnSurface"
             app:titleTextColor="?attr/colorOnSurface"
+            android:background="?attr/colorSurface"
             app:contentInsetStartWithNavigation="0dp" />
 
     </com.google.android.material.appbar.AppBarLayout>
