@@ -79,6 +79,6 @@ interface UserGameDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(games: List<UserGameEntity>)
 
-    @Query("SELECT COUNT(*) FROM user_games")
+    @Query("SELECT COUNT(*) FROM user_games WHERE isDeleted = 0 AND syncStatus != 'DELETED'")
     fun observeUserGamesCount(): Flow<Int>
 }
