@@ -224,6 +224,7 @@
     <string name="error_not_found_or_handled">It no longer exists or was already handled</string>
     <string name="error_generic">Error</string>
     <string name="error_cannot_invite_self">You can\'t invite yourself</string>
+    <string name="error_prefs_prefixes_same">The prefixes for friends and groups cannot be the same.</string>
 
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>

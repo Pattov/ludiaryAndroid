@@ -26,7 +26,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.LocalFriendsDataSource

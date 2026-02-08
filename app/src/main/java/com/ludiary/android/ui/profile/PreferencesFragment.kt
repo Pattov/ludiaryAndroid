@@ -32,6 +32,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
     private lateinit var themeValues: Array<String>
     private lateinit var etMentionUserPrefix: com.google.android.material.textfield.TextInputEditText
     private lateinit var etMentionGroupPrefix: com.google.android.material.textfield.TextInputEditText
+    private lateinit var tilMentionUserPrefix: com.google.android.material.textfield.TextInputLayout
+    private lateinit var tilMentionGroupPrefix: com.google.android.material.textfield.TextInputLayout
 
     private lateinit var btnSave: Button
     private lateinit var topAppBar: MaterialToolbar
@@ -43,6 +45,8 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
         spinnerTheme = view.findViewById(R.id.spinnerTheme)
         etMentionUserPrefix = view.findViewById(R.id.etMentionUserPrefix)
         etMentionGroupPrefix = view.findViewById(R.id.etMentionGroupPrefix)
+        tilMentionUserPrefix = view.findViewById(R.id.tilMentionUserPrefix)
+        tilMentionGroupPrefix = view.findViewById(R.id.tilMentionGroupPrefix)
         btnSave = view.findViewById(R.id.btnSavePreferences)
         topAppBar = view.findViewById(R.id.topAppBar)
 
@@ -106,6 +110,9 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
      */
     private fun setupListeners() {
         btnSave.setOnClickListener {
+            tilMentionUserPrefix.error = null
+            tilMentionGroupPrefix.error = null
+
             val selectedLanguage = languageValues[spinnerLanguage.selectedItemPosition]
             val selectedTheme = themeValues[spinnerTheme.selectedItemPosition]
 
@@ -118,14 +125,27 @@ class PreferencesFragment : Fragment(R.layout.form_preferences_profile) {
             // Validaciones mínimas
             fun isValidPrefix(s: String) = s.length in 1..2 && !s.any { it.isWhitespace() }
 
-            if (!isValidPrefix(userPrefix) || !isValidPrefix(groupPrefix)) {
-                // aquí puedes usar Snackbar/Toast
-                // Snackbar.make(requireView(), "Prefijos inválidos (1-2 caracteres, sin espacios)", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
+            var hasError = false
+            if (!isValidPrefix(userPrefix)) {
+                tilMentionUserPrefix.error = "Inválido (1-2 chars, sin espacios)"
+                hasError = true
+            }
+            if (!isValidPrefix(groupPrefix)) {
+                tilMentionGroupPrefix.error = "Inválido (1-2 chars, sin espacios)"
+                hasError = true
             }
 
+            if (hasError) return@setOnClickListener
+
             if (userPrefix == groupPrefix) {
-                // Snackbar.make(requireView(), "Los prefijos de amigos y grupos no pueden ser iguales", Snackbar.LENGTH_SHORT).show()
+                val errorMsg = getString(R.string.error_prefs_prefixes_same)
+                tilMentionUserPrefix.error = errorMsg
+                tilMentionGroupPrefix.error = errorMsg
+                com.google.android.material.snackbar.Snackbar.make(
+                    requireView(),
+                    errorMsg,
+                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
