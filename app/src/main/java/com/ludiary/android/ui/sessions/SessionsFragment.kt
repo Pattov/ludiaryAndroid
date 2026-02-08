@@ -93,10 +93,11 @@ class SessionsFragment : Fragment(R.layout.fragment_sessions) {
      * Crea el ViewModel.
      */
     private fun setupViewModel() {
-        val db = LudiaryDatabase.getInstance(requireContext().applicationContext)
+        val context = requireContext().applicationContext
+        val db = LudiaryDatabase.getInstance(context)
         val auth = FirebaseAuth.getInstance()
 
-        val factory = SessionsViewModelFactory(db, auth)
+        val factory = SessionsViewModelFactory(context, db, auth)
         vm = ViewModelProvider(this, factory)[SessionsViewModel::class.java]
     }
 

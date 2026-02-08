@@ -35,6 +35,17 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
+        <!-- Propietario / Grupo -->
+        <TextView
+            android:id="@+id/textOwnerInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textStyle="italic"
+            android:textColor="?attr/colorPrimary"
+            android:visibility="gone" />
+
         <!-- Acciones (abajo, izquierda) -->
         <LinearLayout
             android:layout_width="match_parent"

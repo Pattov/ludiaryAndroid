@@ -72,16 +72,11 @@ class UserGamesRepositoryImpl(
      * @return Instancia de [UserGamesRepositoryImpl].
      */
     override suspend fun deleteUserGame(uid: String, gameId: String) {
-        val current = local.getById(gameId) ?: return
+        local.markAsDeleted(gameId)
+    }
 
-        // El registro se marca como delete
-        val deleted = current.copy(
-            userId = uid,
-            syncStatus = SyncStatus.DELETED,
-            updatedAt = System.currentTimeMillis()
-        )
-
-        local.upsert(deleted)
+    override suspend fun getRemoteUserGames(uid: String): List<UserGame> {
+        return remote.fetchAll(uid)
     }
 
     /**

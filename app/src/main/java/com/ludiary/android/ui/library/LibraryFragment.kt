@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
@@ -13,12 +14,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.ludiary.android.R
 import com.ludiary.android.data.local.LocalGameBaseDataSource
+import com.ludiary.android.data.local.LocalGroupsDataSource
 import com.ludiary.android.data.local.LocalUserGamesDataSource
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.model.UserGame
@@ -28,6 +32,12 @@ import com.ludiary.android.data.repository.library.GameBaseRepository
 import com.ludiary.android.data.repository.library.GameBaseRepositoryImpl
 import com.ludiary.android.data.repository.library.UserGamesRepository
 import com.ludiary.android.data.repository.library.UserGamesRepositoryImpl
+import com.ludiary.android.data.repository.profile.FirestoreGroupsRepository
+import com.ludiary.android.data.repository.profile.FunctionsSocialRepository
+import com.ludiary.android.data.repository.profile.GroupsRepository
+import com.ludiary.android.data.repository.profile.GroupsRepositoryImpl
+import com.ludiary.android.viewmodel.LibraryFilter
+import com.ludiary.android.viewmodel.LibraryItem
 import com.ludiary.android.viewmodel.LibraryViewModel
 import com.ludiary.android.viewmodel.LibraryViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -44,24 +54,33 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private val viewModel: LibraryViewModel by viewModels {
         val appContext = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(appContext)
+        val firestore = FirebaseFirestore.getInstance()
 
         // --- Repositorio de la ludoteca del usuario (userGames) ---
         val localUserGames = LocalUserGamesDataSource(db.userGameDao())
-        val remoteUserGames = FirestoreUserGamesRepository(FirebaseFirestore.getInstance())
+        val remoteUserGames = FirestoreUserGamesRepository(firestore)
         val userGamesRepository: UserGamesRepository =
             UserGamesRepositoryImpl(localUserGames, remoteUserGames)
 
         // --- Repositorio del catálogo oficial (games_base) ---
         val localGameBaseDataSource = LocalGameBaseDataSource(db.gameBaseDao())
-        val firestoreGameBaseRepository = FirestoreGameBaseRepositoryImpl(FirebaseFirestore.getInstance())
+        val firestoreGameBaseRepository = FirestoreGameBaseRepositoryImpl(firestore)
 
         val gameBaseRepository: GameBaseRepository =
             GameBaseRepositoryImpl(local = localGameBaseDataSource, remote = firestoreGameBaseRepository)
 
+        // --- Repositorio de grupos ---
+        val localGroups = LocalGroupsDataSource(db.groupDao())
+        val remoteGroups = FirestoreGroupsRepository(firestore)
+        val functions = FunctionsSocialRepository(FirebaseFunctions.getInstance())
+        val auth = FirebaseAuth.getInstance()
+        val groupsRepository: GroupsRepository = GroupsRepositoryImpl(localGroups, remoteGroups, functions, auth)
+
         LibraryViewModelFactory(
-            uid = FirebaseAuth.getInstance().currentUser!!.uid,
+            uid = auth.currentUser!!.uid,
             userGamesRepository = userGamesRepository,
             gameBaseRepository = gameBaseRepository,
+            groupsRepository = groupsRepository,
             syncCatalogAutomatically = true
         )
     }
@@ -72,9 +91,10 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private lateinit var fab: FloatingActionButton
     private lateinit var textSearch: TextInputEditText
     private lateinit var textEmpty: TextView
+    private lateinit var btnFilter: MaterialButton
 
     private var currentQuery: String = ""
-    private var lastGames: List<Any> = emptyList()
+    private var lastItems: List<LibraryItem> = emptyList()
 
     /**
      * Inicializa vistas, recycler, búsqueda y observación de estado.
@@ -86,6 +106,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         setupRecycler()
         setupFab()
         setupSearch()
+        setupFilter()
         observeUiState()
     }
 
@@ -97,6 +118,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         fab = view.findViewById(R.id.fabAddGame)
         textSearch = view.findViewById(R.id.textSearch)
         textEmpty = view.findViewById(R.id.textEmpty)
+        btnFilter = view.findViewById(R.id.btnFilter)
     }
 
     /**
@@ -136,13 +158,48 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         }
     }
 
+    private fun setupFilter() {
+        btnFilter.setOnClickListener { view ->
+            val state = viewModel.uiState.value
+            val popup = PopupMenu(requireContext(), view)
+
+            // Options
+            popup.menu.add(0, 0, 0, "Todos")
+            popup.menu.add(0, 1, 1, "Míos")
+
+            state.availableGroups.forEachIndexed { index, pair ->
+                // pair is (id, name)
+                // Use index + 2 as id
+                popup.menu.add(1, index + 2, index + 2, pair.second)
+            }
+
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    0 -> viewModel.setFilter(LibraryFilter.All)
+                    1 -> viewModel.setFilter(LibraryFilter.Mine)
+                    else -> {
+                        // Group
+                        val groupIndex = item.itemId - 2
+                        if (groupIndex in state.availableGroups.indices) {
+                            val group = state.availableGroups[groupIndex]
+                            viewModel.setFilter(LibraryFilter.Group(group.first, group.second))
+                        }
+                    }
+                }
+                true
+            }
+            popup.show()
+        }
+    }
+
     /**
      * Observa el `uiState` del ViewModel.
      */
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { ui ->
-                lastGames = ui.games as List<Any>
+                lastItems = ui.items
+                btnFilter.visibility = if (ui.availableGroups.isNotEmpty()) View.VISIBLE else View.GONE
                 applyFilterAndRender()
             }
         }
@@ -157,17 +214,15 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         val q = currentQuery.trim()
 
         val filtered = if (q.isEmpty()) {
-            lastGames
+            lastItems
         } else {
-            lastGames.filter { item ->
-                val title = extractTitle(item)
-
+            lastItems.filter { item ->
+                val title = item.game.titleSnapshot
                 title.contains(q, ignoreCase = true)
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
-        adapter.submitList(filtered as List<Nothing>)
+        adapter.submitList(filtered)
 
         val isEmpty = filtered.isEmpty()
         val isSearching = q.isNotEmpty()
@@ -199,26 +254,5 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
                 dialog.dismiss()
             }
             .show()
-    }
-
-    /**
-     * Fallback temporal para extraer el título de un item genérico.
-     * @param item Elemento genérico de la lista.
-     * @return Título del juego o string vacío si no se encuentra.
-     */
-    private fun extractTitle(item: Any): String {
-        return try {
-            val field = item::class.java.getDeclaredField("titleSnapshot")
-            field.isAccessible = true
-            (field.get(item) as? String).orEmpty()
-        } catch (_: Exception) {
-            try {
-                val field = item::class.java.getDeclaredField("title")
-                field.isAccessible = true
-                (field.get(item) as? String).orEmpty()
-            } catch (_: Exception) {
-                ""
-            }
-        }
     }
 }

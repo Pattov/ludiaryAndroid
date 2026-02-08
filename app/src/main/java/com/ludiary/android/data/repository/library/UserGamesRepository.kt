@@ -66,4 +66,12 @@ interface UserGamesRepository {
      * @return número de elementos sincronizados correctamente
      */
     suspend fun syncPending(uid: String): Int
+
+    /**
+     * Obtiene los juegos de un usuario directamente de remoto (Firestore).
+     * @param uid Identificador único del usuario.
+     * @return Lista de juegos.
+     */
+    suspend fun getRemoteUserGames(uid: String): List<UserGame>
+
 }

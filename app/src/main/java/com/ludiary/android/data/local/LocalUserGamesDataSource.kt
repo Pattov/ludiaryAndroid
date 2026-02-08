@@ -3,6 +3,7 @@ package com.ludiary.android.data.local
 import com.ludiary.android.data.local.dao.UserGameDao
 import com.ludiary.android.data.local.entity.toEntity
 import com.ludiary.android.data.local.entity.toModel
+import com.ludiary.android.data.model.SyncStatus
 import com.ludiary.android.data.model.UserGame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,6 +38,20 @@ class LocalUserGamesDataSource (
      * @param game Juego a eliminar.
      */
     suspend fun delete(game: UserGame) = userGameDao.deleteById(game.id)
+
+    /**
+     * Marca un juego como eliminado (soft delete) para sincronización.
+     * @param gameId Identificador del juego.
+     */
+    suspend fun markAsDeleted(gameId: String) {
+        val entity = userGameDao.getById(gameId) ?: return
+        val updated = entity.copy(
+            isDeleted = true,
+            syncStatus = SyncStatus.DELETED,
+            updatedAt = System.currentTimeMillis()
+        )
+        userGameDao.upsert(updated)
+    }
 
     /**
      * Recupera un juego del usuario por su ID.

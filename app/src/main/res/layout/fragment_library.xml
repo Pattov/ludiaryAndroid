@@ -21,7 +21,20 @@
         app:layout_constraintWidth_max="@dimen/form_max_width"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/btnFilter" />
+
+    <!-- Botón de filtro -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnFilter"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Filtrar"
+        app:icon="@drawable/ic_filter_list"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/titleLibrary"
+        app:layout_constraintBottom_toBottomOf="@id/titleLibrary" />
 
     <!-- Buscador -->
     <com.google.android.material.textfield.TextInputLayout

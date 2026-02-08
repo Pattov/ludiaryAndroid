@@ -34,6 +34,10 @@
         <!-- Diálogos -->
         <item name="android:datePickerDialogTheme">@style/Dialog.Theme.Ludiary.DatePicker</item>
 
+        <!-- PopupMenu -->
+        <item name="popupMenuStyle">@style/Widget.Ludiary.PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/Widget.Ludiary.PopupMenu</item>
+
     </style>
 
     <!-- Estilo personalizado para DatePicker -->
@@ -58,6 +62,13 @@
         <item name="android:background">@drawable/btn_primary_gradient</item>
         <item name="backgroundTint">@null</item>
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+    </style>
+
+    <style name="Widget.Ludiary.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
+        <!-- Forzamos fondo blanco/surface para evitar tints automáticos -->
+        <item name="android:background">@color/colorSurface</item>
+        <item name="android:colorBackground">@color/colorSurface</item>
     </style>
 
 
