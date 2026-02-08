@@ -29,7 +29,6 @@
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Filtrar"
         app:icon="@drawable/ic_filter_list"
         app:iconTint="?attr/colorControlNormal"
         app:layout_constraintEnd_toEndOf="parent"

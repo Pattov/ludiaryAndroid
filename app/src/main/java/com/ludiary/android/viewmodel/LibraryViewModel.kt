@@ -1,5 +1,6 @@
 package com.ludiary.android.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.local.entity.GroupEntity
@@ -21,7 +22,7 @@ class LibraryViewModel(
     private val userGamesRepository: UserGamesRepository,
     private val gameBaseRepository: GameBaseRepository,
     private val groupsRepository: GroupsRepository,
-    private val syncCatalogAutomatically: Boolean = true
+    syncCatalogAutomatically: Boolean = true
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LibraryUiState())
@@ -122,6 +123,7 @@ class LibraryViewModel(
         val members = try {
             groupsRepository.observeMembers(groupId).first()
         } catch (e: Exception) {
+            Log.e("LUDIARY_LibraryViewModel", "Error fetching members for group $groupId", e)
             emptyList()
         }
 
@@ -141,7 +143,7 @@ class LibraryViewModel(
                     LibraryItem(it, ownerName = displayName, groupName = groupName)
                 })
             } catch (e: Exception) {
-                // Ignorar fallos de red puntuales
+                Log.e("LUDIARY_LibraryViewModel", "Error fetching remote games for user ${m.uid}", e)
             }
         }
 
@@ -160,7 +162,7 @@ class LibraryViewModel(
             try {
                 gameBaseRepository.syncGamesBase(forceFullSync)
             } catch (e: Exception) {
-                // Log
+                Log.e("LUDIARY_LibraryViewModel", "Error syncing catalog", e)
             }
         }
     }
