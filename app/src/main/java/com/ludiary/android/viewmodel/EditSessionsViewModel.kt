@@ -1,5 +1,6 @@
 package com.ludiary.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -11,10 +12,12 @@ import com.ludiary.android.data.model.GameRefType
 import com.ludiary.android.data.model.PlayerRefType
 import com.ludiary.android.data.model.SessionScope
 import com.ludiary.android.data.model.SyncStatus
+import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class EditSessionsViewModel(
+    private val context: Context,
     private val db: LudiaryDatabase,
     private val auth: FirebaseAuth
 ) : ViewModel() {
@@ -52,6 +55,7 @@ class EditSessionsViewModel(
 
         viewModelScope.launch {
             db.sessionDao().applyRemoteSessionReplacePlayers(sessionEntity, playerEntities)
+            SyncScheduler.enqueueOneTimeSessionsSync(context)
         }
     }
 

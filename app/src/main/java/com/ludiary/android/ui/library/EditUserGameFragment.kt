@@ -40,6 +40,7 @@ class EditUserGameFragment : Fragment(R.layout.form_user_game) {
         val repository: UserGamesRepository = UserGamesRepositoryImpl(local, remote)
 
         EditUserGameViewModelFactory(
+            context = appContext,
             uid = FirebaseAuth.getInstance().currentUser!!.uid,
             repository = repository
         )

@@ -35,6 +35,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import android.view.View
 import com.ludiary.android.auth.AuthActivity
+import android.widget.TextView
+import androidx.core.view.isVisible
+import com.ludiary.android.util.NetworkStatusTracker
+import com.ludiary.android.util.NetworkStatus
 
 class MainActivity : AppCompatActivity() {
 
@@ -103,6 +107,15 @@ class MainActivity : AppCompatActivity() {
         setupBottomNavigation(bottomNav, navController)
         setupDestinationFixes(bottomNav, navController)
         setupSyncScheduling()
+
+        // Monitor de red
+        val tvOfflineStatus = findViewById<TextView>(R.id.tvOfflineStatus)
+        val networkTracker = NetworkStatusTracker(this)
+        lifecycleScope.launch {
+            networkTracker.networkStatus.collect { status ->
+                tvOfflineStatus.isVisible = (status == NetworkStatus.Unavailable)
+            }
+        }
 
         // Notificaciones del sistema: canal + permiso
         ensureNotificationChannel()

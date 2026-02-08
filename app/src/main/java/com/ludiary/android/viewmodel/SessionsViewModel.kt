@@ -1,5 +1,6 @@
 package com.ludiary.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.ludiary.android.R
 import com.ludiary.android.data.local.LudiaryDatabase
 import com.ludiary.android.data.local.entity.SessionEntity
 import com.ludiary.android.data.model.SessionScope
+import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -27,10 +29,12 @@ data class SessionsUiState(
 
 /**
  * ViewModel para la pantalla de sesiones.
+ * @property context Contexto de la aplicación.
  * @property db Instancia de [LudiaryDatabase].
  * @property auth Instancia de [FirebaseAuth].
  */
 class SessionsViewModel(
+    private val context: Context,
     private val db: LudiaryDatabase,
     private val auth: FirebaseAuth
 ) : ViewModel() {
@@ -78,6 +82,7 @@ class SessionsViewModel(
                 sessionId = sessionId,
                 now = System.currentTimeMillis()
             )
+            SyncScheduler.enqueueOneTimeSessionsSync(context)
         }
     }
 }
@@ -88,11 +93,12 @@ class SessionsViewModel(
  * @property auth Instancia de [FirebaseAuth].
  */
 class SessionsViewModelFactory(
+    private val context: Context,
     private val db: LudiaryDatabase,
     private val auth: FirebaseAuth
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SessionsViewModel(db, auth) as T
+        return SessionsViewModel(context, db, auth) as T
     }
 }

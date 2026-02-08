@@ -94,7 +94,7 @@ class EditSessionFragment : Fragment(R.layout.form_edit_session) {
         val appContext = requireContext().applicationContext
         val db = LudiaryDatabase.getInstance(appContext)
         val auth = FirebaseAuth.getInstance()
-        val factory = EditSessionsViewModelFactory(db, auth)
+        val factory = EditSessionsViewModelFactory(appContext, db, auth)
         vm = ViewModelProvider(this, factory)[EditSessionsViewModel::class.java]
     }
 

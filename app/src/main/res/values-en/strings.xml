@@ -218,6 +218,7 @@
     <string name="friends_remove_title">Remove friend</string>
     <string name="friends_remove_message">Are you sure you want to delete this friend?</string>
 
+    <string name="status_offline">No connection</string>
     <string name="notifications">Notifications</string>
     <string name="error_permission">You don’t have permission for this action</string>
     <string name="error_offline_retry">Offline. Will retry automatically</string>

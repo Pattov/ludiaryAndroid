@@ -1,9 +1,11 @@
 package com.ludiary.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludiary.android.data.model.UserGame
 import com.ludiary.android.data.repository.library.UserGamesRepository
+import com.ludiary.android.sync.SyncScheduler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -14,6 +16,7 @@ import java.util.UUID
  * ViewModel para la pantalla de creación y edición de juegos del usuario.
  */
 class EditUserGameViewModel (
+    private val context: Context,
     private val uid: String,
     private val repository: UserGamesRepository
 ) : ViewModel() {
@@ -86,6 +89,7 @@ class EditUserGameViewModel (
 
             viewModelScope.launch {
                 repository.addUserGame(uid, newGame)
+                SyncScheduler.enqueueOneTimeUserGamesSync(context)
                 sendEvent(EditUserGameEvent.CloseScreen("Juego guardado"))
             }
 
@@ -106,6 +110,7 @@ class EditUserGameViewModel (
 
             viewModelScope.launch {
                 repository.updateUserGame(uid, updated)
+                SyncScheduler.enqueueOneTimeUserGamesSync(context)
                 sendEvent(EditUserGameEvent.CloseScreen("Juego actualizado"))
             }
         }
